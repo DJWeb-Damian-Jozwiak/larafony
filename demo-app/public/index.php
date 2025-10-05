@@ -6,12 +6,15 @@ use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\Enums\Timezone;
 use Larafony\Framework\Clock\SystemClock;
+use Larafony\Framework\Container\Container;
 use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
+use Larafony\Framework\ErrorHandler\ServiceProviders\ErrorHandlerServiceProvider;
 use Uri\Rfc3986\Uri;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-new DetailedErrorHandler()->register();
+$container = new Container();
+new ErrorHandlerServiceProvider()->register($container)->boot($container);
 
 $path = new Uri($_SERVER['REQUEST_URI'])->getPath();
 
