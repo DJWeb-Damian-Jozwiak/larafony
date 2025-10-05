@@ -10,19 +10,23 @@ use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\Exceptions\NotFoundError;
 use Larafony\Framework\Container\Helpers\DotContainer;
 use Larafony\Framework\Container\Resolvers\Autowire;
+use Larafony\Framework\Core\Support\Str;
 use NoDiscard;
 
 class Container implements ContainerContract
 {
+    public private(set) DeferredServiceLoader $deferredLoader;
     /**
      * @var array<string, string|int|float|bool|null>
      */
     private array $bindings = [];
+
     public function __construct(
         private ?AutowireContract $autowire = null,
         private readonly ArrayContract $entries = new DotContainer(),
     ) {
         $this->autowire ??= new Autowire($this);
+        $this->deferredLoader = new DeferredServiceLoader($this);
     }
     public function bind(string $key, float|bool|int|string|null $value): void
     {
@@ -55,22 +59,39 @@ class Container implements ContainerContract
     #[NoDiscard]
     public function get(string $id): mixed
     {
-        if (!$this->entries->has($id)) {
-            return $this->autowire->instantiate($id);
+        // Check deferred cache first (since isDeferred returns false after loading)
+        $cached = $this->deferredLoader->getCached($id);
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        if ($this->deferredLoader->isDeferred($id)) {
+            /** @phpstan-ignore-next-line */
+            return $this->deferredLoader->load($id);
+        }
+
+        if (! $this->entries->has($id)) {
+            return $this->autowire?->instantiate($id);
         }
 
         $value = $this->entries->get($id);
 
-        // If the stored value is a class-string, autowire it
-        if (is_string($value) && class_exists($value)) {
-            return $this->autowire->instantiate($value);
-        }
-
-        return $value;
+        return Str::isClassString($value) ? $this->autowire?->instantiate($value) : $value;
     }
 
     public function has(string $id): bool
     {
-        return $this->entries->has($id);
+        return $this->deferredLoader->isDeferred($id) || $this->entries->has($id);
+    }
+
+    /**
+     * Register a deferred service provider.
+     *
+     * @param class-string<\Larafony\Framework\Container\Contracts\ServiceProviderContract> $providerClass
+     */
+    public function registerDeferred(string $providerClass): self
+    {
+        $this->deferredLoader->registerDeferred($providerClass);
+        return $this;
     }
 }

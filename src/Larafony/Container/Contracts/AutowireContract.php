@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Container\Contracts;
 
-use Larafony\Framework\Container\Exceptions\NotFoundError;
-
 interface AutowireContract
 {
     /**

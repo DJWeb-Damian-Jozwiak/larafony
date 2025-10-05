@@ -10,6 +10,9 @@ use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
 
 class ErrorHandlerServiceProvider extends ServiceProvider
 {
+    /**
+     * @var array<int|string, class-string>
+     */
     public array $providers {
         get => [DetailedErrorHandler::class];
     }
@@ -29,6 +32,4 @@ class ErrorHandlerServiceProvider extends ServiceProvider
         $item = $container->get(DetailedErrorHandler::class);
         $item->register();
     }
-
-
 }

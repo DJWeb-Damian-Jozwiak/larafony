@@ -365,6 +365,64 @@ class ServiceProviderTest extends TestCase
     }
 }
 ```
+### Deferred Service Providers
+
+Improve boot time by lazy-loading services only when needed:
+
+```php
+use Larafony\Framework\Container\Attributes\Deferred;
+use Larafony\Framework\Container\ServiceProvider;
+
+#[Deferred(
+    provides: [HeavyService::class, AnotherService::class]
+)]
+class HeavyServiceProvider extends ServiceProvider
+{
+    public array $providers {
+        get => [
+            HeavyService::class,
+            AnotherService::class,
+        ];
+    }
+
+    public function boot(ContainerContract $container): void
+    {
+        // This only runs when service is first requested
+        echo "HeavyServiceProvider booted\n";
+    }
+}
+
+// Register deferred provider
+$container->registerDeferred(HeavyServiceProvider::class);
+
+// Provider NOT loaded yet - boot time saved!
+// ...
+
+// First request triggers provider loading
+$service = $container->get(HeavyService::class);
+// Output: "HeavyServiceProvider booted"
+
+// Subsequent requests use cached instance (singleton: true)
+$same = $container->get(HeavyService::class);
+```
+
+**Parameters:**
+- `provides`: Array of service class-strings this provider offers
+- `singleton`: Whether to cache instances (default: `true`)
+
+**Benefits:**
+- Faster application boot
+- Services loaded only when needed
+- Automatic singleton caching
+- Asymmetric visibility for loader access
+
+```php
+// Access deferred loader (read-only from outside)
+$loader = $container->deferredLoader;
+$services = $loader->getDeferredServices();
+$isLoaded = $loader->isProviderLoaded(HeavyServiceProvider::class);
+```
+
 ### Lazy Loading
 
 The container resolves dependencies only when requested:
@@ -428,24 +486,58 @@ cd framework
 composer test -- tests/Larafony/Container/
 ```
 
-All Container tests: **17 tests, 31 assertions**
+All Container tests: **26 tests** (including 9 deferred service tests)
+
+### Deferred Service Tests
+
+```php
+use PHPUnit\Framework\TestCase;
+use Larafony\Framework\Container\Attributes\Deferred;
+
+class MyDeferredTest extends TestCase
+{
+    public function testDeferredProviderNotLoadedImmediately(): void
+    {
+        $container = new Container();
+        $container->registerDeferred(MyDeferredProvider::class);
+
+        // Provider not loaded yet
+        $this->assertFalse(
+            $container->deferredLoader->isProviderLoaded(MyDeferredProvider::class)
+        );
+    }
+
+    public function testDeferredProviderLoadedOnDemand(): void
+    {
+        $container = new Container();
+        $container->registerDeferred(MyDeferredProvider::class);
+
+        $service = $container->get(MyService::class);
+
+        // Now provider is loaded
+        $this->assertTrue(
+            $container->deferredLoader->isProviderLoaded(MyDeferredProvider::class)
+        );
+    }
+}
+```
 
 ### Key Differences from Other Containers
 
-| Feature                    | Laravel Container | Symfony DI                           | **Larafony Container**     |
-|---------------------------|-------------------|--------------------------------------|----------------------------|
-| Autowiring                | ✓                 | ✓                                    | **✓**                      |
-| PSR-11                    | ✓                 | ✓                                    | **✓**                      |
-| Service Providers         | ✓                 | ✗                                    | **✓**                      |
-| Dot Notation              | ✗                 | ✗                                    | **✓**                      |
-| Zero Config (by default)  | ✓                 | config-first (autowiring available)  | **✓**                      |
-| Reflection-based Runtime  | ✓                 | ✗ (compiled container)               | **✓**                      |
-| Property Hooks (PHP 8.5)  | ✗                 | ✗                                    | **✓**                      |
-| Tagged Services           | ✓                 | ✓                                    | **✓**                      |
-| Contextual Binding        | ✓                 | ✓                                    | **✓**                      |
-| Deferred/Lazy Services    | ~ (patterns)      | ✓ (proxies)                          | **✓ (opt-in / planned)**   |
-| Freeze After Boot         | ✗                 | ✓ (compiled)                         | **✓**                      |
-| Boot Priority             | registration order| n/a (no providers)                   | **✓ registration order**  |
+| Feature                    | Laravel Container | Symfony DI                           | **Larafony Container**    |
+|---------------------------|-------------------|--------------------------------------|---------------------------|
+| Autowiring                | ✓                 | ✓                                    | **✓**                     |
+| PSR-11                    | ✓                 | ✓                                    | **✓**                     |
+| Service Providers         | ✓                 | ✗                                    | **✓**                     |
+| Dot Notation              | ✗                 | ✗                                    | **✓**                     |
+| Zero Config (by default)  | ✓                 | config-first (autowiring available)  | **✓**                     |
+| Reflection-based Runtime  | ✓                 | ✗ (compiled container)               | **✓**                     |
+| Property Hooks (PHP 8.5)  | ✗                 | ✗                                    | **✓**                     |
+| Tagged Services           | ✓                 | ✓                                    | **✓**                     |
+| Contextual Binding        | ✓                 | ✓                                    | **✓**                     |
+| Deferred/Lazy Services    | ~ (patterns)      | ✓ (proxies)                          | **✓**   |
+| Freeze After Boot         | ✗                 | ✓ (compiled)                         | **✓**                     |
+| Boot Priority             | registration order| n/a (no providers)                   | **✓ registration order** |
 
 #### Notes
 
@@ -458,7 +550,7 @@ All Container tests: **17 tests, 31 assertions**
 - **Property Hooks (PHP 8.5)** — Larafony can lazily resolve dependencies when a property is first accessed (clean ergonomics for framework internals). Requires PHP 8.4+.
 - **Tagged Services** — Useful for registries/pipelines (e.g., HTTP middleware). Supported in all three; Larafony provides simple `tag()` / `tagged()` helpers.
 - **Contextual Binding** — Choose different implementations per consumer (e.g., `ClockInterface` for a specific service). Supported across the board; Larafony offers a `when()->needs()->give()` style API.
-- **Deferred/Lazy Services** — Symfony supports lazy services via generated proxies. Laravel no longer has “deferred providers” but lazy patterns are possible. Larafony offers opt-in deferred providers/lazy closures (planned).
+- **Deferred/Lazy Services** — Symfony supports lazy services via generated proxies. Laravel no longer has "deferred providers" but lazy patterns are possible. Larafony offers opt-in deferred providers via `#[Deferred]` attribute with automatic singleton caching.
 - **Freeze After Boot** — Larafony can lock the container after boot to prevent accidental mutations. Symfony’s compiled container is effectively read-only; Laravel keeps the container mutable.
 - **Boot Priority** — Laravel and Larafony rely on registration order; Symfony doesn’t use providers.
 

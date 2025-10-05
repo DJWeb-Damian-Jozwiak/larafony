@@ -47,7 +47,7 @@ class Autowire implements AutowireContract
             return $reflectionClass->newInstance();
         }
 
-        $parameters = $this->resolver->getConstructorParameters($className);
+        $parameters = $this->resolver?->getConstructorParameters($className) ?? [];
         $arguments = $this->resolveParameters($parameters);
 
         return $reflectionClass->newInstanceArgs($arguments);
@@ -65,20 +65,20 @@ class Autowire implements AutowireContract
         return array_map(function (ReflectionParameter $parameter) {
             $parameterName = $parameter->getName();
             /** @var string $type */
-            $type = $this->resolver->getParameterType($parameter);
+            $type = $this->resolver?->getParameterType($parameter);
 
             return match (true) {
                 // 1. return given value if exists
                 $this->container->has($parameterName) => $this->container->get($parameterName),
                 $this->container->has($type) => $this->container->get($type),
                 // 2. return default value if exist
-                $this->resolver->hasDefaultValue($parameter) => $this->resolver->getDefaultValue($parameter),
+                $this->resolver?->hasDefaultValue($parameter) => $this->resolver->getDefaultValue($parameter),
 
                 // 3. return null if allowed
-                $this->resolver->allowsNull($parameter) => null,
+                $this->resolver?->allowsNull($parameter) => null,
 
                 // 4. for builtin types return default value
-                $type && $this->isBuiltInType($type) => $this->resolver->getDefaultValueForBuiltInType($type),
+                $type && $this->isBuiltInType($type) => $this->resolver?->getDefaultValueForBuiltInType($type),
 
                 // 5. for object check recursively
                 $type && class_exists($type) => $this->instantiate($type),

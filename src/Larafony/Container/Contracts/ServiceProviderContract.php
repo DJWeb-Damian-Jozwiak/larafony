@@ -14,8 +14,6 @@ interface ServiceProviderContract
      * Register services in the given container.
      *
      * @param ContainerContract $container The container to register services in
-     *
-     * @return void
      */
     public function register(ContainerContract $container): self;
 
