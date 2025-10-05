@@ -1,0 +1,27 @@
+{
+    "name": "larafony/demo-app",
+    "description": "Demo application showcasing Larafony Framework features",
+    "type": "project",
+    "require": {
+        "php": ">=8.5",
+        "larafony/framework": "@dev"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

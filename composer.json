@@ -10,7 +10,8 @@
         }
     ],
     "require": {
-        "php": ">=8.5"
+        "php": ">=8.5",
+        "ext-uri": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.4.0",
