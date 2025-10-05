@@ -61,7 +61,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Simple error handling — [Chapter 2](docs/Larafony/chapter2.md)
 - [x] Simple timer using PSR-20 (Simple Carbon replacement) — [Chapter 3](docs/Larafony/chapter3.md)
 - [x] Dependency Injection using PSR-11 — [Chapter 4](docs/Larafony/chapter4.md)
-- [ ] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — Chapter 5 
+- [x] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 5](docs/Larafony/chapter5.md) 
 
 ### 🌐 HTTP Layer
 - [ ] Routing using PSR-15 — Chapter 6
