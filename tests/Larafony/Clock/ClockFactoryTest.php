@@ -38,7 +38,7 @@ final class ClockFactoryTest extends TestCase
     public function testSetInstanceAllowsCustomClock(): void
     {
         $customClock = new FrozenClock('2024-01-15 12:00:00');
-        ClockFactory::setInstance($customClock);
+        ClockFactory::withInstance($customClock);
 
         $this->assertSame($customClock, ClockFactory::instance());
     }
@@ -46,7 +46,7 @@ final class ClockFactoryTest extends TestCase
     public function testResetClearsCustomInstance(): void
     {
         $customClock = new FrozenClock('2024-01-15 12:00:00');
-        ClockFactory::setInstance($customClock);
+        ClockFactory::withInstance($customClock);
         ClockFactory::reset();
 
         $clock = ClockFactory::instance();
@@ -256,7 +256,7 @@ final class ClockFactoryTest extends TestCase
             }
         };
 
-        ClockFactory::setInstance($customClock);
+        ClockFactory::withInstance($customClock);
 
         $this->assertSame('2099-12-31 23:59:59', ClockFactory::now()->format('Y-m-d H:i:s'));
         $this->assertSame('custom-format', ClockFactory::format(TimeFormat::DATE));

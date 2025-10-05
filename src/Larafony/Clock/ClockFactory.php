@@ -29,7 +29,7 @@ final class ClockFactory
     /**
      * Set a custom clock instance (useful for testing).
      */
-    public static function setInstance(Clock $clock): void
+    public static function withInstance(Clock $clock): void
     {
         self::$instance = $clock;
     }
