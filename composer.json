@@ -1,0 +1,53 @@
+{
+    "name": "larafony/framework",
+    "description": "Larafony is a modern PHP 8.5 framework combining the elegance of Laravel, the stability of Symfony, and the power of PSR standards — built for production, not tutorials. Minimal dependencies, full PSR support, custom middleware stack, and analytics without cookies or Google.",
+    "keywords": ["php", "framework", "laravel", "symfony", "psr", "http", "middleware", "container", "inertia", "vue", "twig", "blade", "php8", "modern", "clean-code"],
+    "homepage": "https://masterphp.eu/",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Damian Jóźwiak - masterphp.eu"
+        }
+    ],
+    "require": {
+        "php": ">=8.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.4.0",
+        "phpstan/phpstan": "^2.1.30",
+        "nunomaduro/phpinsights": "dev-master"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Larafony\\Framework\\": "src/Larafony/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Larafony\\Framework\\Tests\\": "tests/Larafony/"
+        }
+    },
+    "scripts": {
+        "test": "php8.5 vendor/bin/phpunit --no-coverage",
+        "test-coverage": "php8.5 vendor/bin/phpunit --coverage-text",
+        "test-coverage-html": "php8.5 vendor/bin/phpunit --coverage-html coverage",
+        "analyse": "php8.5 vendor/bin/phpstan analyse --memory-limit=512M",
+        "insights": "php8.5 vendor/bin/phpinsights",
+        "insights:fix": "php8.5 vendor/bin/phpinsights --fix",
+        "insights:quality": "php8.5 vendor/bin/phpinsights --min-quality=95 --min-complexity=95 --min-architecture=95 --min-style=95 --no-interaction",
+        "quality": [
+            "@analyse",
+            "@test",
+            "@insights:quality"
+        ]
+    },
+
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

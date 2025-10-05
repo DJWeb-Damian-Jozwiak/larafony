@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    excludePaths:
+        - */vendor/*
+        - */tests/*
+
+    ignoreErrors:
+        # PHPStan doesn't support PHP 8.5 'clone with' syntax yet
+        - identifier: return.type
+        - identifier: propertyGetHook.noRead
