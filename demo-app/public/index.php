@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use Larafony\Framework\Clock\ClockFactory;
+use Larafony\Framework\Clock\Enums\TimeFormat;
+use Larafony\Framework\Clock\Enums\Timezone;
+use Larafony\Framework\Clock\SystemClock;
 use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
 use Uri\Rfc3986\Uri;
 
@@ -23,6 +27,8 @@ function handleHome(): void
 {
     echo '<h1>Larafony Framework Demo</h1>';
     echo '<p>Error Handler is active. Try these endpoints:</p>';
+    echo '<p>Now is ' . ClockFactory::timezone(Timezone::EUROPE_WARSAW)
+            ->format(TimeFormat::DATETIME) . '</p>';
     echo '<ul>';
     echo '<li><a href="/error">Trigger E_WARNING</a></li>';
     echo '<li><a href="/exception">Trigger Exception</a></li>';
