@@ -302,6 +302,13 @@ Ensure proper permissions:
 chmod -R 755 src/ tests/
 ```
 
+## Web Server Configuration
+
+For production deployment, you'll need to configure a web server:
+
+- [Apache Configuration Guide](../apache.md) - Complete Apache setup with virtual hosts, SSL, and optimization
+- [Nginx Configuration Guide](../nginx.md) - Complete Nginx setup with PHP-FPM, SSL, and performance tuning
+
 ## Summary
 
 Chapter 1 establishes:
