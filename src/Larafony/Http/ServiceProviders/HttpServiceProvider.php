@@ -21,6 +21,9 @@ use Psr\Http\Message\UriFactoryInterface;
 
 class HttpServiceProvider extends \Larafony\Framework\Container\ServiceProvider
 {
+    /**
+     * @var array<string, class-string> $providers
+     */
     public array $providers {
         get => [
             RequestFactoryInterface::class => RequestFactory::class,
@@ -41,6 +44,4 @@ class HttpServiceProvider extends \Larafony\Framework\Container\ServiceProvider
         );
         return $this;
     }
-
-
 }

@@ -9,7 +9,6 @@ use Psr\Http\Message\ServerRequestInterface;
 
 // Test PHP 8.5 first-class callable in const expression
 
-
 /**
  * @var \Larafony\Framework\Web\Application $app
  */
@@ -20,7 +19,6 @@ $app->withServiceProviders([
 ]);
 // Get PSR-7 request from container
 $request = $app->get(ServerRequestInterface::class);
-
 
 // Simple routing based on path (until routing chapter)
 $path = $request->getUri()->getPath();
@@ -38,5 +36,3 @@ $response = match ($path) {
 
 // Emit PSR-7 response
 $app->emit($response);
-
-

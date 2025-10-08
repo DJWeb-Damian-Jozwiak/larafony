@@ -6,7 +6,6 @@ namespace Larafony\Framework\Web;
 
 use Larafony\Framework\Container\Container;
 use Larafony\Framework\Container\Contracts\ServiceProviderContract;
-use Larafony\Framework\Container\ServiceProvider;
 use Psr\Http\Message\ResponseInterface;
 
 final class Application extends Container
@@ -18,7 +17,6 @@ final class Application extends Container
         if ($this->base_path !== null) {
             $this->bind('base_path', $this->base_path);
         }
-
     }
     public static function instance(?string $base_path = null): Application
     {
@@ -33,7 +31,7 @@ final class Application extends Container
     {
         array_walk(
             $serviceProviders,
-            fn(string $provider) => $this->get($provider)->register($this)->boot($this)
+            fn (string $provider) => $this->get($provider)->register($this)->boot($this)
         );
         return $this;
     }
