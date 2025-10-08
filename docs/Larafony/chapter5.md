@@ -130,6 +130,41 @@ $factory = new RequestFactory();
 $request = $factory->createRequest('GET', 'https://example.com/api');
 ```
 
+### Creating Server Request from Globals
+
+```php
+use Larafony\Framework\Http\Factories\ServerRequestFactory;
+
+$factory = new ServerRequestFactory();
+$request = $factory->createServerRequestFromGlobals();
+
+// Access request data
+echo $request->getMethod(); // "GET", "POST", etc.
+echo $request->getUri()->getPath(); // "/users/123"
+$queryParams = $request->getQueryParams(); // $_GET
+$parsedBody = $request->getParsedBody(); // $_POST or JSON body
+```
+
+### Creating and Manipulating Responses
+
+```php
+use Larafony\Framework\Http\Factories\ResponseFactory;
+
+$factory = new ResponseFactory();
+$response = $factory->createResponse(200);
+
+// HTML response
+$response = $response
+    ->withContent('<h1>Hello World</h1>')
+    ->withHeader('Content-Type', 'text/html; charset=utf-8');
+
+// JSON response (convenience method)
+$response = $response->withJson(['status' => 'success', 'data' => ['id' => 1]]);
+
+// Redirect
+$response = $response->redirect('/dashboard', 302);
+```
+
 ### Working with Streams
 
 ```php
@@ -155,37 +190,67 @@ echo $uri->getScheme(); // "https"
 echo $uri->getPath();   // "/path"
 ```
 
-## Files Structure
+### Integration with Application
 
+The HTTP layer integrates with the Application class through the `HttpServiceProvider`:
+
+```php
+// bootstrap/web_app.php
+use Larafony\Framework\Web\Application;
+use Larafony\Framework\Http\ServiceProviders\HttpServiceProvider;
+
+$app = Application::instance();
+$app->withServiceProviders([
+    HttpServiceProvider::class,
+]);
+
+return $app;
 ```
-src/Larafony/
-├── Http/
-│   ├── Request.php
-│   ├── Response.php
-│   ├── Stream.php
-│   ├── Uri.php
-│   ├── UploadedFile.php
-│   ├── ServerRequest.php
-│   ├── Factories/
-│   └── Helpers/
-│       └── Stream/
-└── Core/
-    └── Support/
-        └── InactivePropertyGuard.php
 
-tests/Larafony/
-├── Http/
-│   ├── RequestTest.php
-│   ├── ResponseTest.php
-│   ├── StreamTest.php
-│   ├── UriTest.php
-│   └── Factories/
-│       ├── RequestFactoryTest.php
-│       ├── ResponseFactoryTest.php
-│       └── ...
-└── Core/
-    └── Support/
-        └── InactivePropertyGuardTest.php
+The provider registers all PSR-17 factories and creates a `ServerRequestInterface` from globals:
+
+```php
+// public/index.php
+use Psr\Http\Message\ServerRequestInterface;
+
+$app = require_once __DIR__ . '/../bootstrap/web_app.php';
+
+// Get PSR-7 request from container
+$request = $app->get(ServerRequestInterface::class);
+
+// Handle request and create response
+$response = $controller->handle($request);
+
+// Emit response using Application
+$app->emit($response);
+```
+
+### Response Emitter
+
+The `Application::emit()` method handles emitting PSR-7 responses:
+
+```php
+// In Application class
+public function emit(ResponseInterface $response): void
+{
+    // Emit status line
+    header(sprintf(
+        'HTTP/%s %d %s',
+        $response->getProtocolVersion(),
+        $response->getStatusCode(),
+        $response->getReasonPhrase()
+    ), true, $response->getStatusCode());
+
+    // Emit headers
+    foreach ($response->getHeaders() as $name => $values) {
+        foreach ($values as $value) {
+            header(sprintf('%s: %s', $name, $value), false);
+        }
+    }
+
+    // Emit body
+    echo $response->getBody();
+}
 ```
 
 ## Key Differences from Other HTTP Implementations
@@ -200,17 +265,19 @@ tests/Larafony/
 | Immutability               | Mutable      | Mutable                | **✓**             |
 | Zero Dependencies          | ✗            | ✗                      | **✓ (PSR only)**  |
 | Stream Guards              | ✗            | ✗                      | **✓ (InactivePropertyGuard)** |
+| Service Provider Integration | Laravel's IoC | Symfony DI | **✓ (PSR-11 Container)** |
 
 #### Notes
 
-- **PSR-7 Compatible** — Laravel’s and Symfony’s primary HTTP layers are mutable by design (DX-first). Larafony follows strict PSR-7 immutability: all mutations happen via `with*()` returning a new instance. *(Both ecosystems offer bridges/adapters for PSR-7 interop, but their core HTTP objects are not PSR-7.)*
+- **PSR-7 Compatible** — Laravel's and Symfony's primary HTTP layers are mutable by design (DX-first). Larafony follows strict PSR-7 immutability: all mutations happen via `with*()` returning a new instance. *(Both ecosystems offer bridges/adapters for PSR-7 interop, but their core HTTP objects are not PSR-7.)*
 - **PSR-17 Factories** — Larafony implements the standard factory interfaces for creating PSR-7 objects (requests, responses, streams, URIs, uploaded files). Laravel HTTP and Symfony HttpFoundation do not expose PSR-17 factories in their core; interop exists via separate adapters.
 - **Property Hooks (PHP 8.4+)** — Used internally for clean, lazy, and guarded property access (e.g., parsed headers, body size) without leaking mutability into public APIs.
-- **Native `Uri` class** — Larafony uses PHP’s RFC-3986 `Uri\Rfc3986\Uri` and exposes it through PSR-7’s `UriInterface` (no mutable wrappers). Interop remains straightforward.
+- **Native `Uri` class** — Larafony uses PHP's RFC-3986 `Uri\Rfc3986\Uri` and exposes it through PSR-7's `UriInterface` (no mutable wrappers). Interop remains straightforward.
 - **Clone-with syntax (PHP 8.5+)** — Where available in your PHP runtime, Larafony supports the ergonomic `clone($obj, ['prop' => $value])` style; otherwise it provides equivalent PSR-7 `with*()` methods.
 - **Immutability** — Larafony enforces immutability across request/response/URI/stream objects per PSR-7, favoring predictability and safe sharing. DX sugar is provided without sacrificing immutability.
 - **Stream Guards** — `InactivePropertyGuard` and light checks prevent invalid operations on streams (e.g., read after `detach()`/`close()`, write to non-writable, rewind on non-seekable), improving runtime safety.
 - **Zero Dependencies** — Only `psr/*` packages are required; no heavy runtime deps. Designed for easy interop with PSR-18 clients and PSR-15 middleware.
+- **Service Provider Integration** — The `HttpServiceProvider` registers all PSR-17 factories in the PSR-11 container and creates a `ServerRequestInterface` from globals, making the request available throughout the application via dependency injection.
 
 ## Related Documentation
 

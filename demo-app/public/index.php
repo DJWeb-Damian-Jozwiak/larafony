@@ -2,62 +2,41 @@
 
 declare(strict_types=1);
 
-use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\Clock\Enums\TimeFormat;
-use Larafony\Framework\Clock\Enums\Timezone;
-use Larafony\Framework\Container\Container;
+use App\Http\Controllers\DemoController;
 use Larafony\Framework\ErrorHandler\ServiceProviders\ErrorHandlerServiceProvider;
-use Uri\Rfc3986\Uri;
+use Larafony\Framework\Http\ServiceProviders\HttpServiceProvider;
+use Psr\Http\Message\ServerRequestInterface;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// Test PHP 8.5 first-class callable in const expression
 
-$container = new Container();
-new ErrorHandlerServiceProvider()->register($container)->boot($container);
 
-$path = new Uri($_SERVER['REQUEST_URI'])->getPath();
+/**
+ * @var \Larafony\Framework\Web\Application $app
+ */
+$app = require_once __DIR__ . '/../bootstrap/web_app.php';
+$app->withServiceProviders([
+    ErrorHandlerServiceProvider::class,
+    HttpServiceProvider::class,
+]);
+// Get PSR-7 request from container
+$request = $app->get(ServerRequestInterface::class);
 
-match ($path) {
-    '/' => handleHome(),
-    '/error' => handleError(),
-    '/exception' => handleException(),
-    '/fatal' => handleFatal(),
-    default => handleNotFound(),
+
+// Simple routing based on path (until routing chapter)
+$path = $request->getUri()->getPath();
+
+$controller = $app->get(DemoController::class);
+
+$response = match ($path) {
+    '/' => $controller->home($request),
+    '/info' => $controller->info($request),
+    '/error' => $controller->handleError($request),
+    '/exception' => $controller->handleException($request),
+    '/fatal' => $controller->handleFatal($request),
+    default => $controller->handleNotFound($request),
 };
 
-function handleHome(): void
-{
-    echo '<h1>Larafony Framework Demo</h1>';
-    echo '<p>Error Handler is active. Try these endpoints:</p>';
-    echo '<p>Now is ' . ClockFactory::timezone(Timezone::EUROPE_WARSAW)
-        ->format(TimeFormat::DATETIME) . '</p>';
-    echo '<ul>';
-    echo '<li><a href="/error">Trigger E_WARNING</a></li>';
-    echo '<li><a href="/exception">Trigger Exception</a></li>';
-    echo '<li><a href="/fatal">Trigger Fatal Error</a></li>';
-    echo '</ul>';
-}
+// Emit PSR-7 response
+$app->emit($response);
 
-function handleError(): void
-{
-    // Trigger a warning
-    trigger_error('This is a triggered warning', E_USER_WARNING);
-    echo '<p>Warning triggered! Check the error handler output.</p>';
-}
 
-function handleException(): void
-{
-    throw new RuntimeException('This is a test exception');
-}
-
-function handleFatal(): void
-{
-    // Call undefined function to trigger fatal error
-    undefinedFunction();
-}
-
-function handleNotFound(): void
-{
-    http_response_code(404);
-    echo '<h1>404 Not Found</h1>';
-    echo '<p><a href="/">Go back home</a></p>';
-}

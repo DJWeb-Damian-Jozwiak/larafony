@@ -20,4 +20,7 @@ abstract class ServiceProvider implements ServiceProviderContract
         }
         return $this;
     }
+    public function boot(ContainerContract $container): void
+    {
+    }
 }
