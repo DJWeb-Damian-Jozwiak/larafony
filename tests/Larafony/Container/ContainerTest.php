@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Tests\Container;
 
 use Larafony\Framework\Container\Container;
+use Larafony\Framework\Web\Application;
 use PHPUnit\Framework\TestCase;
 
 final class ContainerTest extends TestCase
@@ -13,7 +14,7 @@ final class ContainerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->container = new Container();
+        $this->container = Application::instance();
     }
 
     public function testBindings(): void
