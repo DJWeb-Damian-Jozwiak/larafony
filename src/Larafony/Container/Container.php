@@ -15,7 +15,6 @@ use NoDiscard;
 
 class Container implements ContainerContract
 {
-    public private(set) DeferredServiceLoader $deferredLoader;
     /**
      * @var array<string, string|int|float|bool|null>
      */
@@ -26,7 +25,6 @@ class Container implements ContainerContract
         private readonly ArrayContract $entries = new DotContainer(),
     ) {
         $this->autowire ??= new Autowire($this);
-        $this->deferredLoader = new DeferredServiceLoader($this);
     }
     public function bind(string $key, float|bool|int|string|null $value): void
     {
@@ -56,23 +54,9 @@ class Container implements ContainerContract
         return $this;
     }
 
-    /**
-     * @param class-string $id
-     */
     #[NoDiscard]
     public function get(string $id): mixed
     {
-        // Check deferred cache first (since isDeferred returns false after loading)
-        $cached = $this->deferredLoader->getCached($id);
-        if ($cached !== null) {
-            return $cached;
-        }
-
-        if ($this->deferredLoader->isDeferred($id)) {
-            /** @phpstan-ignore-next-line */
-            return $this->deferredLoader->load($id);
-        }
-
         if (! $this->entries->has($id)) {
             return $this->autowire?->instantiate($id);
         }
@@ -84,17 +68,6 @@ class Container implements ContainerContract
 
     public function has(string $id): bool
     {
-        return $this->deferredLoader->isDeferred($id) || $this->entries->has($id);
-    }
-
-    /**
-     * Register a deferred service provider.
-     *
-     * @param class-string<\Larafony\Framework\Container\Contracts\ServiceProviderContract> $providerClass
-     */
-    public function registerDeferred(string $providerClass): self
-    {
-        $this->deferredLoader->registerDeferred($providerClass);
-        return $this;
+        return $this->entries->has($id);
     }
 }
