@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Larafony\Framework\Web;
 
 use Larafony\Framework\Container\Container;
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\Contracts\ServiceProviderContract;
-use Psr\Http\Message\ResponseInterface;
+use Larafony\Framework\Http\Factories\ServerRequestFactory;
 
 final class Application extends Container
 {
@@ -14,6 +15,7 @@ final class Application extends Container
     protected function __construct(public private(set) ?string $base_path = null)
     {
         parent::__construct();
+        $this->set(ContainerContract::class, $this);
         if ($this->base_path !== null) {
             $this->bind('base_path', $this->base_path);
         }
@@ -24,6 +26,13 @@ final class Application extends Container
         return self::$instance;
     }
 
+    public function withRoutes(callable $callback): self
+    {
+        $kernel = $this->get(Kernel::class);
+        $kernel->withRoutes($callback);
+        return $this;
+    }
+
     /**
      * @param array<int, class-string<ServiceProviderContract>> $serviceProviders
      */
@@ -31,32 +40,16 @@ final class Application extends Container
     {
         array_walk(
             $serviceProviders,
-            fn (string $provider) => $this->get($provider)->register($this)->boot($this)
+            fn (string $provider) => $this->get($provider)->register($this)->boot($this),
         );
         return $this;
     }
 
-    /**
-     * Emit PSR-7 response to the output buffer
-     */
-    public function emit(ResponseInterface $response): void
+    public function run(): void
     {
-        // Emit status line
-        header(sprintf(
-            'HTTP/%s %d %s',
-            $response->getProtocolVersion(),
-            $response->getStatusCode(),
-            $response->getReasonPhrase()
-        ), true, $response->getStatusCode());
-
-        // Emit headers
-        foreach ($response->getHeaders() as $name => $values) {
-            foreach ($values as $value) {
-                header(sprintf('%s: %s', $name, $value), false);
-            }
-        }
-
-        // Emit body
-        echo $response->getBody();
+        $kernel = $this->get(Kernel::class);
+        $request = $this->get(ServerRequestFactory::class)->createServerRequestFromGlobals();
+        $response = $kernel->handle($request);
+        echo $response->getBody()->getContents();
     }
 }

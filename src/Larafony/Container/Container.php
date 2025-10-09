@@ -49,6 +49,9 @@ class Container implements ContainerContract
      */
     public function set(string $key, mixed $value): Contracts\ContainerContract
     {
+        if (Str::isClassString($value) && ! $this->has($value)) {
+            $value = $this->autowire?->instantiate($value);
+        }
         $this->entries->set($key, $value);
         return $this;
     }
