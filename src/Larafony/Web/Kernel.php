@@ -15,11 +15,11 @@ class Kernel implements RequestHandlerInterface
     {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request, ?callable $exitCallback = null): ResponseInterface
     {
         return $this->router->handle($request)
             |> $this->handleHeaders(...)
-            |> $this->handleRedirects(...);
+            |> (fn(ResponseInterface $response) => $this->handleRedirects($response, $exitCallback));
     }
 
     public function handleHeaders(ResponseInterface $response): ResponseInterface

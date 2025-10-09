@@ -12,11 +12,8 @@ abstract class ServiceProvider implements ServiceProviderContract
     public function register(ContainerContract $container): self
     {
         foreach ($this->providers as $key => $class) {
-            if (is_int($key)) {
-                $container->set($class, $class);
-            } else {
-                $container->set($key, $class);
-            }
+            $key = is_int($key) ? $class : $key;
+            $container->set($key, $class);
         }
         return $this;
     }

@@ -64,7 +64,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 5](docs/Larafony/chapter5.md) 
 
 ### 🌐 HTTP Layer
-- [ ] Routing using PSR-15 — Chapter 6
+- [x] Routing using PSR-15 — [Chapter 6](docs/Larafony/chapter6.md)
 - [ ] HTTP client using PSR-18 (Simple Guzzle replacement) — Chapter 7
 - [ ] Environment variables and configuration — Chapter 8
 

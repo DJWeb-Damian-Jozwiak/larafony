@@ -22,12 +22,15 @@ class Router implements RequestHandlerInterface
         return $this;
     }
 
+    /**
+     * @param \Closure|array{class-string, string} $handler
+     */
     public function addRouteByParams(
         string $method,
         string $path,
-        callable|array $handler,
+        \Closure|array $handler,
         ?string $name = null
-    ) {
+    ): self {
         return $this->addRoute(
             new Route(
                 $path,

@@ -20,6 +20,12 @@ final class Application extends Container
             $this->bind('base_path', $this->base_path);
         }
     }
+
+    public static function empty(): void
+    {
+        self::$instance = null;
+    }
+
     public static function instance(?string $base_path = null): Application
     {
         self::$instance ??= new self($base_path);
@@ -45,11 +51,11 @@ final class Application extends Container
         return $this;
     }
 
-    public function run(): void
+    public function run(?callable $exitCallback = null): void
     {
         $kernel = $this->get(Kernel::class);
         $request = $this->get(ServerRequestFactory::class)->createServerRequestFromGlobals();
-        $response = $kernel->handle($request);
+        $response = $kernel->handle($request, $exitCallback);
         echo $response->getBody()->getContents();
     }
 }
