@@ -75,12 +75,8 @@ final class CurlOptionsBuilder
     {
         try {
             $body = (string) $request->getBody();
-            if ($body !== '') {
-                $options[CURLOPT_POSTFIELDS] = $body;
-            }
+            $options[CURLOPT_POSTFIELDS] = $body;
         } catch (\RuntimeException $e) {
-            // Body stream not set - that's OK for GET/HEAD requests
-            // Exception intentionally caught and ignored
             unset($e);
         }
     }

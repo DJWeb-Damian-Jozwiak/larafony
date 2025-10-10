@@ -11,8 +11,11 @@ use Psr\Http\Message\RequestInterface;
  */
 class TooManyRedirectsError extends RequestError
 {
-    public static function forTooManyRedirects(RequestInterface $request, int $maxRedirects, ?\Throwable $previous = null): self
-    {
+    public static function forTooManyRedirects(
+        RequestInterface $request,
+        int $maxRedirects,
+        ?\Throwable $previous = null,
+    ): self {
         return new self(
             message: "Too many redirects encountered (max: {$maxRedirects})",
             method: $request->getMethod(),

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Http\Client\Curl;
 
 use CurlHandle;
-use Larafony\Framework\Http\Client\Contracts\CurlWrapperInterface;
+use Larafony\Framework\Http\Client\Contracts\CurlWrapperContract;
 use Larafony\Framework\Http\Client\Exceptions\ConnectionError;
 use Larafony\Framework\Http\Client\Exceptions\DnsError;
 use Larafony\Framework\Http\Client\Exceptions\NetworkError;
@@ -22,14 +22,14 @@ use Psr\Http\Message\ResponseInterface;
  * - Converting CURL responses to PSR-7 Response objects
  * - Handling CURL errors and converting them to proper exceptions
  *
- * Uses CurlWrapperInterface for testability (Double Testing pattern).
+ * Uses CurlWrapperContract for testability (Double Testing pattern).
  */
 final class CurlHandleExecutor
 {
     public function __construct(
         private readonly CurlOptionsBuilder $optionsBuilder = new CurlOptionsBuilder(),
         private readonly ResponseParser $responseParser = new ResponseParser(),
-        private readonly CurlWrapperInterface $curlWrapper = new CurlWrapper(),
+        private readonly CurlWrapperContract $curlWrapper = new CurlWrapper(),
     ) {
     }
 
@@ -50,17 +50,14 @@ final class CurlHandleExecutor
         try {
             // Configure CURL with request data
             $options = $this->optionsBuilder->build($request);
-            $this->curlWrapper->setOptArray($curl, $options);
+            $this->curlWrapper->withOptArray($curl, $options);
 
             // Execute request
             $rawResponse = $this->curlWrapper->exec($curl);
 
             // Check for errors
             $errno = $this->curlWrapper->errno($curl);
-            if ($errno !== 0) {
-                $error = $this->curlWrapper->error($curl);
-                $this->handleCurlError($errno, $error, $request);
-            }
+            $this->handleCurlError($errno, $this->curlWrapper->error($curl), $request);
 
             // Parse response
             if ($rawResponse === false) {
@@ -84,19 +81,20 @@ final class CurlHandleExecutor
      * @throws ConnectionError
      * @throws DnsError
      */
-    private function handleCurlError(int $errno, string $error, RequestInterface $request): never
+    private function handleCurlError(int $errno, string $error, RequestInterface $request): void
     {
+        if ($errno === 0) {
+            return;
+        }
         $host = $request->getUri()->getHost();
 
-        $exception = match (true) {
+        throw match (true) {
             $this->isTimeoutError($errno) => TimeoutError::forTimeout($request, 0),
             $this->isDnsError($errno) => DnsError::couldNotResolve($request, $host),
             $this->isConnectionError($errno) => ConnectionError::couldNotConnect($request, $host),
             $this->isSslError($errno) => ConnectionError::sslError($request, $error),
             default => NetworkError::fromRequest("CURL error ({$errno}): {$error}", $request),
         };
-
-        throw $exception;
     }
 
     private function isTimeoutError(int $errno): bool

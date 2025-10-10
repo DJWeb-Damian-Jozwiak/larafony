@@ -36,8 +36,12 @@ class RequestError extends HttpClientError implements RequestExceptionInterface
     /**
      * Create from PSR-7 Request.
      */
-    public static function fromRequest(string $message, RequestInterface $request, int $code = 0, ?\Throwable $previous = null): self
-    {
+    public static function fromRequest(
+        string $message,
+        RequestInterface $request,
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ): self {
         return new self(
             message: $message,
             method: $request->getMethod(),
@@ -67,9 +71,7 @@ class RequestError extends HttpClientError implements RequestExceptionInterface
      */
     public function getRequest(): RequestInterface
     {
-        throw new \RuntimeException(
-            'Request object is not available. Use getMethod() and getUri() instead. '
-            . 'Original request: ' . $this->method . ' ' . $this->uri
-        );
+        $msg = 'Request object is not available. Use getMethod() and getUri() instead. Original request: %s %s';
+        throw new \RuntimeException(sprintf($msg, $this->method, $this->uri));
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use PHP_CodeSniffer\Standards\Generic\Sniffs\Files\LineLengthSniff;
 use PHP_CodeSniffer\Standards\PSR2\Sniffs\Classes\PropertyDeclarationSniff;
 use PhpCsFixer\Fixer\Whitespace\NoSpacesAroundOffsetFixer;
+use SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff;
 use SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff;
 
 return [
@@ -36,6 +37,7 @@ return [
         NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
         DisallowMixedTypeHintSniff::class,
         NoSpacesAroundOffsetFixer::class,
+        UnusedParameterSniff::class,
     ],
 
     'config' => [
