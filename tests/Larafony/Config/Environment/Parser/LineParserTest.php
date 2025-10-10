@@ -18,7 +18,7 @@ class LineParserTest extends TestCase
         $this->parser = new LineParser();
     }
 
-    public function test_parses_simple_variable(): void
+    public function testParsesSimpleVariable(): void
     {
         $result = $this->parser->parse('APP_NAME=Larafony', 1);
 
@@ -28,7 +28,7 @@ class LineParserTest extends TestCase
         $this->assertEquals(1, $result->lineNumber);
     }
 
-    public function test_parses_quoted_variable(): void
+    public function testParsesQuotedVariable(): void
     {
         $result = $this->parser->parse('APP_NAME="Larafony Framework"', 1);
 
@@ -38,7 +38,7 @@ class LineParserTest extends TestCase
         $this->assertTrue($result->variable->isQuoted);
     }
 
-    public function test_handles_spaces_around_equals(): void
+    public function testHandlesSpacesAroundEquals(): void
     {
         $result = $this->parser->parse('KEY = value', 1);
 
@@ -47,7 +47,7 @@ class LineParserTest extends TestCase
         $this->assertEquals('value', $result->variable->value);
     }
 
-    public function test_recognizes_comment_lines(): void
+    public function testRecognizesCommentLines(): void
     {
         $result = $this->parser->parse('# This is a comment', 1);
 
@@ -55,7 +55,7 @@ class LineParserTest extends TestCase
         $this->assertFalse($result->isVariable);
     }
 
-    public function test_recognizes_empty_lines(): void
+    public function testRecognizesEmptyLines(): void
     {
         $result = $this->parser->parse('   ', 1);
 
@@ -63,7 +63,7 @@ class LineParserTest extends TestCase
         $this->assertFalse($result->isVariable);
     }
 
-    public function test_handles_empty_value(): void
+    public function testHandlesEmptyValue(): void
     {
         $result = $this->parser->parse('EMPTY=', 1);
 
@@ -72,7 +72,7 @@ class LineParserTest extends TestCase
         $this->assertEquals('', $result->variable->value);
     }
 
-    public function test_throws_exception_on_invalid_key_format(): void
+    public function testThrowsExceptionOnInvalidKeyFormat(): void
     {
         $this->expectException(ParseError::class);
         //$this->expectExceptionMessage('Invalid syntax at line 1');
@@ -80,21 +80,21 @@ class LineParserTest extends TestCase
         $this->parser->parse('123invalid=value');
     }
 
-    public function test_throws_exception_on_missing_equals(): void
+    public function testThrowsExceptionOnMissingEquals(): void
     {
         $this->expectException(ParseError::class);
 
         $this->parser->parse('INVALID_NO_EQUALS');
     }
 
-    public function test_allows_underscores_in_keys(): void
+    public function testAllowsUnderscoresInKeys(): void
     {
         $result = $this->parser->parse('MY_CUSTOM_KEY=value');
 
         $this->assertEquals('MY_CUSTOM_KEY', $result->variable->key);
     }
 
-    public function test_allows_numbers_in_keys(): void
+    public function testAllowsNumbersInKeys(): void
     {
         $result = $this->parser->parse('KEY_123=value');
 

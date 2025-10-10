@@ -16,7 +16,7 @@ class ValueParserTest extends TestCase
         $this->parser = new ValueParser();
     }
 
-    public function test_parses_unquoted_value(): void
+    public function testUnquotedValue(): void
     {
         $result = $this->parser->parse('simple_value');
 
@@ -24,7 +24,7 @@ class ValueParserTest extends TestCase
         $this->assertFalse($result['is_quoted']);
     }
 
-    public function test_parses_double_quoted_value(): void
+    public function testDoubleQuotedValue(): void
     {
         $result = $this->parser->parse('"quoted value"');
 
@@ -32,7 +32,7 @@ class ValueParserTest extends TestCase
         $this->assertTrue($result['is_quoted']);
     }
 
-    public function test_parses_single_quoted_value(): void
+    public function testSingleQuotedValue(): void
     {
         $result = $this->parser->parse("'single quoted'");
 
@@ -40,7 +40,7 @@ class ValueParserTest extends TestCase
         $this->assertTrue($result['is_quoted']);
     }
 
-    public function test_processes_escape_sequences_in_double_quotes(): void
+    public function testEscapeSequencesInDoubleQuotes(): void
     {
         $result = $this->parser->parse('"Line 1\nLine 2\tTabbed"');
 
@@ -48,7 +48,7 @@ class ValueParserTest extends TestCase
         $this->assertEquals($expected, $result['value']);
     }
 
-    public function test_does_not_process_escape_sequences_in_single_quotes(): void
+    public function testNotProcessEscapeSequencesInSingleQuotes(): void
     {
         $result = $this->parser->parse("'Line 1\\nLine 2'");
 
@@ -56,21 +56,21 @@ class ValueParserTest extends TestCase
         $this->assertEquals('Line 1\\nLine 2', $result['value']);
     }
 
-    public function test_handles_escaped_quotes_in_double_quotes(): void
+    public function testEscapedQuotesInDoubleQuotes(): void
     {
         $result = $this->parser->parse('"He said \"hello\""');
 
         $this->assertEquals('He said "hello"', $result['value']);
     }
 
-    public function test_handles_escaped_backslash(): void
+    public function testEscapedBackslash(): void
     {
         $result = $this->parser->parse('"C:\\\\path\\\\to\\\\file"');
 
         $this->assertEquals('C:\path\to\file', $result['value']);
     }
 
-    public function test_trims_whitespace_from_unquoted_values(): void
+    public function testWhitespaceFromUnquotedValues(): void
     {
         $result = $this->parser->parse('  spaced  ');
 
@@ -78,7 +78,7 @@ class ValueParserTest extends TestCase
         $this->assertFalse($result['is_quoted']);
     }
 
-    public function test_handles_empty_value(): void
+    public function testEmptyValue(): void
     {
         $result = $this->parser->parse('');
 
@@ -86,7 +86,7 @@ class ValueParserTest extends TestCase
         $this->assertFalse($result['is_quoted']);
     }
 
-    public function test_handles_empty_quoted_value(): void
+    public function testEmptyQuotedValue(): void
     {
         $result = $this->parser->parse('""');
 

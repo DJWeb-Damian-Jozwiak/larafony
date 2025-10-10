@@ -17,18 +17,4 @@ final readonly class EnvironmentVariable
         public int $lineNumber = 0,
     ) {
     }
-
-    /**
-     * @return array<string, string|bool|int>
-     */
-    public function toArray(): array
-    {
-        return [
-            'key' => $this->key,
-            'value' => $this->value,
-            'is_quoted' => $this->isQuoted,
-            'is_multiline' => $this->isMultiline,
-            'line_number' => $this->lineNumber,
-        ];
-    }
 }

@@ -30,7 +30,7 @@ class EnvironmentLoaderTest extends TestCase
         }
     }
 
-    public function test_loads_file_and_sets_environment_variables(): void
+    public function testLoadsFileAndSetsEnvironmentVariables(): void
     {
         file_put_contents($this->tempFile, "TEST_VAR=test_value");
 
@@ -42,7 +42,7 @@ class EnvironmentLoaderTest extends TestCase
         $this->assertEquals('test_value', getenv('TEST_VAR'));
     }
 
-    public function test_throws_exception_when_file_not_found(): void
+    public function testThrowsExceptionWhenFileNotFound(): void
     {
         $this->expectException(EnvironmentError::class);
         $this->expectExceptionMessage('Environment file not found');
@@ -51,7 +51,7 @@ class EnvironmentLoaderTest extends TestCase
         $loader->load('/nonexistent/.env');
     }
 
-    public function test_respects_overwrite_setting_false(): void
+    public function testRespectsOverwriteSettingFalse(): void
     {
         $_ENV['EXISTING_VAR'] = 'original';
         $_SERVER['EXISTING_VAR'] = 'original';
@@ -65,7 +65,7 @@ class EnvironmentLoaderTest extends TestCase
         $this->assertEquals('original', $_ENV['EXISTING_VAR']);
     }
 
-    public function test_parse_content_does_not_set_environment_variables(): void
+    public function testParseContentDoesNotSetEnvironmentVariables(): void
     {
         $content = "PARSE_ONLY=value";
 
@@ -76,7 +76,7 @@ class EnvironmentLoaderTest extends TestCase
         $this->assertArrayNotHasKey('PARSE_ONLY', $_ENV);
     }
 
-    public function test_loads_multiple_variables(): void
+    public function testLoadsMultipleVariables(): void
     {
         $content = <<<ENV
         VAR1=value1
@@ -95,7 +95,7 @@ class EnvironmentLoaderTest extends TestCase
         $this->assertEquals(3, $result->count());
     }
 
-    public function test_throws_exception_for_unreadable_file(): void
+    public function testThrowsExceptionForUnreadableFile(): void
     {
         file_put_contents($this->tempFile, "TEST=value");
         chmod($this->tempFile, 0000);

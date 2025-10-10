@@ -17,7 +17,7 @@ class DotenvParserTest extends TestCase
         $this->parser = new DotenvParser();
     }
 
-    public function test_parses_simple_key_value(): void
+    public function testParsesSimpleKeyValue(): void
     {
         $content = "APP_NAME=Larafony";
         $result = $this->parser->parse($content);
@@ -27,7 +27,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals(1, $result->count());
     }
 
-    public function test_parses_multiple_variables(): void
+    public function testParsesMultipleVariables(): void
     {
         $content = <<<ENV
         APP_NAME=Larafony
@@ -43,7 +43,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals('local', $result->get('APP_ENV'));
     }
 
-    public function test_parses_quoted_values(): void
+    public function testParsesQuotedValues(): void
     {
         $content = <<<ENV
         APP_NAME="Larafony Framework"
@@ -56,7 +56,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals('Build it yourself', $result->get('APP_MOTTO'));
     }
 
-    public function test_handles_escape_sequences_in_double_quotes(): void
+    public function testHandlesEscapeSequencesInDoubleQuotes(): void
     {
         $content = 'MESSAGE="Line 1\nLine 2\tTabbed"';
         $result = $this->parser->parse($content);
@@ -65,7 +65,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals($expected, $result->get('MESSAGE'));
     }
 
-    public function test_ignores_comments(): void
+    public function testIgnoresComments(): void
     {
         $content = <<<ENV
         # This is a comment
@@ -81,7 +81,7 @@ class DotenvParserTest extends TestCase
     }
 
 
-    public function test_throws_exception_on_invalid_syntax(): void
+    public function testThrowsExceptionOnInvalidSyntax(): void
     {
         $this->expectException(\Throwable::class);
 
@@ -89,7 +89,7 @@ class DotenvParserTest extends TestCase
         $this->parser->parse($content);
     }
 
-    public function test_preserves_line_numbers(): void
+    public function testPreservesLineNumbers(): void
     {
         $content = <<<ENV
 
@@ -108,7 +108,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals(5, $var2->lineNumber);
     }
 
-    public function test_handles_empty_values(): void
+    public function testHandlesEmptyValues(): void
     {
         $content = "EMPTY_VAR=";
         $result = $this->parser->parse($content);
@@ -117,7 +117,7 @@ class DotenvParserTest extends TestCase
         $this->assertTrue($result->has('EMPTY_VAR'));
     }
 
-    public function test_handles_spaces_around_equals(): void
+    public function testHandlesSpacesAroundEquals(): void
     {
         $content = <<<ENV
         KEY1 = value1
@@ -132,7 +132,7 @@ class DotenvParserTest extends TestCase
         $this->assertEquals('value3', $result->get('KEY3'));
     }
 
-    public function test_to_array_returns_simple_key_value_pairs(): void
+    public function testToArrayReturnsSimpleKeyValuePairs(): void
     {
         $content = <<<ENV
         KEY1=value1
@@ -148,7 +148,7 @@ class DotenvParserTest extends TestCase
         ], $array);
     }
 
-    public function test_tracks_total_lines(): void
+    public function testTracksTotalLines(): void
     {
         $content = <<<ENV
         KEY1=value1

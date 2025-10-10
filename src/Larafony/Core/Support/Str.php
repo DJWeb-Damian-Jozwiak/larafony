@@ -26,12 +26,4 @@ final class Str
     {
         return array_any($needle, static fn ($n) => str_ends_with($haystack, $n));
     }
-
-    /**
-     * @param array<int, string> $needle
-     */
-    public static function contains(string $haystack, array $needle): bool
-    {
-        return array_any($needle, static fn ($n) => str_contains($haystack, $n));
-    }
 }
