@@ -65,7 +65,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🌐 HTTP Layer
 - [x] Routing using PSR-15 — [Chapter 6](docs/Larafony/chapter6.md)
-- [ ] HTTP client using PSR-18 (Simple Guzzle replacement) — Chapter 7
+- [x] HTTP client using PSR-18 (Simple Guzzle replacement) — [Chapter 7](docs/Larafony/chapter7.md)
 - [ ] Environment variables and configuration — Chapter 8
 
 ### ⚙️ Console & Database
