@@ -12,11 +12,13 @@
     "require": {
         "php": ">=8.5",
         "ext-uri": "*",
+        "ext-curl": "*",
         "psr/clock": "^1.0",
         "psr/container": "^2.0",
         "psr/http-message": "^2.0",
         "psr/http-factory": "^1.1",
-        "psr/http-server-handler": "^1.0"
+        "psr/http-server-handler": "^1.0",
+        "psr/http-client": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.4.0",
