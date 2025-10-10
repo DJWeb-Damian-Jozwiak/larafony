@@ -10,4 +10,28 @@ final class Str
     {
         return is_string($class) && class_exists($class);
     }
+
+    /**
+     * @param array<int, string> $needle
+     */
+    public static function startsWith(string $haystack, array $needle): bool
+    {
+        return array_any($needle, static fn ($n) => str_starts_with($haystack, $n));
+    }
+
+    /**
+     * @param array<int, string> $needle
+     */
+    public static function endsWith(string $haystack, array $needle): bool
+    {
+        return array_any($needle, static fn ($n) => str_ends_with($haystack, $n));
+    }
+
+    /**
+     * @param array<int, string> $needle
+     */
+    public static function contains(string $haystack, array $needle): bool
+    {
+        return array_any($needle, static fn ($n) => str_contains($haystack, $n));
+    }
 }

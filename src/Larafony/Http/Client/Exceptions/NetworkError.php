@@ -62,6 +62,7 @@ class NetworkError extends HttpClientError implements NetworkExceptionInterface
      * This is a limitation of storing only scalars instead of the full object.
      *
      * @deprecated Use getMethod() and getUri() instead
+     *
      * @throws \RuntimeException Always throws as we don't store the full Request
      */
     public function getRequest(): RequestInterface
