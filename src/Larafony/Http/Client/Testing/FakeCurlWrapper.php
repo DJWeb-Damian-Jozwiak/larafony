@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Http\Client\Testing;
 
 use CurlHandle;
-use Larafony\Framework\Http\Client\Contracts\CurlWrapperInterface;
+use Larafony\Framework\Http\Client\Contracts\CurlWrapperContract;
 
 /**
  * Fake CURL wrapper for testing.
@@ -17,7 +17,7 @@ use Larafony\Framework\Http\Client\Contracts\CurlWrapperInterface;
  *
  * Without making real network calls.
  */
-final class FakeCurlWrapper implements CurlWrapperInterface
+final class FakeCurlWrapper implements CurlWrapperContract
 {
     private int $errno = 0;
     private string $error = '';
@@ -64,7 +64,7 @@ final class FakeCurlWrapper implements CurlWrapperInterface
         return $handle;
     }
 
-    public function setOptArray(CurlHandle $curl, array $options): bool
+    public function withOptArray(CurlHandle $curl, array $options): bool
     {
         // Just return true - we don't actually configure anything
         return true;

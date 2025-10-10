@@ -36,8 +36,12 @@ class NetworkError extends HttpClientError implements NetworkExceptionInterface
     /**
      * Create from PSR-7 Request.
      */
-    public static function fromRequest(string $message, RequestInterface $request, int $code = 0, ?\Throwable $previous = null): self
-    {
+    public static function fromRequest(
+        string $message,
+        RequestInterface $request,
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ): self {
         return new self(
             message: $message,
             method: $request->getMethod(),
@@ -62,13 +66,12 @@ class NetworkError extends HttpClientError implements NetworkExceptionInterface
      * This is a limitation of storing only scalars instead of the full object.
      *
      * @deprecated Use getMethod() and getUri() instead
+     *
      * @throws \RuntimeException Always throws as we don't store the full Request
      */
     public function getRequest(): RequestInterface
     {
-        throw new \RuntimeException(
-            'Request object is not available. Use getMethod() and getUri() instead. '
-            . 'Original request: ' . $this->method . ' ' . $this->uri
-        );
+        $msg = 'Request object is not available. Use getMethod() and getUri() instead. Original request: %s %s';
+        throw new \RuntimeException(sprintf($msg, $this->method, $this->uri));
     }
 }

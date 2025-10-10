@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Http\Client\Curl;
 
 use CurlHandle;
-use Larafony\Framework\Http\Client\Contracts\CurlWrapperInterface;
+use Larafony\Framework\Http\Client\Contracts\CurlWrapperContract;
 
 /**
  * Production CURL wrapper - delegates to real PHP CURL functions.
@@ -13,14 +13,14 @@ use Larafony\Framework\Http\Client\Contracts\CurlWrapperInterface;
  * This is a thin wrapper that maps interface methods to global CURL functions.
  * No logic here - just delegation.
  */
-final class CurlWrapper implements CurlWrapperInterface
+final class CurlWrapper implements CurlWrapperContract
 {
     public function init(): CurlHandle|false
     {
         return curl_init();
     }
 
-    public function setOptArray(CurlHandle $curl, array $options): bool
+    public function withOptArray(CurlHandle $curl, array $options): bool
     {
         return curl_setopt_array($curl, $options);
     }

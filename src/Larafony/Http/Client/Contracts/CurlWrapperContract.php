@@ -16,7 +16,7 @@ use CurlHandle;
  *
  * Double Testing pattern: real implementation for production, fake for tests.
  */
-interface CurlWrapperInterface
+interface CurlWrapperContract
 {
     /**
      * Initialize CURL session.
@@ -31,7 +31,7 @@ interface CurlWrapperInterface
      * @param CurlHandle $curl
      * @param array<int, mixed> $options
      */
-    public function setOptArray(CurlHandle $curl, array $options): bool;
+    public function withOptArray(CurlHandle $curl, array $options): bool;
 
     /**
      * Execute CURL request.

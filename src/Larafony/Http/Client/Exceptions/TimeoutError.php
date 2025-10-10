@@ -11,8 +11,11 @@ use Psr\Http\Message\RequestInterface;
  */
 class TimeoutError extends RequestError
 {
-    public static function forTimeout(RequestInterface $request, int $timeoutSeconds, ?\Throwable $previous = null): self
-    {
+    public static function forTimeout(
+        RequestInterface $request,
+        int $timeoutSeconds,
+        ?\Throwable $previous = null,
+    ): self {
         return new self(
             message: "Request timed out after {$timeoutSeconds} seconds",
             method: $request->getMethod(),
