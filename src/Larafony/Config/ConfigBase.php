@@ -19,7 +19,7 @@ class ConfigBase extends DotContainer implements ConfigContract
 
     public function loadConfig(): void
     {
-        if($this->loaded) {
+        if ($this->loaded) {
             return;
         }
         $this->loaded = true;
@@ -38,7 +38,7 @@ class ConfigBase extends DotContainer implements ConfigContract
     {
         $configPath = $this->app->base_path . DIRECTORY_SEPARATOR . 'config';
 
-        if (!is_dir($configPath)) {
+        if (! is_dir($configPath)) {
             return;
         }
 

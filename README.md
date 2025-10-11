@@ -69,7 +69,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Environment variables and configuration — [Chapter 8](docs/Larafony/chapter8.md)
 
 ### ⚙️ Console & Database
-- [ ] Console Kernel — Chapter 9
+- [x] Console Kernel — [Chapter 9](docs/Larafony/chapter9.md)
 - [ ] DBAL Core & Contracts — Chapter 10
 - [ ] MySQL Schema Builder — Chapter 11
 - [ ] MySQL Query Builder — Chapter 12
