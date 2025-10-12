@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Console\ServiceProviders;
 
-use Larafony\Framework\Console\CommandCache;
 use Larafony\Framework\Console\CommandDiscovery;
 use Larafony\Framework\Console\CommandRegistry;
 use Larafony\Framework\Console\Contracts\OutputContract;
@@ -21,12 +20,11 @@ use Psr\Http\Message\StreamFactoryInterface;
 class ConsoleServiceProvider extends ServiceProvider
 {
     /**
-     * @var array<string, class-string> $providers
+     * @return array<string|int, class-string>
      */
-    public array $providers {
-        get => [
-            OutputFormatter::class => OutputFormatter::class,
-        ];
+    public function providers(): array
+    {
+        return [OutputFormatter::class => OutputFormatter::class];
     }
 
     public function register(ContainerContract $container): self

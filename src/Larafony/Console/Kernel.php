@@ -16,7 +16,6 @@ final readonly class Kernel
     private array $commandPaths;
     public function __construct(
         private string $rootPath,
-        private CommandCache $commandCache,
         private CommandRegistry $commandRegistry,
         private ContainerContract $container,
     ) {
@@ -38,14 +37,10 @@ final readonly class Kernel
         $commands = $this->commandRegistry->commands;
 
         // Add application commands from cache (if exists) or discovery
-        if ($this->commandCache->load($this->getCachePath())) {
-            $commands = [...$commands, ...$this->commandCache->commands];
-        } else {
-            foreach ($this->commandPaths as $path => $namespace) {
-                $discovery = new CommandDiscovery();
-                $discovery->discover($path, $namespace);
-                $commands = [...$commands, ...$discovery->commands];
-            }
+        foreach ($this->commandPaths as $path => $namespace) {
+            $discovery = new CommandDiscovery();
+            $discovery->discover($path, $namespace);
+            $commands = [...$commands, ...$discovery->commands];
         }
 
         $command = $commands[$input->command] ?? throw new CommandNotFoundError($input->command);
@@ -61,16 +56,6 @@ final readonly class Kernel
             'src',
             'Console',
             'Commands',
-        ]);
-    }
-
-    private function getCachePath(): string
-    {
-        return implode(DIRECTORY_SEPARATOR, [
-            $this->rootPath,
-            'storage',
-            'cache',
-            'commands.php',
         ]);
     }
 }

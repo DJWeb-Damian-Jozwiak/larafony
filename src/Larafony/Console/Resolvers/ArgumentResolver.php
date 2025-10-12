@@ -29,7 +29,6 @@ final class ArgumentResolver
                 continue;
             }
             $attribute = $attribute->newInstance();
-            $name = $property->getName();
             $value = $this->input->getArgument($index);
             if ($value !== null || $property->getType()?->allowsNull()) {
                 $property->setValue($this->command, $value);

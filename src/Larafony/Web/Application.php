@@ -16,9 +16,7 @@ final class Application extends Container
     {
         parent::__construct();
         $this->set(ContainerContract::class, $this);
-        if ($this->base_path !== null) {
-            $this->bind('base_path', $this->base_path);
-        }
+        $this->bind('base_path', $this->base_path);
     }
 
     public static function empty(): void

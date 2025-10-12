@@ -7,7 +7,6 @@ namespace Larafony\Framework\Console;
 use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Console\Formatters\OutputFormatter;
 use Larafony\Framework\Container\Contracts\ContainerContract;
-use Psr\Http\Message\StreamInterface;
 
 readonly class Output implements OutputContract
 {

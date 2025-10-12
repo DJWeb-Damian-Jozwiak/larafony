@@ -17,14 +17,12 @@ class Application extends Container
     {
         parent::__construct();
         $this->set(ContainerContract::class, $this);
+        $this->bind('base_path', $this->base_path);
 
-        // Create and register singletons for cache and registry
-        $cache = new CommandCache();
         $registry = new CommandRegistry();
-        $this->set(CommandCache::class, $cache);
         $this->set(CommandRegistry::class, $registry);
 
-        $this->kernel = new Kernel($this->base_path ?? '', $cache, $registry, $this);
+        $this->kernel = new Kernel($this->base_path ?? '', $registry, $this);
         $this->set(Kernel::class, $this->kernel);
     }
 
