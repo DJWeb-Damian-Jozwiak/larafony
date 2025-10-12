@@ -7,9 +7,9 @@ namespace Larafony\Framework\Container\Contracts;
 interface ServiceProviderContract
 {
     /**
-     * @var array<int|string, class-string>
+     * @return array<int|string, class-string>
      */
-    public array $providers { get; }
+    public function providers(): array;
     /**
      * Register services in the given container.
      *
