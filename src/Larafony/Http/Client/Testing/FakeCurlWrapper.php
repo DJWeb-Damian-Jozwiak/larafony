@@ -57,11 +57,7 @@ final class FakeCurlWrapper implements CurlWrapperContract
     {
         // Return real CurlHandle - we need it for type safety
         // But it won't be used for actual network calls
-        $handle = curl_init();
-        if ($handle === false) {
-            return false;
-        }
-        return $handle;
+        return curl_init();
     }
 
     public function withOptArray(CurlHandle $curl, array $options): bool
@@ -87,9 +83,6 @@ final class FakeCurlWrapper implements CurlWrapperContract
 
     public function getInfo(CurlHandle $curl, int $option): mixed
     {
-        if ($option === CURLINFO_HEADER_SIZE) {
-            return $this->headerSize;
-        }
-        return null;
+        return $option === CURLINFO_HEADER_SIZE ? $this->headerSize : null;
     }
 }
