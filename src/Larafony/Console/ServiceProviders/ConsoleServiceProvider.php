@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Console\ServiceProviders;
 
-use Larafony\Framework\Console\CommandDiscovery;
-use Larafony\Framework\Console\CommandRegistry;
 use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Console\Formatters\OutputFormatter;
 use Larafony\Framework\Console\Formatters\Styles\DangerStyle;

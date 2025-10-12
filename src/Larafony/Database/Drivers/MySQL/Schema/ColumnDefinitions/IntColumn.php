@@ -15,6 +15,9 @@ class IntColumn extends \Larafony\Framework\Database\Base\Schema\Columns\IntColu
         return $sql . $this->getAutoIncrementSqlDefinition();
     }
 
+    /**
+     * @param array<string, mixed> $description
+     */
     public static function fromArrayDescription(array $description): static
     {
         preg_match('/int\((\d+)\)/i', $description['Type'], $matches);

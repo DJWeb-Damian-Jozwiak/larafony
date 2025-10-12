@@ -88,7 +88,7 @@ class SchemaBuilderTest extends TestCase
         $this->connection
             ->expects($this->once())
             ->method('query')
-            ->with($this->stringContains('DROP TABLE users'));
+            ->with($this->stringContains('IF EXISTS'));
 
         $this->builder->dropIfExists('users');
     }

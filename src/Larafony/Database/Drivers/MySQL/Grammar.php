@@ -35,6 +35,6 @@ class Grammar implements GrammarContract
 
     public function compileDropTable(string $table, bool $ifExists = false): string
     {
-        return sprintf('DROP TABLE %s `%s`', $table, $ifExists ? 'IF EXISTS' : '');
+        return sprintf('DROP TABLE %s%s', $ifExists ? 'IF EXISTS ' : '', $table);
     }
 }

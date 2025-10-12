@@ -13,6 +13,9 @@ class TextColumn extends \Larafony\Framework\Database\Base\Schema\Columns\TextCo
         return $sql;
     }
 
+    /**
+     * @param array<string, mixed> $description
+     */
     public static function fromArrayDescription(array $description): static
     {
         return new TextColumn(

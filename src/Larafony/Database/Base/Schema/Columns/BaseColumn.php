@@ -31,6 +31,9 @@ abstract class BaseColumn
     }
 
     abstract public function getSqlDefinition(): string;
+    /**
+     * @param array<string, mixed> $description
+     */
     abstract public static function fromArrayDescription(array $description): static;
     abstract protected function getNullableSqlDefinition(): string;
 }

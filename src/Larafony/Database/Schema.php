@@ -11,10 +11,10 @@ class Schema
 {
     protected static ?DatabaseManager $manager = null;
 
-    public static function withManager(DatabaseManager $manager): static
+    public static function withManager(DatabaseManager $manager): self
     {
         self::$manager = $manager;
-        return new static();
+        return new self();
     }
 
     public static function getSchemaBuilder(?string $connection = null): SchemaBuilder
@@ -46,6 +46,9 @@ class Schema
         self::getSchemaBuilder()->dropIfExists($table);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public static function getColumnListing(string $table): array
     {
         return self::getSchemaBuilder()->getColumnListing($table);

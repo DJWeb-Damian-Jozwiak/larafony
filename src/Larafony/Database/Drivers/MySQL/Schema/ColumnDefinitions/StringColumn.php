@@ -13,6 +13,9 @@ class StringColumn extends \Larafony\Framework\Database\Base\Schema\Columns\Stri
         return trim($sql . $this->getDefaultValueSqlDefinition());
     }
 
+    /**
+     * @param array<string, mixed> $description
+     */
     public static function fromArrayDescription(array $description): static
     {
         preg_match('/varchar|char\((\d+)\)/i', $description['Type'], $matches);

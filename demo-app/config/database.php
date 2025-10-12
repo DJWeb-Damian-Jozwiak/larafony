@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Larafony\Framework\Config\Environment\EnvReader;
 
 return [

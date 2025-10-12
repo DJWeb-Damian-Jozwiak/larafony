@@ -14,10 +14,18 @@ class ColumnFactory extends \Larafony\Framework\Database\Base\Schema\Columns\Col
 {
     public function create(array $description): BaseColumn
     {
-        $callback = $this->getMappings()[strtolower($description['Type'])] ??
+        // Extract base type from Type string (e.g., "enum('active','inactive')" => "enum")
+        $type = strtolower($description['Type']);
+        preg_match('/^([a-z]+)/', $type, $matches);
+        $baseType = $matches[1] ?? $type;
+
+        $callback = $this->getMappings()[$baseType] ??
             throw new \InvalidArgumentException('Invalid column type ' . $description['Type']);
         return $callback($description);
     }
+    /**
+     * @return array<string, callable>
+     */
     private function getMappings(): array
     {
         return [

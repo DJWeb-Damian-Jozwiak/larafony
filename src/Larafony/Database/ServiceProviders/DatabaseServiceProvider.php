@@ -9,12 +9,9 @@ use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\ServiceProvider;
 use Larafony\Framework\Database\DatabaseManager;
 use Larafony\Framework\Database\Schema;
-use Larafony\Framework\Web\Config;
 
 class DatabaseServiceProvider extends ServiceProvider
 {
-    public array $providers = [];
-
     public function boot(ContainerContract $container): void
     {
         $configBase = $container->get(ConfigContract::class);
@@ -22,7 +19,7 @@ class DatabaseServiceProvider extends ServiceProvider
         $config = $configBase->get('database.connections', []);
         $defaultConnection = $configBase->get('database.default', 'mysql');
 
-        $manager = new DatabaseManager((array)$config)->defaultConnection($defaultConnection);
+        $manager = new DatabaseManager((array) $config)->defaultConnection($defaultConnection);
 
         // Register in container
         $container->set(DatabaseManager::class, $manager);

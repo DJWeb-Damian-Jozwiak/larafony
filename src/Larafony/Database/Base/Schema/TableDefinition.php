@@ -37,6 +37,9 @@ abstract class TableDefinition
      */
     protected array $stringColumns = ['VARCHAR', 'CHAR', 'UUID'];
 
+    /**
+     * @param array<string, BaseColumn> $columns
+     */
     public function __construct(public readonly string $tableName, public protected(set) array $columns = [])
     {
     }

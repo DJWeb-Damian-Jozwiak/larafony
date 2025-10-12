@@ -14,10 +14,13 @@ class EnumColumn extends \Larafony\Framework\Database\Base\Schema\Columns\EnumCo
         return trim($sql . $this->getDefaultDefinition());
     }
 
+    /**
+     * @param array<string, mixed> $description
+     */
     public static function fromArrayDescription(array $description): static
     {
         preg_match('/enum\((.*)\)/i', $description['Type'], $matches);
-        $values = str_getcsv($matches[1] ?? '');
+        $values = str_getcsv($matches[1] ?? '', escape: '');
         $values = array_filter($values, static fn (string|null $value) => (bool) $value);
         $values = array_map(
             static fn (string $value) => str_replace("'", '', $value),

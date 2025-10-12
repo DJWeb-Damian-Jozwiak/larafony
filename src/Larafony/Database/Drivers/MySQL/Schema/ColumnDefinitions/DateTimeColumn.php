@@ -24,13 +24,20 @@ class DateTimeColumn extends \Larafony\Framework\Database\Base\Schema\Columns\Da
         return $this->onUpdate !== null ? 'ON UPDATE CURRENT_TIMESTAMP' : '';
     }
 
+    /**
+     * @param array<string, mixed> $description
+     */
     public static function fromArrayDescription(array $description): static
     {
+        $onUpdate = str_contains($description['Extra'] ?? '', 'on update') ? $description['Extra'] : null;
+        $precision = 0; // MySQL DESCRIBE doesn't return precision, would need to parse from Type
+
         return new DateTimeColumn(
             $description['Field'],
             $description['Null'] === 'YES',
             $description['Default'],
-            $description['Extra'],
+            $onUpdate,
+            $precision,
             $description['Type'],
         );
     }
