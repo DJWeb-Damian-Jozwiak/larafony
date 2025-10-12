@@ -22,7 +22,7 @@ abstract class TableDefinition
     public protected(set) array $indexes = [];
 
     /**
-     * @return array<int, string> $columnNames
+     * @var  array<int, string> $columnNames
      */
     public array $columnNames {
         get => array_keys($this->columns);
