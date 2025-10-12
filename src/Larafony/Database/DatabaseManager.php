@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database;
 
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
+use Larafony\Framework\Database\Base\Query\QueryBuilder as BaseQueryBuilder;
 use Larafony\Framework\Database\Base\Schema\SchemaBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\Connection;
+use Larafony\Framework\Database\Drivers\MySQL\QueryBuilder as MySQLQueryBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\SchemaBuilder as MySQLSchemaBuilder;
 
 class DatabaseManager
@@ -61,6 +63,26 @@ class DatabaseManager
         $this->schemaBuilders[$name] = $schemaBuilder;
 
         return $schemaBuilder;
+    }
+
+    /**
+     * Begin a fluent query against a database table.
+     * Creates a NEW QueryBuilder instance each time (no caching).
+     */
+    public function table(string $table, ?string $connectionName = null): BaseQueryBuilder
+    {
+        $connectionName = $connectionName ?? $this->defaultConnection;
+        $connection = $this->connection($connectionName);
+
+        $config = $this->getConfig($connectionName);
+        $driver = $config['driver'] ?? 'mysql';
+
+        $queryBuilder = match ($driver) {
+            'mysql' => new MySQLQueryBuilder($connection),
+            default => throw new \InvalidArgumentException("Unsupported driver: {$driver}"),
+        };
+
+        return $queryBuilder->table($table);
     }
 
     public function defaultConnection(string $name): self
