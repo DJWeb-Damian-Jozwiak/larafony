@@ -13,10 +13,11 @@ use Larafony\Framework\Container\ServiceProvider;
 class ConfigServiceProvider extends ServiceProvider
 {
     /**
-     * @var array<int|string, class-string> $providers
+     * @return  array<int|string, class-string> $providers
      */
-    public array $providers {
-        get => [
+    public function providers(): array
+    {
+        return [
             EnvironmentLoader::class => EnvironmentLoader::class,
             ConfigBase::class => ConfigBase::class,
             ConfigContract::class => ConfigBase::class,
