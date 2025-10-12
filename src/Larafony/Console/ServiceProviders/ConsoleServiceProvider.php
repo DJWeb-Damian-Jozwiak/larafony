@@ -49,15 +49,5 @@ class ConsoleServiceProvider extends ServiceProvider
         $formatter->withStyle('info', new InfoStyle());
         $formatter->withStyle('success', new SuccessStyle());
         $formatter->withStyle('warning', new WarningStyle());
-
-        $registry = $container->get(CommandRegistry::class);
-
-        // Discover and register framework commands
-        $discovery = new CommandDiscovery();
-        $commandsDir = __DIR__ . '/../Commands';
-        $discovery->discover($commandsDir, 'Larafony\\Framework\\Console\\Commands');
-        foreach ($discovery->commands as $name => $class) {
-            $registry->register($name, $class);
-        }
     }
 }
