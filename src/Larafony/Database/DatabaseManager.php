@@ -6,7 +6,7 @@ namespace Larafony\Framework\Database;
 
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\Base\Schema\SchemaBuilder;
-use Larafony\Framework\Database\Drivers\MySQL\Schema\Connection;
+use Larafony\Framework\Database\Drivers\MySQL\Connection;
 use Larafony\Framework\Database\Drivers\MySQL\SchemaBuilder as MySQLSchemaBuilder;
 
 class DatabaseManager
