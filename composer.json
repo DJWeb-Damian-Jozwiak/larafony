@@ -13,6 +13,7 @@
         "php": ">=8.5",
         "ext-uri": "*",
         "ext-curl": "*",
+        "ext-pdo": "*",
         "psr/clock": "^1.0",
         "psr/container": "^2.0",
         "psr/http-message": "^2.0",

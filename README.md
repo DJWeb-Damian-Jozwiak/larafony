@@ -70,40 +70,38 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### ⚙️ Console & Database
 - [x] Console Kernel — [Chapter 9](docs/Larafony/chapter9.md)
-- [ ] DBAL Core & Contracts — Chapter 10
-- [ ] MySQL Schema Builder — Chapter 11
-- [ ] MySQL Query Builder — Chapter 12
-- [ ] MySQL Migrations — Chapter 13
-- [ ] ORM — Chapter 14
+- [ ] MySQL Schema Builder — Chapter 10
+- [ ] MySQL Query Builder — Chapter 11
+- [ ] MySQL Migrations — Chapter 12
+- [ ] ORM — Chapter 13
 
 ### 🧱 Application Layer
-- [ ] Logging System (PSR-3) — Chapter 15
-- [ ] Middleware System (PSR-15) — Chapter 16
-- [ ] Advanced Routing — Chapter 17
-- [ ] DTO-based Form Validation — Chapter 18
+- [ ] Logging System (PSR-3) — Chapter 14
+- [ ] Middleware System (PSR-15) — Chapter 15
+- [ ] Advanced Routing — Chapter 16
+- [ ] DTO-based Form Validation — Chapter 17
 
 ### 🎨 View Layer
-- [ ] View Core & Contracts — Chapter 19
-- [ ] Custom Blade Parser — Chapter 20
-- [ ] Twig Wrapper — Chapter 21
-- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 22
+- [ ] Custom Blade Parser — Chapter 18
+- [ ] Twig Wrapper — Chapter 19
+- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 20
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 23
-- [ ] Advanced Console Error Handling — Chapter 24
+- [ ] Advanced Web Error Handling — Chapter 21
+- [ ] Advanced Console Error Handling — Chapter 22
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 25
-- [ ] Sending Emails (Symfony Mailer) — Chapter 26
-- [ ] Authorization System — Chapter 27
-- [ ] Cache Optimization (PSR-6) — Chapter 28
-- [ ] Event System (PSR-14 and alternatives) — Chapter 29
-- [ ] Jobs and Queues — Chapter 30
-- [ ] Simple WebSockets (almost from scratch) — Chapter 31
-- [ ] PSR — A new way of communication — Chapter 32
+- [ ] Encrypted Cookies and Sessions — Chapter 23
+- [ ] Sending Emails (Symfony Mailer) — Chapter 24
+- [ ] Authorization System — Chapter 25
+- [ ] Cache Optimization (PSR-6) — Chapter 26
+- [ ] Event System (PSR-14 and alternatives) — Chapter 27
+- [ ] Jobs and Queues — Chapter 28
+- [ ] Simple WebSockets (almost from scratch) — Chapter 29
+- [ ] PSR — A new way of communication — Chapter 30
 
 ### 🧭 Meta
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 33
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
 
 ## 🐛 Debugging Errors: The 4 Levels
