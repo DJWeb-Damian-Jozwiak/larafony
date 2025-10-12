@@ -11,10 +11,11 @@ use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
 class ErrorHandlerServiceProvider extends ServiceProvider
 {
     /**
-     * @var array<int|string, class-string>
+     * @return  array<int|string, class-string>
      */
-    public array $providers {
-        get => [DetailedErrorHandler::class];
+    public function providers(): array
+    {
+        return [DetailedErrorHandler::class];
     }
 
     #[\Override]
