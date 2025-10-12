@@ -22,10 +22,11 @@ use Psr\Http\Message\UriFactoryInterface;
 class HttpServiceProvider extends \Larafony\Framework\Container\ServiceProvider
 {
     /**
-     * @var array<string, class-string> $providers
+     * @return array<string|int, class-string>
      */
-    public array $providers {
-        get => [
+    public function provides(): array
+    {
+        return [
             RequestFactoryInterface::class => RequestFactory::class,
             ResponseFactoryInterface::class => ResponseFactory::class,
             ServerRequestFactoryInterface::class => ServerRequestFactory::class,
@@ -40,7 +41,7 @@ class HttpServiceProvider extends \Larafony\Framework\Container\ServiceProvider
         parent::register($container);
         $container->set(
             ServerRequestInterface::class,
-            $container->get(ServerRequestFactoryInterface::class)->createServerRequestFromGlobals()
+            $container->get(ServerRequestFactoryInterface::class)->createServerRequestFromGlobals(),
         );
         return $this;
     }
