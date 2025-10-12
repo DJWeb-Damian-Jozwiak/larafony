@@ -9,9 +9,16 @@ use Larafony\Framework\Container\Contracts\ServiceProviderContract;
 
 abstract class ServiceProvider implements ServiceProviderContract
 {
+    /**
+     * @return array<int|string, class-string>
+     */
+    public function providers(): array
+    {
+        return [];
+    }
     public function register(ContainerContract $container): self
     {
-        foreach ($this->providers as $key => $class) {
+        foreach ($this->providers() as $key => $class) {
             if (is_int($key)) {
                 $container->set($class, $class);
             } else {
