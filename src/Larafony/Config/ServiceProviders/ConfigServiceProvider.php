@@ -12,6 +12,9 @@ use Larafony\Framework\Container\ServiceProvider;
 
 class ConfigServiceProvider extends ServiceProvider
 {
+    /**
+     * @var array<int|string, class-string> $providers
+     */
     public array $providers {
         get => [
             EnvironmentLoader::class => EnvironmentLoader::class,
@@ -23,7 +26,6 @@ class ConfigServiceProvider extends ServiceProvider
     public function boot(ContainerContract $container): void
     {
         parent::boot($container);
-        $envPath = $container->base_path . '/.env';
         $container->get(ConfigContract::class)->loadConfig();
     }
 }

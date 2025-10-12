@@ -38,7 +38,7 @@ class EnvironmentLoader
         }
         $result = $this->parser->parse($content);
 
-        $this->setEnvironmentVariables($result);
+        $this->withEnvironmentVariables($result);
 
         return $result;
     }
@@ -54,15 +54,13 @@ class EnvironmentLoader
     /**
      * Ustawia zmienne w środowisku
      */
-    private function setEnvironmentVariables(ParserResult $result): void
+    private function withEnvironmentVariables(ParserResult $result): void
     {
         $env_keys = array_keys($_ENV);
         $variables = array_filter($result->variables, static fn ($variable) => ! in_array($variable->key, $env_keys));
         foreach ($variables as $variable) {
             $_ENV[$variable->key] = $variable->value;
             $_SERVER[$variable->key] = $variable->value;
-
-            // Opcjonalnie putenv() dla kompatybilności
             putenv("{$variable->key}={$variable->value}");
         }
     }

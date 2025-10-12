@@ -6,7 +6,7 @@ namespace Larafony\Framework\Config\Environment;
 
 final class EnvReader
 {
-    public static function read(string $key, ?string $default = null)
+    public static function read(string $key, ?string $default = null): string|int|float|bool|null
     {
         return $_ENV[$key] ?? $default;
     }

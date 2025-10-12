@@ -12,14 +12,16 @@ use Larafony\Framework\Container\Helpers\DotContainer;
 class ConfigBase extends DotContainer implements ConfigContract
 {
     private bool $loaded = false;
+    private readonly string $base_path;
     public function __construct(private readonly ContainerContract $app)
     {
         parent::__construct();
+        $this->base_path = (string) $this->app->getBinding('base_path');
     }
 
     public function loadConfig(): void
     {
-        if($this->loaded) {
+        if ($this->loaded) {
             return;
         }
         $this->loaded = true;
@@ -30,23 +32,22 @@ class ConfigBase extends DotContainer implements ConfigContract
 
     private function loadEnvironmentVariables(): void
     {
-        $envPath = $this->app->base_path . '/.env';
+        $envPath = $this->base_path . '/.env';
         $this->app->get(EnvironmentLoader::class)->load($envPath);
     }
 
     private function loadConfigFiles(): void
     {
-        $configPath = $this->app->base_path . DIRECTORY_SEPARATOR . 'config';
+        $configPath = $this->base_path . DIRECTORY_SEPARATOR . 'config';
 
-        if (!is_dir($configPath)) {
+        if (! is_dir($configPath)) {
             return;
         }
 
-        $files = scandir($configPath) ?: [];
-        $files = array_filter(
-            $files,
-            static fn ($file) => pathinfo($file, PATHINFO_EXTENSION) === 'php'
-        );
+        $files = scandir($configPath);
+
+        $files = $files === false ? [] : $files;
+        $files = array_filter($files, static fn ($file) => pathinfo($file, PATHINFO_EXTENSION) === 'php');
 
         foreach ($files as $file) {
             $key = pathinfo($file, PATHINFO_FILENAME);
