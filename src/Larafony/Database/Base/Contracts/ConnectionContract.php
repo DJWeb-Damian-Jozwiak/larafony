@@ -13,10 +13,7 @@ interface ConnectionContract
     /**
      * @param array<string|int, string|float|int|null> $params
      */
-    public function query(
-        string $sql,
-        array $params = []
-    ): \PDOStatement|false;
+    public function query(string $sql, array $params = []): \PDOStatement;
 
     /**
      * @return array<int, int|false>
