@@ -18,16 +18,17 @@ interface QueryBuilderContract
     /**
      * @param string|array<int, string> $columns
      */
-    public function select(string|array $columns): static;
+    public function select(array $columns): static;
 
-    public function where(string|Closure $column, mixed $operator = null, mixed $value = null): static;
+    public function where(string $column, string $operator, mixed $value): static;
 
-    public function orWhere(string|Closure $column, mixed $operator = null, mixed $value = null): static;
+    public function orWhere(string $column, string $operator, mixed $value): static;
 
     /**
      * @param array<int, mixed> $values
      */
     public function whereIn(string $column, array $values): static;
+    public function whereNested(Closure $callback, string $boolean): static;
 
     /**
      * @param array<int, mixed> $values

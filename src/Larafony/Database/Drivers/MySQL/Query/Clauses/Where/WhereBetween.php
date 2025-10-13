@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Drivers\MySQL\Query\Clauses\Where;
 
 use Larafony\Framework\Database\Base\Query\Clauses\Where\WhereClause;
-use Larafony\Framework\Database\Base\Query\Enums\LogicalOperator;
 
 /**
  * WHERE BETWEEN condition
@@ -19,7 +18,7 @@ class WhereBetween extends WhereClause
     public function __construct(
         public readonly string $column,
         public readonly array $values,
-        public readonly LogicalOperator $boolean = LogicalOperator::AND,
+        public readonly string $boolean = 'and',
         public readonly bool $not = false
     ) {
     }
@@ -27,7 +26,7 @@ class WhereBetween extends WhereClause
     public function getSqlDefinition(): string
     {
         $operator = $this->not ? 'NOT BETWEEN' : 'BETWEEN';
-        return "{$this->boolean->value} {$this->column} {$operator} ? AND ?";
+        return "{$this->boolean} {$this->column} {$operator} ? AND ?";
     }
 
     /**

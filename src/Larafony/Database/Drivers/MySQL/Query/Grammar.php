@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Drivers\MySQL\Query;
 
 use Larafony\Framework\Database\Base\Query\Contracts\GrammarContract;
+use Larafony\Framework\Database\Base\Query\Enums\QueryType;
 use Larafony\Framework\Database\Base\Query\QueryDefinition;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\DeleteBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\InsertBuilder;
@@ -35,5 +36,15 @@ class Grammar implements GrammarContract
     public function compileDelete(QueryDefinition $query): string
     {
         return new DeleteBuilder()->build($query);
+    }
+
+    public function compileSql(QueryType $type, QueryDefinition $query): string
+    {
+        return match ($type) {
+            QueryType::SELECT => $this->compileSelect($query),
+            QueryType::INSERT => $this->compileInsert($query),
+            QueryType::UPDATE => $this->compileUpdate($query),
+            QueryType::DELETE => $this->compileDelete($query),
+        };
     }
 }

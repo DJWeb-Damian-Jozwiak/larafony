@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Base\Query\Clauses;
 
 use Larafony\Framework\Database\Base\Query\Enums\JoinType;
-use Larafony\Framework\Database\Base\Query\Enums\LogicalOperator;
 
 /**
  * JOIN clause definition - no bindings needed
@@ -28,7 +27,7 @@ abstract class JoinClause
         string $first,
         string $operator,
         string $second,
-        LogicalOperator $boolean = LogicalOperator::AND,
+        string $boolean = 'and',
     ): static {
         $this->conditions[] = compact('first', 'operator', 'second', 'boolean');
         return $this;
@@ -36,7 +35,7 @@ abstract class JoinClause
 
     public function orOn(string $first, string $operator, string $second): static
     {
-        return $this->on($first, $operator, $second, LogicalOperator::OR);
+        return $this->on($first, $operator, $second, 'or');
     }
 
     /**

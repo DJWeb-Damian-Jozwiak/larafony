@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Drivers\MySQL\Query\Clauses\Where;
 
 use Larafony\Framework\Database\Base\Query\Clauses\Where\WhereClause;
-use Larafony\Framework\Database\Base\Query\Enums\LogicalOperator;
 
 /**
  * WHERE IN condition
@@ -19,7 +18,7 @@ class WhereIn extends WhereClause
     public function __construct(
         public readonly string $column,
         public readonly array $values,
-        public readonly LogicalOperator $boolean = LogicalOperator::AND,
+        public readonly string $boolean = 'string',
         public readonly bool $not = false
     ) {
     }
@@ -28,7 +27,7 @@ class WhereIn extends WhereClause
     {
         $placeholders = implode(', ', array_fill(0, count($this->values), '?'));
         $operator = $this->not ? 'NOT IN' : 'IN';
-        return "{$this->boolean->value} {$this->column} {$operator} ({$placeholders})";
+        return "{$this->boolean} {$this->column} {$operator} ({$placeholders})";
     }
 
     /**

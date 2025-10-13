@@ -7,7 +7,6 @@ namespace Larafony\Framework\Database\Drivers\MySQL;
 use Closure;
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\Base\Query\Enums\JoinType;
-use Larafony\Framework\Database\Base\Query\Enums\LogicalOperator;
 use Larafony\Framework\Database\Base\Query\Enums\OrderDirection;
 use Larafony\Framework\Database\Base\Query\Enums\QueryType;
 use Larafony\Framework\Database\Base\Query\QueryDefinition;
@@ -43,44 +42,22 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
     /**
      * @param string|array<int, string> $columns
      */
-    public function select(string|array $columns): static
+    public function select(array $columns): static
     {
-        $this->query->columns = is_array($columns) ? $columns : func_get_args();
+        $this->query->columns = $columns;
         $this->query->type = QueryType::SELECT;
         return $this;
     }
 
-    public function where(string|Closure $column, mixed $operator = null, mixed $value = null): static
+    public function where(string $column, string $operator, mixed $value): static
     {
-        // Handle closure for nested wheres
-        if ($column instanceof Closure) {
-            return $this->whereNested($column, LogicalOperator::AND);
-        }
-
-        // Handle two-argument where (column, value) - assume =
-        if (func_num_args() === 2) {
-            $value = $operator;
-            $operator = '=';
-        }
-
-        $this->query->wheres[] = new WhereBasic($column, $operator, $value, LogicalOperator::AND);
+        $this->query->wheres[] = new WhereBasic($column, $operator, $value, 'and');
         return $this;
     }
 
-    public function orWhere(string|Closure $column, mixed $operator = null, mixed $value = null): static
+    public function orWhere(string $column, string $operator, mixed $value): static
     {
-        // Handle closure for nested wheres
-        if ($column instanceof Closure) {
-            return $this->whereNested($column, LogicalOperator::OR);
-        }
-
-        // Handle two-argument where (column, value) - assume =
-        if (func_num_args() === 2) {
-            $value = $operator;
-            $operator = '=';
-        }
-
-        $this->query->wheres[] = new WhereBasic($column, $operator, $value, LogicalOperator::OR);
+        $this->query->wheres[] = new WhereBasic($column, $operator, $value, 'or');
         return $this;
     }
 
@@ -98,19 +75,19 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
      */
     public function whereNotIn(string $column, array $values): static
     {
-        $this->query->wheres[] = new WhereIn($column, $values, LogicalOperator::AND, not: true);
+        $this->query->wheres[] = new WhereIn($column, $values, 'and', not: true);
         return $this;
     }
 
     public function whereNull(string $column): static
     {
-        $this->query->wheres[] = new WhereNull($column, LogicalOperator::AND, not: false);
+        $this->query->wheres[] = new WhereNull($column, 'and', not: false);
         return $this;
     }
 
     public function whereNotNull(string $column): static
     {
-        $this->query->wheres[] = new WhereNull($column, LogicalOperator::AND, not: true);
+        $this->query->wheres[] = new WhereNull($column, 'and', not: true);
         return $this;
     }
 
@@ -119,13 +96,13 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
      */
     public function whereBetween(string $column, array $values): static
     {
-        $this->query->wheres[] = new WhereBetween($column, $values, LogicalOperator::AND, not: false);
+        $this->query->wheres[] = new WhereBetween($column, $values, 'and', not: false);
         return $this;
     }
 
     public function whereLike(string $column, string $pattern): static
     {
-        $this->query->wheres[] = new WhereLike($column, $pattern, LogicalOperator::AND);
+        $this->query->wheres[] = new WhereLike($column, $pattern, 'and');
         return $this;
     }
 
@@ -224,7 +201,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         $result = $this->first();
         $this->query->columns = $previousColumns;
 
-        return (int) ($result['aggregate'] ?? 0);
+        return (int) $result['aggregate'];
     }
 
     /**
@@ -276,15 +253,10 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
 
     public function toSql(): string
     {
-        return match ($this->query->type) {
-            QueryType::SELECT => $this->grammar->compileSelect($this->query),
-            QueryType::INSERT => $this->grammar->compileInsert($this->query),
-            QueryType::UPDATE => $this->grammar->compileUpdate($this->query),
-            QueryType::DELETE => $this->grammar->compileDelete($this->query),
-        };
+        return $this->grammar->compileSql($this->query->type, $this->query);
     }
 
-    protected function whereNested(Closure $callback, LogicalOperator $boolean): static
+    public function whereNested(Closure $callback, string $boolean): static
     {
         $nested = new static($this->connection);
         $nested->query = new QueryDefinition($this->query->table);

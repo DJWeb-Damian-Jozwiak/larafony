@@ -27,7 +27,7 @@ class WhereBuilder
 
             // First condition doesn't need logical operator prefix
             if ($i === 0) {
-                $clause = preg_replace('/^(AND|OR) /', '', $clause);
+                $clause = preg_replace('/^(and|or) /', '', $clause);
             }
 
             $sql[] = $clause;

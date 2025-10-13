@@ -58,7 +58,7 @@ class DatabaseManagerTest extends TestCase
         $sql = $this->manager
             ->table('users')
             ->select(['id', 'name'])
-            ->where('status', 'active')
+            ->where('status', '=', 'active')
             ->toSql();
 
         $this->assertSame('SELECT id, name FROM users WHERE status = ?', $sql);
@@ -118,11 +118,11 @@ class DatabaseManagerTest extends TestCase
             ->table('users')
             ->select(['users.id', 'users.name', 'profiles.bio'])
             ->leftJoin('profiles', 'users.id', '=', 'profiles.user_id')
-            ->where('users.status', 'active')
-            ->where(function ($q) {
+            ->where('users.status',  '=', 'active')
+            ->whereNested(function ($q) {
                 $q->where('users.age', '>', 18)
-                  ->orWhere('users.verified', true);
-            })
+                  ->orWhere('users.verified', '=', 1);
+            }, 'and')
             ->orderBy('users.created_at', OrderDirection::DESC)
             ->limit(10)
             ->offset(20)
@@ -130,7 +130,7 @@ class DatabaseManagerTest extends TestCase
 
         $expected = 'SELECT users.id, users.name, profiles.bio FROM users ' .
                     'LEFT JOIN profiles ON users.id = profiles.user_id ' .
-                    'WHERE users.status = ? AND (users.age > ? OR users.verified = ?) ' .
+                    'WHERE users.status = ? and (users.age > ? or users.verified = ?) ' .
                     'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
 
         $this->assertSame($expected, $sql);
@@ -157,8 +157,8 @@ class DatabaseManagerTest extends TestCase
     public function testQueryBuildersDoNotShareState(): void
     {
         // Create two builders for different tables
-        $users = $this->manager->table('users')->where('status', 'active');
-        $posts = $this->manager->table('posts')->where('published', true);
+        $users = $this->manager->table('users')->where('status', '=', 'active');
+        $posts = $this->manager->table('posts')->where('published', '=', true);
 
         // Each should have its own WHERE conditions
         $usersSql = $users->toSql();

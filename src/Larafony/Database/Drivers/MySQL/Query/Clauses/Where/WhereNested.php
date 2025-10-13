@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Drivers\MySQL\Query\Clauses\Where;
 
 use Larafony\Framework\Database\Base\Query\Clauses\Where\WhereClause;
-use Larafony\Framework\Database\Base\Query\Enums\LogicalOperator;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Components\WhereBuilder;
 
 /**
@@ -19,7 +18,7 @@ class WhereNested extends WhereClause
      */
     public function __construct(
         public readonly array $wheres,
-        public readonly LogicalOperator $boolean = LogicalOperator::AND
+        public readonly string $boolean = 'and'
     ) {
     }
 
@@ -29,7 +28,7 @@ class WhereNested extends WhereClause
         $nested = $builder->build($this->wheres);
         // Remove "WHERE " prefix
         $nested = substr($nested, 6);
-        return "{$this->boolean->value} ({$nested})";
+        return "{$this->boolean} ({$nested})";
     }
 
     /**

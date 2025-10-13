@@ -50,7 +50,7 @@ class QueryBuilderTest extends TestCase
             ->where('age', '>', 18)
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users WHERE status = ? AND age > ?', $sql);
+        $this->assertSame('SELECT * FROM users WHERE status = ? and age > ?', $sql);
     }
 
     public function testBuildsSelectWithOrWhere(): void
@@ -62,7 +62,7 @@ class QueryBuilderTest extends TestCase
             ->orWhere('verified', '=', true)
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users WHERE status = ? OR verified = ?', $sql);
+        $this->assertSame('SELECT * FROM users WHERE status = ? or verified = ?', $sql);
     }
 
     public function testBuildsSelectWithNestedWhere(): void
@@ -71,13 +71,13 @@ class QueryBuilderTest extends TestCase
             ->table('users')
             ->select(['*'])
             ->where('status', '=', 'active')
-            ->where(function (QueryBuilder $q) {
+            ->whereNested(function (QueryBuilder $q) {
                 $q->where('age', '>', 18)
                   ->orWhere('verified', '=', true);
-            })
+            }, 'and')
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users WHERE status = ? AND (age > ? OR verified = ?)', $sql);
+        $this->assertSame('SELECT * FROM users WHERE status = ? and (age > ? or verified = ?)', $sql);
     }
 
     public function testBuildsSelectWithWhereIn(): void
@@ -187,10 +187,10 @@ class QueryBuilderTest extends TestCase
             ->select(['users.id', 'users.name', 'profiles.bio'])
             ->leftJoin('profiles', 'users.id', '=', 'profiles.user_id')
             ->where('users.status', '=', 'active')
-            ->where(function (QueryBuilder $q) {
+            ->whereNested(function (QueryBuilder $q) {
                 $q->where('users.age', '>', 18)
                   ->orWhere('users.verified', '=', true);
-            })
+            }, 'and')
             ->whereNotNull('users.email_verified_at')
             ->orderBy('users.created_at', OrderDirection::DESC)
             ->limit(10)
@@ -199,7 +199,7 @@ class QueryBuilderTest extends TestCase
 
         $expected = 'SELECT users.id, users.name, profiles.bio FROM users ' .
                     'LEFT JOIN profiles ON users.id = profiles.user_id ' .
-                    'WHERE users.status = ? AND (users.age > ? OR users.verified = ?) AND users.email_verified_at IS NOT NULL ' .
+                    'WHERE users.status = ? and (users.age > ? or users.verified = ?) and users.email_verified_at IS NOT NULL ' .
                     'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
 
         $this->assertSame($expected, $sql);
@@ -288,7 +288,7 @@ class QueryBuilderTest extends TestCase
         $sql = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
+            ->where('status', '=', 'active')
             ->toSql();
 
         $this->assertSame('SELECT * FROM users WHERE status = ?', $sql);
@@ -310,14 +310,14 @@ class QueryBuilderTest extends TestCase
         $sql = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
-            ->orWhere(function (QueryBuilder $q) {
-                $q->where('role', 'admin')
-                  ->where('verified', true);
-            })
+            ->where('status', '=','active')
+            ->whereNested(function (QueryBuilder $q) {
+                $q->where('role', '=','admin')
+                  ->where('verified','=',true);
+            }, 'or')
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users WHERE status = ? OR (role = ? AND verified = ?)', $sql);
+        $this->assertSame('SELECT * FROM users WHERE status = ? or (role = ? and verified = ?)', $sql);
     }
 
     public function testOrWhereWithTwoArguments(): void
@@ -325,11 +325,11 @@ class QueryBuilderTest extends TestCase
         $sql = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
-            ->orWhere('role', 'admin')
+            ->where('status', '=','active')
+            ->orWhere('role','=', 'admin')
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users WHERE status = ? OR role = ?', $sql);
+        $this->assertSame('SELECT * FROM users WHERE status = ? or role = ?', $sql);
     }
 
     public function testOldest(): void
@@ -388,14 +388,14 @@ class QueryBuilderTest extends TestCase
             })
             ->toSql();
 
-        $this->assertSame('SELECT * FROM users LEFT JOIN profiles ON users.id = profiles.user_id AND users.tenant_id = profiles.tenant_id', $sql);
+        $this->assertSame('SELECT * FROM users LEFT JOIN profiles ON users.id = profiles.user_id and users.tenant_id = profiles.tenant_id', $sql);
     }
 
     public function testSelectWithVariadicArguments(): void
     {
         $sql = $this->builder
             ->table('users')
-            ->select('id', 'name', 'email')
+            ->select(['id', 'name', 'email'])
             ->toSql();
 
         $this->assertSame('SELECT id, name, email FROM users', $sql);
@@ -441,10 +441,10 @@ class QueryBuilderTest extends TestCase
         $sql = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
-            ->where(function (QueryBuilder $q) {
+            ->where('status', '=', 'active')
+            ->whereNested(function (QueryBuilder $q) {
                 // Empty closure
-            })
+            }, 'and')
             ->toSql();
 
         $this->assertSame('SELECT * FROM users WHERE status = ?', $sql);
@@ -537,7 +537,7 @@ class QueryBuilderTest extends TestCase
         $result = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
+            ->where('status', '=', 'active')
             ->get();
 
         $this->assertCount(2, $result);
@@ -561,7 +561,7 @@ class QueryBuilderTest extends TestCase
         $result = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'active')
+            ->where('status', '=','active')
             ->first();
 
         $this->assertIsArray($result);
@@ -584,7 +584,7 @@ class QueryBuilderTest extends TestCase
         $result = $this->builder
             ->table('users')
             ->select(['*'])
-            ->where('status', 'inactive')
+            ->where('status', '=','inactive')
             ->first();
 
         $this->assertNull($result);
@@ -606,7 +606,7 @@ class QueryBuilderTest extends TestCase
 
         $result = $this->builder
             ->table('users')
-            ->where('status', 'active')
+            ->where('status', '=','active')
             ->count();
 
         $this->assertSame(42, $result);
@@ -692,7 +692,7 @@ class QueryBuilderTest extends TestCase
 
         $result = $this->builder
             ->table('users')
-            ->where('role', 'admin')
+            ->where('role', '=','admin')
             ->update(['status' => 'inactive']);
 
         $this->assertSame(3, $result);
@@ -716,7 +716,7 @@ class QueryBuilderTest extends TestCase
 
         $result = $this->builder
             ->table('users')
-            ->where('status', 'deleted')
+            ->where('status', '=','deleted')
             ->delete();
 
         $this->assertSame(5, $result);

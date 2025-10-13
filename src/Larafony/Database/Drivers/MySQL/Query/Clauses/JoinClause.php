@@ -16,7 +16,7 @@ class JoinClause extends \Larafony\Framework\Database\Base\Query\Clauses\JoinCla
         if ($this->conditions) {
             $on = [];
             foreach ($this->conditions as $i => $cond) {
-                $prefix = $i === 0 ? '' : "{$cond['boolean']->value} ";
+                $prefix = $i === 0 ? '' : "{$cond['boolean']} ";
                 $on[] = "{$prefix}{$cond['first']} {$cond['operator']} {$cond['second']}";
             }
             $sql .= ' ON ' . implode(' ', $on);

@@ -30,11 +30,11 @@ abstract class QueryBuilder implements QueryBuilderContract
     /**
      * @param string|array<int, string> $columns
      */
-    abstract public function select(string|array $columns): static;
+    abstract public function select(array $columns): static;
 
-    abstract public function where(string|Closure $column, mixed $operator = null, mixed $value = null): static;
+    abstract public function where(string $column, string $operator, mixed $value): static;
 
-    abstract public function orWhere(string|Closure $column, mixed $operator = null, mixed $value = null): static;
+    abstract public function orWhere(string $column, string $operator, mixed $value): static;
 
     /**
      * @param array<int, mixed> $values
@@ -49,6 +49,7 @@ abstract class QueryBuilder implements QueryBuilderContract
     abstract public function whereNull(string $column): static;
 
     abstract public function whereNotNull(string $column): static;
+    abstract public function whereNested(Closure $callback, string $boolean): static;
 
     /**
      * @param array<int, mixed> $values
