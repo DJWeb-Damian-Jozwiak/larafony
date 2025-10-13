@@ -28,7 +28,7 @@ abstract class QueryBuilder implements QueryBuilderContract
     abstract public function table(string $table): static;
 
     /**
-     * @param string|array<int, string> $columns
+     * @param array<int, string> $columns
      */
     abstract public function select(array $columns): static;
 

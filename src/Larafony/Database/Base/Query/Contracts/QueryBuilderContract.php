@@ -16,7 +16,7 @@ interface QueryBuilderContract
     public function table(string $table): static;
 
     /**
-     * @param string|array<int, string> $columns
+     * @param array<int, string> $columns
      */
     public function select(array $columns): static;
 

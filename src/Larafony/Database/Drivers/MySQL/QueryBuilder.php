@@ -40,7 +40,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
     }
 
     /**
-     * @param string|array<int, string> $columns
+     * @param array<int, string> $columns
      */
     public function select(array $columns): static
     {
@@ -118,7 +118,8 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         if ($first instanceof Closure) {
             $first($join);
         } else {
-            $join->on($first, $operator, $second);
+            $operator ??= '=';
+            $join->on($first, $operator, $second ?? '');
         }
 
         $this->query->joins[] = $join;
@@ -201,7 +202,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         $result = $this->first();
         $this->query->columns = $previousColumns;
 
-        return (int) $result['aggregate'];
+        return (int) ($result['aggregate'] ?? 0);
     }
 
     /**
