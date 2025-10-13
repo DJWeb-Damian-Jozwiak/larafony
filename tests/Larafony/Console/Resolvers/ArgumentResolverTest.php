@@ -9,13 +9,15 @@ use Larafony\Framework\Console\Command;
 use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Console\Input\Input;
 use Larafony\Framework\Console\Resolvers\ArgumentResolver;
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use PHPUnit\Framework\TestCase;
 
 final class ArgumentResolverTest extends TestCase
 {
     public function testResolvesArgumentsFromInput(): void
     {
-        $command = new class ($this->createMock(OutputContract::class)) extends Command {
+        $container = $this->createMock(ContainerContract::class);
+        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
             #[CommandArgument(name: 'name')]
             public string $name;
 
@@ -35,7 +37,8 @@ final class ArgumentResolverTest extends TestCase
 
     public function testResolvesMultipleArguments(): void
     {
-        $command = new class ($this->createMock(OutputContract::class)) extends Command {
+        $container = $this->createMock(ContainerContract::class);
+        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
             #[CommandArgument(name: 'first')]
             public string $first;
 
@@ -59,7 +62,8 @@ final class ArgumentResolverTest extends TestCase
 
     public function testSkipsPropertiesWithoutAttribute(): void
     {
-        $command = new class ($this->createMock(OutputContract::class)) extends Command {
+        $container = $this->createMock(ContainerContract::class);
+        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
             #[CommandArgument(name: 'name')]
             public string $name;
 
@@ -82,7 +86,8 @@ final class ArgumentResolverTest extends TestCase
 
     public function testHandlesNullableArguments(): void
     {
-        $command = new class ($this->createMock(OutputContract::class)) extends Command {
+        $container = $this->createMock(ContainerContract::class);
+        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
             #[CommandArgument(name: 'optional')]
             public ?string $optional = null;
 
