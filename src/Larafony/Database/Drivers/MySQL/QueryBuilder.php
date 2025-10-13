@@ -66,7 +66,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
      */
     public function whereIn(string $column, array $values): static
     {
-        $this->query->wheres[] = new WhereIn($column, $values, LogicalOperator::AND, not: false);
+        $this->query->wheres[] = new WhereIn($column, $values, 'and', not: false);
         return $this;
     }
 
