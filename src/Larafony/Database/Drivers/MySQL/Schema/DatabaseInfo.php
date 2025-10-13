@@ -21,7 +21,6 @@ class DatabaseInfo implements DatabaseInfoContract
     {
         $sql = 'SHOW TABLES';
         $stmt = $this->connection->query($sql);
-        /** @phpstan-ignore-next-line */
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
@@ -29,9 +28,6 @@ class DatabaseInfo implements DatabaseInfoContract
     {
         $factory = new ColumnFactory();
         $stmt = $this->connection->query("DESCRIBE `{$tableName}`");
-        if ($stmt === false) {
-            throw new \RuntimeException("Failed to describe table {$tableName}");
-        }
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $columns = array_map(static fn (array $row) => $factory->create($row), $data);
         return new TableDefinition($tableName, $columns);

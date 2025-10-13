@@ -44,7 +44,7 @@ final class Connection implements ConnectionContract
         $this->connection = null;
     }
 
-    public function query(string $sql, array $params = []): \PDOStatement|false
+    public function query(string $sql, array $params = []): \PDOStatement
     {
         if ($this->connection === null) {
             throw new \RuntimeException('Not connected to database. Call connect() first.');
