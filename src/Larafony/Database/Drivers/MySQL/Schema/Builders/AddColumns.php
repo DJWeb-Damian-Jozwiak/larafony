@@ -15,7 +15,7 @@ class AddColumns extends \Larafony\Framework\Database\Base\Schema\Builders\Build
         $columns = $table->columns;
         $columns = array_filter(
             $columns,
-            static fn (BaseColumn $column) => ! $column->modified && ! $column->deleted
+            static fn (BaseColumn $column) => ! $column->existsInDatabase && ! $column->modified && ! $column->deleted
         );
         if ($columns === []) {
             return '';

@@ -18,7 +18,8 @@ abstract class StringColumn extends BaseColumn
 
     public function default(mixed $default): static
     {
-        return clone($this, ['default' => $default]);
+        $this->default = $default;
+        return $this;
     }
 
     abstract protected function getDefaultValueSqlDefinition(): string;

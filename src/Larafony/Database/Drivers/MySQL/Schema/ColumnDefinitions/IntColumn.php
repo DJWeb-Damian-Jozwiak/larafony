@@ -24,6 +24,11 @@ class IntColumn extends \Larafony\Framework\Database\Base\Schema\Columns\IntColu
         $length = $matches[1] ?? 11;
         $unsigned = str_contains($description['Type'], 'unsigned');
         $autoIncrement = $description['Extra'] === 'auto_increment';
+
+        // Extract base type without length
+        preg_match('/^([a-z]+)/i', $description['Type'], $typeMatches);
+        $baseType = strtoupper($typeMatches[1] ?? 'INT');
+
         return new IntColumn(
             $description['Field'],
             $description['Null'] === 'YES',
@@ -31,7 +36,7 @@ class IntColumn extends \Larafony\Framework\Database\Base\Schema\Columns\IntColu
             (int) $length,
             $unsigned,
             $autoIncrement,
-            $description['Type']
+            $baseType
         );
     }
 

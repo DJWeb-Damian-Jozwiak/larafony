@@ -20,12 +20,17 @@ class StringColumn extends \Larafony\Framework\Database\Base\Schema\Columns\Stri
     {
         preg_match('/varchar|char\((\d+)\)/i', $description['Type'], $matches);
         $length = $matches[1] ?? 255;
+
+        // Extract base type without length
+        preg_match('/^([a-z]+)/i', $description['Type'], $typeMatches);
+        $baseType = strtoupper($typeMatches[1] ?? 'VARCHAR');
+
         return new StringColumn(
             $description['Field'],
             $description['Null'] === 'YES',
             $description['Default'],
             (int) $length,
-            $description['Type']
+            $baseType
         );
     }
 

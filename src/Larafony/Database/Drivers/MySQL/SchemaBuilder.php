@@ -17,30 +17,35 @@ class SchemaBuilder extends \Larafony\Framework\Database\Base\Schema\SchemaBuild
         $this->grammar = new Grammar();
     }
 
-    public function create(string $table, Closure $callback): void
+    public function create(string $table, Closure $callback): string
     {
         $tableDefinition = new TableDefinition($table);
         $callback($tableDefinition);
-        $this->connection->query($this->grammar->compileCreate($tableDefinition));
+        return $this->grammar->compileCreate($tableDefinition);
     }
 
-    public function table(string $table, Closure $callback): void
+    public function table(string $table, Closure $callback): string
     {
         $tableDefinition = new DatabaseInfo($this->connection)->getTable($table);
         $callback($tableDefinition);
-        $this->connection->query($this->grammar->compileAddColumns($tableDefinition));
-        $this->connection->query($this->grammar->compileModifyColumns($tableDefinition));
-        $this->connection->query($this->grammar->compileDropColumns($tableDefinition));
+
+        $statements = array_filter([
+            $this->grammar->compileAddColumns($tableDefinition),
+            $this->grammar->compileModifyColumns($tableDefinition),
+            $this->grammar->compileDropColumns($tableDefinition),
+        ]);
+
+        return implode(';' . PHP_EOL, $statements);
     }
 
-    public function drop(string $table): void
+    public function drop(string $table): string
     {
-        $this->connection->query($this->grammar->compileDropTable($table));
+        return $this->grammar->compileDropTable($table);
     }
 
-    public function dropIfExists(string $table): void
+    public function dropIfExists(string $table): string
     {
-        $this->connection->query($this->grammar->compileDropTable($table, ifExists: true));
+        return $this->grammar->compileDropTable($table, ifExists: true);
     }
 
     /**

@@ -10,8 +10,8 @@ abstract class DateTimeColumn extends BaseColumn
         string $name,
         bool $nullable = true,
         mixed $default = null,
-        public readonly ?string $onUpdate = null,
-        public readonly int $precision = 0,
+        public ?string $onUpdate = null,
+        public int $precision = 0,
         string $type = 'DATETIME',
     ) {
         parent::__construct($name, $type, $nullable, $default);
@@ -19,17 +19,20 @@ abstract class DateTimeColumn extends BaseColumn
 
     public function current(string $default = 'CURRENT_TIMESTAMP'): static
     {
-        return clone($this, ['default' => $default]);
+        $this->default = $default;
+        return $this;
     }
 
     public function currentOnUpdate(string $default = 'ON UPDATE CURRENT_TIMESTAMP'): static
     {
-        return clone($this, ['onUpdate' => $default]);
+        $this->onUpdate = $default;
+        return $this;
     }
 
     public function precision(int $precision): static
     {
-        return clone($this, ['precision' => $precision]);
+        $this->precision = $precision;
+        return $this;
     }
 
     abstract public function getDefaultValueDefinition(): string;

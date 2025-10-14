@@ -67,7 +67,8 @@ class GrammarTest extends TestCase
 
         $sql = $this->grammar->compileModifyColumns($table);
 
-        $this->assertStringContainsString('CREATE TABLE users', $sql);
+        $this->assertStringContainsString('ALTER TABLE users', $sql);
+        $this->assertStringContainsString('MODIFY COLUMN', $sql);
         $this->assertStringContainsString('email', $sql);
     }
 
