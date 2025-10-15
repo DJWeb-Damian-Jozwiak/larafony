@@ -52,6 +52,11 @@ final class Connection implements ConnectionContract
 
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
+
+        // Close cursor to prevent "Cannot execute queries while there are pending result sets"
+        // This is needed when ATTR_EMULATE_PREPARES is true and we use multi-query
+        $statement->closeCursor();
+
         return $statement;
     }
 
@@ -63,7 +68,9 @@ final class Connection implements ConnectionContract
         return [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
+            // Set to true to allow multiple statements in one query (for Schema alterations)
+            // Still safe because we use prepared statements with bound parameters
+            PDO::ATTR_EMULATE_PREPARES => true,
         ];
     }
 

@@ -10,4 +10,9 @@ readonly class UniqueIndex extends \Larafony\Framework\Database\Base\Schema\Inde
     {
         return "CREATE UNIQUE INDEX {$this->indexName} ON {$this->tableName} ({$this->columns})";
     }
+
+    public function getInlineSqlDefinition(): string
+    {
+        return "UNIQUE KEY {$this->indexName} ({$this->columns})";
+    }
 }

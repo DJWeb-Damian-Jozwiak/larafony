@@ -26,6 +26,11 @@ abstract readonly class IndexDefinition
     abstract public function getSqlDefinition(): string;
 
     /**
+     * Get inline SQL definition for use within CREATE TABLE statement
+     */
+    abstract public function getInlineSqlDefinition(): string;
+
+    /**
      * @param array<int, string>|string $columns
      */
     protected function generateIndexName(string $type, array|string $columns): string
