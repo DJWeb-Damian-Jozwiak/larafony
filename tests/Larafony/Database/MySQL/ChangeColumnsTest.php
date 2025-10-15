@@ -31,7 +31,8 @@ class ChangeColumnsTest extends TestCase
 
         $sql = $this->builder->build($table);
 
-        $this->assertStringContainsString('CREATE TABLE users', $sql);
+        $this->assertStringContainsString('ALTER TABLE users', $sql);
+        $this->assertStringContainsString('MODIFY COLUMN', $sql);
         $this->assertStringContainsString('email', $sql);
     }
 
@@ -50,7 +51,8 @@ class ChangeColumnsTest extends TestCase
 
         $sql = $this->builder->build($table);
 
-        $this->assertStringContainsString('CREATE TABLE users', $sql);
+        $this->assertStringContainsString('ALTER TABLE users', $sql);
+        $this->assertStringContainsString('MODIFY COLUMN', $sql);
         $this->assertStringContainsString('email', $sql);
         $this->assertStringContainsString('age', $sql);
     }

@@ -16,7 +16,9 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
 {
     public function integer(string $column, string $type = 'INT'): IntColumn
     {
-        return new IntColumn($column, type: $type);
+        $col = new IntColumn($column, type: $type);
+        $this->addColumn($col);
+        return $col;
     }
 
     public function bigInteger(string $column, string $type = 'MEDIUMINT'): IntColumn
@@ -29,7 +31,9 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
     }
     public function string(string $column, int $length = 255, string $type = 'VARCHAR'): StringColumn
     {
-        return new StringColumn($column, length: $length, type: $type);
+        $col = new StringColumn($column, length: $length, type: $type);
+        $this->addColumn($col);
+        return $col;
     }
     public function char(string $column, int $length = 255, string $type = 'CHAR'): StringColumn
     {
@@ -37,7 +41,9 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
     }
     public function text(string $column, string $type = 'TEXT'): TextColumn
     {
-        return new TextColumn($column, type: $type);
+        $col = new TextColumn($column, type: $type);
+        $this->addColumn($col);
+        return $col;
     }
     public function mediumText(string $column, string $type = 'MEDIUMTEXT'): TextColumn
     {
@@ -53,7 +59,9 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
     }
     public function dateTime(string $column, string $type = 'DATETIME'): DateTimeColumn
     {
-        return new DateTimeColumn($column, type: $type);
+        $col = new DateTimeColumn($column, type: $type);
+        $this->addColumn($col);
+        return $col;
     }
     public function timestamp(string $column, string $type = 'TIMESTAMP'): DateTimeColumn
     {
@@ -73,20 +81,26 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
      */
     public function index(string|array $columns, ?string $indexName = null): NormalIndex
     {
-        return new NormalIndex($this->tableName, $columns, $indexName);
+        $index = new NormalIndex($this->tableName, $columns, $indexName);
+        $this->addIndex($index);
+        return $index;
     }
     /**
      * @param string|array<int, string> $columns
      */
     public function primary(string|array $columns, ?string $indexName = null): PrimaryIndex
     {
-        return new PrimaryIndex($this->tableName, $columns, $indexName, type: 'primary');
+        $index = new PrimaryIndex($this->tableName, $columns, $indexName, type: 'primary');
+        $this->addIndex($index);
+        return $index;
     }
     /**
      * @param string|array<int, string> $columns
      */
     public function unique(string|array $columns, ?string $indexName = null): UniqueIndex
     {
-        return new UniqueIndex($this->tableName, $columns, $indexName, type: 'unique');
+        $index = new UniqueIndex($this->tableName, $columns, $indexName, type: 'unique');
+        $this->addIndex($index);
+        return $index;
     }
 }

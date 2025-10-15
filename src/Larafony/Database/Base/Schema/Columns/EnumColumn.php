@@ -13,7 +13,7 @@ abstract class EnumColumn extends BaseColumn
      */
     public function __construct(
         string $name,
-        public readonly array $values,
+        public array $values,
         bool $nullable = true,
         mixed $default = null,
     ) {
@@ -28,7 +28,8 @@ abstract class EnumColumn extends BaseColumn
      */
     public function values(array $values): static
     {
-        return clone($this, ['values' => $values]);
+        $this->values = $values;
+        return $this;
     }
 
     abstract protected function getDefaultDefinition(): string;

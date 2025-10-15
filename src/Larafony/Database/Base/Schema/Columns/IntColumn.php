@@ -11,8 +11,8 @@ abstract class IntColumn extends BaseColumn
         bool $nullable = true,
         mixed $default = null,
         public int $length = 11,
-        public readonly bool $unsigned = false,
-        public readonly bool $autoIncrement = false,
+        public bool $unsigned = false,
+        public bool $autoIncrement = false,
         string $type = 'INT',
     ) {
         parent::__construct($name, $type, $nullable, $default);
@@ -20,22 +20,26 @@ abstract class IntColumn extends BaseColumn
 
     public function unsigned(bool $unsigned): static
     {
-        return clone($this, ['unsigned' => $unsigned]);
+        $this->unsigned = $unsigned;
+        return $this;
     }
 
     public function length(int $length): static
     {
-        return clone($this, ['length' => $length]);
+        $this->length = $length;
+        return $this;
     }
 
     public function default(mixed $default): static
     {
-        return clone($this, ['default' => $default]);
+        $this->default = $default;
+        return $this;
     }
 
     public function autoIncrement(bool $autoIncrement): static
     {
-        return clone($this, ['autoIncrement' => $autoIncrement]);
+        $this->autoIncrement = $autoIncrement;
+        return $this;
     }
 
     abstract protected function getUnsignedSqlDefinition(): string;

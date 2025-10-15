@@ -21,11 +21,10 @@ class ChangeColumns extends \Larafony\Framework\Database\Base\Schema\Builders\Bu
             return '';
         }
         $tableName = $table->tableName;
-        $columnDefinitions = array_map(static fn (BaseColumn $column) => $column->getSqlDefinition(), $columns);
-        return sprintf(
-            'CREATE TABLE %s (%s);',
-            $tableName,
-            implode(', ', $columnDefinitions)
+        $definitions = array_map(
+            static fn (BaseColumn $column) => 'MODIFY COLUMN ' . $column->getSqlDefinition(),
+            $columns
         );
+        return sprintf('ALTER TABLE %s %s;', $tableName, implode(', ', $definitions));
     }
 }

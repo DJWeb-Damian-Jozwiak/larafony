@@ -29,7 +29,12 @@ class DatabaseInfo implements DatabaseInfoContract
         $factory = new ColumnFactory();
         $stmt = $this->connection->query("DESCRIBE `{$tableName}`");
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $columns = array_map(static fn (array $row) => $factory->create($row), $data);
+        $columns = [];
+        foreach ($data as $row) {
+            $column = $factory->create($row);
+            $column->markAsExisting();
+            $columns[$column->name] = $column;
+        }
         return new TableDefinition($tableName, $columns);
     }
 }

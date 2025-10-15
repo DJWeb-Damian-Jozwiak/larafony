@@ -8,9 +8,9 @@ class TextColumn extends \Larafony\Framework\Database\Base\Schema\Columns\TextCo
 {
     public function getSqlDefinition(): string
     {
-        $sql = "{$this->name} {$this->type}";
+        $sql = "{$this->name} {$this->type} ";
         $sql .= $this->getNullableSqlDefinition();
-        return $sql;
+        return trim($sql);
     }
 
     /**

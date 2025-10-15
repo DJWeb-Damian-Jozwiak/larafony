@@ -72,13 +72,13 @@ abstract class TableDefinition
 
     public function timestamps(): void
     {
-        $this->dateTime('created_at')->nullable(false)->current();
-        $this->dateTime('updated_at')->nullable(false)->currentOnUpdate();
+        $this->timestamp('created_at')->nullable(false)->current();
+        $this->timestamp('updated_at')->nullable(false)->current()->currentOnUpdate();
     }
 
     public function softDeletes(): void
     {
-        $this->dateTime('deleted_at')->nullable(true);
+        $this->timestamp('deleted_at')->nullable(true);
     }
 
     abstract public function integer(string $column, string $type = 'INT'): IntColumn;

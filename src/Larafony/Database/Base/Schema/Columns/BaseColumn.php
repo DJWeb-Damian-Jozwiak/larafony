@@ -8,12 +8,20 @@ abstract class BaseColumn
 {
     public protected(set) bool $modified = false;
     public protected(set) bool $deleted = false;
+    public protected(set) bool $existsInDatabase = false;
+
     public function __construct(
         public readonly string $name,
         public readonly string $type,
-        public readonly bool $nullable = true,
+        public bool $nullable = true,
         protected mixed $default = null,
     ) {
+    }
+
+    public function markAsExisting(): static
+    {
+        $this->existsInDatabase = true;
+        return $this;
     }
     public function change(): static
     {
@@ -27,7 +35,8 @@ abstract class BaseColumn
     }
     public function nullable(bool $nullable): static
     {
-        return clone($this, ['nullable' => $nullable]);
+        $this->nullable = $nullable;
+        return $this;
     }
 
     abstract public function getSqlDefinition(): string;
