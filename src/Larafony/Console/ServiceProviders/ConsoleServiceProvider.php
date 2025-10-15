@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Console\ServiceProviders;
 
+use Larafony\Framework\Console\CommandDiscovery;
+use Larafony\Framework\Console\CommandRegistry;
 use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Console\Formatters\OutputFormatter;
 use Larafony\Framework\Console\Formatters\Styles\DangerStyle;
@@ -47,5 +49,15 @@ class ConsoleServiceProvider extends ServiceProvider
         $formatter->withStyle('info', new InfoStyle());
         $formatter->withStyle('success', new SuccessStyle());
         $formatter->withStyle('warning', new WarningStyle());
+
+        $registry = $container->get(CommandRegistry::class);
+
+        // Discover and register framework commands
+        $discovery = new CommandDiscovery();
+        $commandsDir = __DIR__ . '/../Commands';
+        $discovery->discover($commandsDir, 'Larafony\\Framework\\Console\\Commands');
+        foreach ($discovery->commands as $name => $class) {
+            $registry->register($name, $class);
+        }
     }
 }

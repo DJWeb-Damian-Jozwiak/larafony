@@ -18,6 +18,9 @@ return [
     | Database Connections
     |--------------------------------------------------------------------------
     */
+    'migrations' => [
+        'path' => 'database/migrations',
+    ],
 
     'connections' => [
 
