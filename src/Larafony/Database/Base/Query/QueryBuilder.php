@@ -121,4 +121,6 @@ abstract class QueryBuilder implements QueryBuilderContract
     abstract public function delete(): int;
 
     abstract public function toSql(): string;
+
+    abstract public function toRawSql(): string;
 }

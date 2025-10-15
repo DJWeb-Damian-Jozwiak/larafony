@@ -73,6 +73,27 @@ final class Connection implements ConnectionContract
         return $id === false ? null : $id;
     }
 
+    public function quote(mixed $value): string
+    {
+        if ($this->connection === null) {
+            throw new \RuntimeException('Not connected to database. Call connect() first.');
+        }
+
+        if ($value === null) {
+            return 'NULL';
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        return $this->connection->quote((string) $value);
+    }
+
     public function connectMysql(
         ?string $host,
         ?int $port,

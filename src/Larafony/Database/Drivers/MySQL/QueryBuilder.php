@@ -30,7 +30,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
     public function __construct(ConnectionContract $connection)
     {
         parent::__construct($connection);
-        $this->grammar = new Grammar();
+        $this->grammar = new Grammar($connection);
     }
 
     public function table(string $table): static
@@ -255,6 +255,13 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
     public function toSql(): string
     {
         return $this->grammar->compileSql($this->query->type, $this->query);
+    }
+
+    public function toRawSql(): string
+    {
+        $sql = $this->toSql();
+        $bindings = $this->query->getBindings();
+        return $this->grammar->substituteBindingsIntoRawSql($sql, $bindings);
     }
 
     public function whereNested(Closure $callback, string $boolean): static

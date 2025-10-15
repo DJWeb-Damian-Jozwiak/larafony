@@ -4,6 +4,132 @@
 
 In this chapter, we implemented a complete **MySQL Query Builder** system that provides a fluent, Laravel-style API for building and executing SQL queries safely and efficiently. The implementation follows the same **Grammar Pattern** used in Chapter 10's Schema Builder, ensuring consistency across the framework.
 
+## Core Philosophy: SQL as Data
+
+The Query Builder treats **SQL as data**, not side effects. This fundamental design principle provides powerful debugging capabilities:
+
+```php
+// Build the query
+$query = $db->table('users')
+    ->where('status', '=', 'active')
+    ->where('age', '>', 18);
+
+// Inspect SQL with placeholders
+$sql = $query->toSql();
+// "SELECT * FROM users WHERE status = ? and age > ?"
+
+// Inspect bindings
+$bindings = $query->query->getBindings();
+// ['active', 18]
+
+// Get executable SQL for debugging
+$rawSql = $query->toRawSql();
+// "SELECT * FROM users WHERE status = 'active' and age > 18"
+
+// Execute when ready
+$results = $query->get();
+```
+
+### Why This Matters
+
+**Traditional approach (Laravel):**
+```php
+// In Laravel, you need a query listener to see executed SQL
+DB::listen(function ($query) {
+    dump($query->sql, $query->bindings);
+});
+
+$users = DB::table('users')->where('status', 'active')->get();
+// You only see the SQL AFTER execution
+```
+
+**Larafony's advantage:**
+```php
+// See EXACTLY what will be executed BEFORE running it
+$rawSql = $db->table('users')
+    ->where('status', '=', 'active')
+    ->toRawSql();
+
+// Copy this SQL and run it directly in MySQL for debugging
+// No listeners, no magic, just data!
+```
+
+### toRawSql() - Safe SQL Generation
+
+The `toRawSql()` method safely substitutes bindings into SQL for debugging purposes:
+
+```php
+// Safely escapes all values using PDO::quote()
+$sql = $db->table('users')
+    ->where('name', '=', "O'Reilly")
+    ->toRawSql();
+// "SELECT * FROM users WHERE name = 'O\'Reilly'"
+
+// SQL injection protection
+$sql = $db->table('users')
+    ->where('name', '=', "Robert'; DROP TABLE users; --")
+    ->toRawSql();
+// "SELECT * FROM users WHERE name = 'Robert\'; DROP TABLE users; --'"
+```
+
+**How it works:**
+1. Uses `PDO::quote()` for database-specific escaping
+2. Handles NULL, booleans, integers, and strings correctly
+3. Parses SQL character-by-character to avoid replacing `?` inside string literals
+4. Handles escaped quotes (`\'`, `''`) and PostgreSQL operators (`??`)
+
+**Implementation:**
+```php
+public function toRawSql(): string
+{
+    $sql = $this->toSql();
+    $bindings = $this->query->getBindings();
+    return $this->grammar->substituteBindingsIntoRawSql($sql, $bindings);
+}
+```
+
+**Credit & Improvements:**
+
+The parsing algorithm is based on [Laravel PR #47507](https://github.com/laravel/framework/pull/47507) by [@tpetry](https://github.com/tpetry), which added `toRawSql()` to Laravel 10.x. Larafony's implementation improves on this design:
+
+**Laravel's approach:**
+```php
+// Grammar has implicit access to connection
+class Grammar {
+    protected function substituteBindingsIntoRawSql($sql, $bindings) {
+        // Uses $this->connection internally (magic!)
+        $bindings = array_map(fn($v) => $this->escape($v), $bindings);
+        // ...
+    }
+}
+```
+
+**Larafony's improvements:**
+```php
+// Grammar receives ConnectionContract via constructor (explicit DI)
+class Grammar {
+    public function __construct(
+        private readonly ?ConnectionContract $connection = null
+    ) {}
+
+    public function substituteBindingsIntoRawSql(string $sql, array $bindings): string {
+        if ($this->connection === null) {
+            throw new \RuntimeException('Connection required');
+        }
+        // Uses injected connection explicitly
+        $bindings = array_map(fn($v) => $this->connection->quote($v), $bindings);
+        // ...
+    }
+}
+```
+
+**Key differences:**
+1. **Explicit Dependency Injection** - Grammar receives `ConnectionContract` via constructor, no hidden dependencies
+2. **Better Testability** - Easy to mock connection in unit tests
+3. **ConnectionContract abstraction** - `quote()` is part of the contract, ensuring all drivers implement it
+4. **SOLID Principles** - Dependency Inversion Principle (depend on abstraction, not concretion)
+5. **Type Safety** - Full type hints on all parameters and return types
+
 ## Architecture
 
 The Query Builder uses a layered architecture identical to the Schema Builder:
@@ -346,11 +472,24 @@ $count = $db->table('users')
 ### Inspecting Queries
 
 ```php
-// Get SQL without executing
+// Get SQL without executing (with placeholders)
 $sql = $db->table('users')
     ->where('status', '=', 'active')
     ->toSql();
 // Returns: "SELECT * FROM users WHERE status = ?"
+
+// Get raw SQL with bindings substituted (for debugging)
+$sql = $db->table('users')
+    ->where('name', '=', 'John Doe')
+    ->where('age', '>', 25)
+    ->toRawSql();
+// Returns: "SELECT * FROM users WHERE name = 'John Doe' and age > 25"
+
+// SQL injection protection - automatically escaped!
+$sql = $db->table('users')
+    ->where('name', '=', "Robert'; DROP TABLE users; --")
+    ->toRawSql();
+// Returns: "SELECT * FROM users WHERE name = 'Robert\'; DROP TABLE users; --'"
 
 // Get bindings
 $builder = $db->table('users')
@@ -549,6 +688,8 @@ The code passes all quality checks:
 | **Type Safety** | ✅ Full type hints      | ⚠️ Partial | ⚠️ Partial |
 | **Test Coverage** | ✅ 100%                 | ⚠️ ~75% | ⚠️ Varies |
 | **Prepared Statements** | ✅ Always               | ✅ Always | ✅ Always |
+| **toRawSql()** | ✅ Built-in             | ✅ Laravel 10+ | ❌ Manual |
+| **SQL Inspection** | ✅ Before execution     | ⚠️ Needs listener | ⚠️ Manual |
 | **Dependencies** | ✅ Minimal              | ❌ Heavy | ❌ Very Heavy |
 | **Nested WHERE** | ✅ Closures             | ✅ Closures | ✅ `andWhere()`, `orWhere()` |
 | **Magic Methods** | ✅ None                 | ⚠️ Some | ❌ Heavy |
@@ -866,18 +1007,20 @@ For now, I use string literals `'and'` and `'or'` instead of an enum. It works p
 
 ## Key Takeaways
 
-1. **Grammar Pattern** - Facade delegating to specialized builders (partials)
-2. **Self-Building Clauses** - Each clause knows how to build itself via `getSqlDefinition()`
-3. **Component Builders** - Dedicated builders for query parts (WHERE, JOIN, ORDER BY, etc.)
-4. **State Isolation** - Fresh QueryBuilder instances prevent state leakage
-5. **Prepared Statements** - All queries use bindings for SQL injection protection
-6. **Laravel-Compatible** - Nearly identical API makes migration trivial
-7. **Type Safety** - Full type hints ensure correctness at compile time
-8. **Testability** - 100% code coverage with comprehensive unit tests
-9. **Clean Architecture** - Clear separation: Base (abstract) vs MySQL (concrete)
-10. **No Magic** - Predictable behavior without `__call()` or dynamic methods
-11. **array_filter() Trick** - Component builders return empty strings, filtered out automatically
-12. **Production-Ready** - Battle-tested patterns with 194 passing tests
+1. **SQL as Data** - Query builders return strings, not execute immediately
+2. **toRawSql()** - Safe SQL generation with PDO::quote() for debugging
+3. **Grammar Pattern** - Facade delegating to specialized builders (partials)
+4. **Self-Building Clauses** - Each clause knows how to build itself via `getSqlDefinition()`
+5. **Component Builders** - Dedicated builders for query parts (WHERE, JOIN, ORDER BY, etc.)
+6. **State Isolation** - Fresh QueryBuilder instances prevent state leakage
+7. **Prepared Statements** - All queries use bindings for SQL injection protection
+8. **Laravel-Compatible** - Nearly identical API makes migration trivial
+9. **Type Safety** - Full type hints ensure correctness at compile time
+10. **Testability** - 100% code coverage with comprehensive unit tests
+11. **Clean Architecture** - Clear separation: Base (abstract) vs MySQL (concrete)
+12. **No Magic** - Predictable behavior without `__call()` or dynamic methods
+13. **array_filter() Trick** - Component builders return empty strings, filtered out automatically
+14. **Production-Ready** - Battle-tested patterns with 714 passing tests
 
 ## Next Chapter
 

@@ -108,4 +108,6 @@ interface QueryBuilderContract
     public function delete(): int;
 
     public function toSql(): string;
+
+    public function toRawSql(): string;
 }

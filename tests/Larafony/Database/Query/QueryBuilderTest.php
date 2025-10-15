@@ -721,4 +721,165 @@ class QueryBuilderTest extends TestCase
 
         $this->assertSame(5, $result);
     }
+
+    public function testToRawSqlWithStringValues(): void
+    {
+        $this->connection
+            ->expects($this->exactly(2))
+            ->method('quote')
+            ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('name', '=', 'John Doe')
+            ->where('email', '=', 'john@example.com')
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE name = 'John Doe' and email = 'john@example.com'", $sql);
+    }
+
+    public function testToRawSqlWithSqlInjectionAttempt(): void
+    {
+        $this->connection
+            ->expects($this->once())
+            ->method('quote')
+            ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('name', '=', "Robert'; DROP TABLE users; --")
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE name = 'Robert\\'; DROP TABLE users; --'", $sql);
+    }
+
+    public function testToRawSqlWithMixedTypes(): void
+    {
+        $callCount = 0;
+        $this->connection
+            ->expects($this->exactly(3))
+            ->method('quote')
+            ->willReturnCallback(function ($value) use (&$callCount) {
+                $callCount++;
+                if ($callCount === 1) { // 'John'
+                    return "'John'";
+                }
+                if ($callCount === 2) { // 25
+                    return '25';
+                }
+                // true -> 1
+                return '1';
+            });
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('name', '=', 'John')
+            ->where('age', '>', 25)
+            ->where('active', '=', true)
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE name = 'John' and age > 25 and active = 1", $sql);
+    }
+
+    public function testToRawSqlWithNull(): void
+    {
+        $this->connection
+            ->expects($this->once())
+            ->method('quote')
+            ->with(null)
+            ->willReturn('NULL');
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('deleted_at', '=', null)
+            ->toRawSql();
+
+        $this->assertSame('SELECT * FROM users WHERE deleted_at = NULL', $sql);
+    }
+
+    public function testToRawSqlWithWhereIn(): void
+    {
+        $this->connection
+            ->expects($this->exactly(3))
+            ->method('quote')
+            ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->whereIn('status', ['active', 'pending', 'verified'])
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE status IN ('active', 'pending', 'verified')", $sql);
+    }
+
+    public function testToRawSqlWithComplexQuery(): void
+    {
+        $this->connection
+            ->expects($this->exactly(3))
+            ->method('quote')
+            ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('status', '=', 'active')
+            ->whereNested(function (QueryBuilder $q) {
+                $q->where('role', '=', 'admin')
+                  ->orWhere('role', '=', 'moderator');
+            }, 'and')
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE status = 'active' and (role = 'admin' or role = 'moderator')", $sql);
+    }
+
+    public function testToRawSqlWithUpdateQuery(): void
+    {
+        $callCount = 0;
+        $this->connection
+            ->expects($this->exactly(2))
+            ->method('quote')
+            ->willReturnCallback(function ($value) use (&$callCount) {
+                $callCount++;
+                if ($callCount === 1) { // 'Updated Name'
+                    return "'Updated Name'";
+                }
+                // 5 (integer)
+                return '5';
+            });
+
+        $builder = $this->builder
+            ->table('users')
+            ->where('id', '=', 5);
+
+        $reflection = new \ReflectionClass($builder);
+        $queryProperty = $reflection->getProperty('query');
+        $query = $queryProperty->getValue($builder);
+        $query->values = ['name' => 'Updated Name'];
+        $query->type = \Larafony\Framework\Database\Base\Query\Enums\QueryType::UPDATE;
+
+        $sql = $builder->toRawSql();
+
+        $this->assertSame("UPDATE users SET name = 'Updated Name' WHERE id = 5", $sql);
+    }
+
+    public function testToRawSqlWithQuotesInString(): void
+    {
+        $this->connection
+            ->expects($this->once())
+            ->method('quote')
+            ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
+
+        $sql = $this->builder
+            ->table('users')
+            ->select(['*'])
+            ->where('name', '=', "O'Reilly")
+            ->toRawSql();
+
+        $this->assertSame("SELECT * FROM users WHERE name = 'O\\'Reilly'", $sql);
+    }
 }

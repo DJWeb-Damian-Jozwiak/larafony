@@ -21,4 +21,6 @@ interface ConnectionContract
     public function getConnectionOptions(): array;
 
     public function getLastInsertId(): ?string;
+
+    public function quote(mixed $value): string;
 }

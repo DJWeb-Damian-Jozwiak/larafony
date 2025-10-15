@@ -20,4 +20,9 @@ interface GrammarContract
 
     public function compileDelete(QueryDefinition $query): string;
     public function compileSql(QueryType $type, QueryDefinition $query): string;
+
+    /**
+     * @param array<int, mixed> $bindings
+     */
+    public function substituteBindingsIntoRawSql(string $sql, array $bindings): string;
 }
