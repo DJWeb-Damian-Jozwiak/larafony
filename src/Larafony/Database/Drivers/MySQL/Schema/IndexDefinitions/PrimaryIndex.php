@@ -10,4 +10,9 @@ readonly class PrimaryIndex extends \Larafony\Framework\Database\Base\Schema\Ind
     {
         return "ALTER TABLE {$this->tableName} ADD PRIMARY KEY ({$this->columns})";
     }
+
+    public function getInlineSqlDefinition(): string
+    {
+        return "PRIMARY KEY ({$this->columns})";
+    }
 }

@@ -10,4 +10,9 @@ readonly class NormalIndex extends \Larafony\Framework\Database\Base\Schema\Inde
     {
         return "CREATE INDEX {$this->indexName} ON {$this->tableName} ({$this->columns})";
     }
+
+    public function getInlineSqlDefinition(): string
+    {
+        return "KEY {$this->indexName} ({$this->columns})";
+    }
 }
