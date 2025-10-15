@@ -16,9 +16,13 @@ abstract class SchemaBuilder implements SchemaBuilderContract
     {
     }
 
+    #[\NoDiscard]
     abstract public function create(string $table, Closure $callback): string;
+    #[\NoDiscard]
     abstract public function table(string $table, Closure $callback): string;
+    #[\NoDiscard]
     abstract public function drop(string $table): string;
+    #[\NoDiscard]
     abstract public function dropIfExists(string $table): string;
 
     public function execute(string $sql): bool

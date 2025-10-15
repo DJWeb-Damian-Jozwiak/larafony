@@ -17,6 +17,7 @@ class SchemaBuilder extends \Larafony\Framework\Database\Base\Schema\SchemaBuild
         $this->grammar = new Grammar();
     }
 
+    #[\NoDiscard]
     public function create(string $table, Closure $callback): string
     {
         $tableDefinition = new TableDefinition($table);
@@ -24,6 +25,7 @@ class SchemaBuilder extends \Larafony\Framework\Database\Base\Schema\SchemaBuild
         return $this->grammar->compileCreate($tableDefinition);
     }
 
+    #[\NoDiscard]
     public function table(string $table, Closure $callback): string
     {
         $tableDefinition = new DatabaseInfo($this->connection)->getTable($table);
@@ -38,11 +40,13 @@ class SchemaBuilder extends \Larafony\Framework\Database\Base\Schema\SchemaBuild
         return implode(';' . PHP_EOL, $statements);
     }
 
+    #[\NoDiscard]
     public function drop(string $table): string
     {
         return $this->grammar->compileDropTable($table);
     }
 
+    #[\NoDiscard]
     public function dropIfExists(string $table): string
     {
         return $this->grammar->compileDropTable($table, ifExists: true);
@@ -51,6 +55,7 @@ class SchemaBuilder extends \Larafony\Framework\Database\Base\Schema\SchemaBuild
     /**
      * @return array<int, string>
      */
+    #[\NoDiscard]
     public function getColumnListing(string $table): array
     {
         return new DatabaseInfo($this->connection)->getTable($table)->columnNames;
