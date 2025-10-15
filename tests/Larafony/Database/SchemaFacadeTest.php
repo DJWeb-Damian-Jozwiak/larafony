@@ -35,9 +35,10 @@ class SchemaFacadeTest extends TestCase
             ->method('create')
             ->with('users', $this->isInstanceOf(\Closure::class));
 
-        Schema::create('users', function ($table) {
+        $sql = Schema::create('users', function ($table) {
             $table->id();
         });
+        Schema::execute($sql);
     }
 
     public function testTableDelegatesToSchemaBuilder(): void
@@ -47,9 +48,11 @@ class SchemaFacadeTest extends TestCase
             ->method('table')
             ->with('users', $this->isInstanceOf(\Closure::class));
 
-        Schema::table('users', function ($table) {
+        $sql = Schema::table('users', function ($table) {
             $table->string('new_column');
         });
+
+        Schema::execute($sql);
     }
 
     public function testDropDelegatesToSchemaBuilder(): void
@@ -59,7 +62,9 @@ class SchemaFacadeTest extends TestCase
             ->method('drop')
             ->with('users');
 
-        Schema::drop('users');
+        $sql = Schema::drop('users');
+
+        Schema::execute($sql);
     }
 
     public function testDropIfExistsDelegatesToSchemaBuilder(): void
@@ -69,7 +74,9 @@ class SchemaFacadeTest extends TestCase
             ->method('dropIfExists')
             ->with('users');
 
-        Schema::dropIfExists('users');
+        $sql = Schema::dropIfExists('users');
+
+        Schema::execute($sql);
     }
 
     public function testGetColumnListingDelegatesToSchemaBuilder(): void
@@ -95,8 +102,10 @@ class SchemaFacadeTest extends TestCase
         $property = $reflection->getProperty('manager');
         $property->setValue(null, null);
 
-        Schema::create('users', function ($table) {
+        $sql = Schema::create('users', function ($table) {
             $table->id();
         });
+
+        Schema::execute($sql);
     }
 }

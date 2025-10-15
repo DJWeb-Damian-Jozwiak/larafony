@@ -26,24 +26,33 @@ class Schema
         return self::$manager->schema($connection);
     }
 
-    public static function create(string $table, Closure $callback): void
+    #[\NoDiscard]
+    public static function create(string $table, Closure $callback): string
     {
-        self::getSchemaBuilder()->create($table, $callback);
+        return self::getSchemaBuilder()->create($table, $callback);
     }
 
-    public static function table(string $table, Closure $callback): void
+    #[\NoDiscard]
+    public static function table(string $table, Closure $callback): string
     {
-        self::getSchemaBuilder()->table($table, $callback);
+        return self::getSchemaBuilder()->table($table, $callback);
     }
 
-    public static function drop(string $table): void
+    #[\NoDiscard]
+    public static function drop(string $table): string
     {
-        self::getSchemaBuilder()->drop($table);
+        return self::getSchemaBuilder()->drop($table);
     }
 
-    public static function dropIfExists(string $table): void
+    #[\NoDiscard]
+    public static function dropIfExists(string $table): string
     {
-        self::getSchemaBuilder()->dropIfExists($table);
+        return self::getSchemaBuilder()->dropIfExists($table);
+    }
+
+    public static function execute(string $sql): bool
+    {
+        return self::getSchemaBuilder()->execute($sql);
     }
 
     /**
