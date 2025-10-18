@@ -10,7 +10,7 @@ use SensitiveParameter;
 
 final class Connection implements ConnectionContract
 {
-    private ?PDO $connection = null;
+    public private(set) PDO $connection;
 
     public function __construct(
         private readonly ?string $host = null,
@@ -25,10 +25,6 @@ final class Connection implements ConnectionContract
 
     public function connect(): void
     {
-        if ($this->connection) {
-            return;
-        }
-
         $this->connection = $this->connectMysql(
             $this->host,
             $this->port,
@@ -39,17 +35,8 @@ final class Connection implements ConnectionContract
         );
     }
 
-    public function disconnect(): void
-    {
-        $this->connection = null;
-    }
-
     public function query(string $sql, array $params = []): \PDOStatement
     {
-        if ($this->connection === null) {
-            throw new \RuntimeException('Not connected to database. Call connect() first.');
-        }
-
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
 
@@ -74,10 +61,9 @@ final class Connection implements ConnectionContract
         ];
     }
 
-    public function getLastInsertId(): ?string
+    public function getLastInsertId(): string
     {
-        $id = $this->connection?->lastInsertId();
-        return $id === false ? null : $id;
+        return $this->connection->lastInsertId();
     }
 
     public function quote(mixed $value): string

@@ -8,8 +8,6 @@ interface ConnectionContract
 {
     public function connect(): void;
 
-    public function disconnect(): void;
-
     /**
      * @param array<string|int, string|float|int|null> $params
      */
