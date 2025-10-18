@@ -34,13 +34,17 @@ abstract class MigrationRepository
         if (in_array(self::MIGRATIONS_TABLE, $tables)) {
             return;
         }
-        Schema::create(self::MIGRATIONS_TABLE, static function (TableDefinition $table): void {
+        $sql = Schema::create(self::MIGRATIONS_TABLE, static function (TableDefinition $table): void {
             $table->id();
             $table->string('migration', 255);
             $table->integer('batch');
         });
+        Schema::execute($sql);
     }
 
+    /**
+     * @return array<int, array{migration: string, batch: int}>
+     */
     public function getMigrations(): array
     {
         return $this->queryBuilder()
@@ -55,9 +59,34 @@ abstract class MigrationRepository
             ->delete();
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getRan(): array
     {
         return array_column($this->getMigrations(), 'migration');
+    }
+
+    public function getLastBatchNumber(): int
+    {
+        return (int) ($this->queryBuilder()->table(self::MIGRATIONS_TABLE)
+            ->select([
+                'max(batch) as batch',
+            ])->first()['batch'] ?? 0);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getMigrationsByBatch(int $batch): array
+    {
+        $migrations = $this->queryBuilder()
+            ->table(self::MIGRATIONS_TABLE)
+            ->select(['migration'])
+            ->where('batch', '=', $batch)
+            ->get();
+
+        return array_column($migrations, 'migration');
     }
 
     abstract protected function queryBuilder(): QueryBuilder;

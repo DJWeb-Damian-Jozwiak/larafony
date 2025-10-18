@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Console\Commands;
 
 use Larafony\Framework\Clock\ClockFactory;
+use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
 
 #[AsCommand(name: 'make:migration')]
@@ -12,23 +13,24 @@ class MakeMigration extends MakeCommand
 {
     protected function getStub(): string
     {
-        $dir = dirname(__DIR__, 3);
+        $dir = dirname(__DIR__, 4);
 
         return $dir . '/stubs/migration.stub';
     }
 
     protected function getDefaultNamespace(): string
     {
-        return $this->rootNamespace() . 'Database\\Migrations';
+        return 'App\\Database\\Migrations';
     }
 
     protected function getPath(string $name): string
     {
         $name = str_replace('\\', '/', $name);
 
-        return $this->container->getBinding(
-            'app.migrations_path'
-        ) . '/' . $name;
+        $default = 'database/migrations/';
+        $path = $this->container->get(ConfigContract::class)->get('database.migrations.path', $default);
+
+        return $path . '/' . $name;
     }
 
     protected function qualifyName(string $name): string

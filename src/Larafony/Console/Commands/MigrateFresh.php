@@ -1,0 +1,102 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Larafony\Framework\Console\Commands;
+
+use Larafony\Framework\Console\Attributes\AsCommand;
+use Larafony\Framework\Console\Attributes\CommandOption;
+use Larafony\Framework\Console\Command;
+use Larafony\Framework\Console\Contracts\OutputContract;
+use Larafony\Framework\Container\Contracts\ContainerContract;
+use Larafony\Framework\Database\Base\Migrations\MigrationExecutor;
+use Larafony\Framework\Database\Base\Migrations\MigrationRepository;
+use Larafony\Framework\Database\Base\Migrations\MigrationResolver;
+use Larafony\Framework\Database\Drivers\MySQL\Schema\DatabaseInfo;
+use Larafony\Framework\Database\Schema;
+
+#[AsCommand(name: 'migrate:fresh')]
+class MigrateFresh extends Command
+{
+    #[CommandOption(name: 'database', description: 'Baza danych do odświeżenia')]
+    protected ?string $database = null;
+
+    #[CommandOption(name: 'force', description: 'Wymuś odświeżenie w środowisku produkcyjnym')]
+    protected bool $force = false;
+
+    public function __construct(
+        ContainerContract $container,
+        private MigrationRepository $repository,
+        private MigrationResolver $resolver,
+        private MigrationExecutor $executor,
+        private DatabaseInfo $databaseInfo,
+    ) {
+        $output = $container->get(OutputContract::class);
+        parent::__construct($output, $container);
+    }
+
+    public function withMigrationRepository(MigrationRepository $repository): void
+    {
+        $this->repository = $repository;
+    }
+
+    public function withMigrationResolver(MigrationResolver $resolver): void
+    {
+        $this->resolver = $resolver;
+    }
+
+    public function withMigrationExecutor(MigrationExecutor $executor): void
+    {
+        $this->executor = $executor;
+    }
+
+    public function withDatabaseInfo(DatabaseInfo $databaseInfo): void
+    {
+        $this->databaseInfo = $databaseInfo;
+    }
+
+    public function run(): int
+    {
+        $this->dropAllTables();
+        $this->runMigrations();
+
+        return 0;
+    }
+
+    private function dropAllTables(): void
+    {
+        $tables = $this->databaseInfo->getTables();
+
+        if (! $tables) {
+            $this->output->info('No tables to drop');
+            return;
+        }
+
+        foreach ($tables as $table) {
+            $sql = Schema::drop($table);
+            Schema::execute($sql);
+            $this->output->info("Dropped: {$table}");
+        }
+    }
+
+    private function runMigrations(): void
+    {
+        $this->repository->createMigrationsTable();
+
+        $migrations = $this->resolver->getMigrationFiles();
+
+        if (! $migrations) {
+            $this->output->info('Nothing to migrate');
+            return;
+        }
+
+        $migrated = $this->executor->executeMigrations(
+            $migrations,
+            'up',
+        );
+
+        foreach ($migrated as $migration) {
+            $this->output->info("Migrated: {$migration}");
+        }
+    }
+}

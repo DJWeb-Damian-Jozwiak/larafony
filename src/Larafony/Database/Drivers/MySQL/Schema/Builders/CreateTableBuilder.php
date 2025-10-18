@@ -30,11 +30,12 @@ class CreateTableBuilder extends \Larafony\Framework\Database\Base\Schema\Builde
 
     /**
      * Get inline index definitions for CREATE TABLE statement
+     *
      * @return array<int, string>
      */
     private function getInlineIndexes(TableDefinition $table): array
     {
-        $indexes = $table->indexes ;
+        $indexes = $table->indexes;
         return array_map(
             static fn (IndexDefinition $index) => $index->getInlineSqlDefinition(),
             $indexes,

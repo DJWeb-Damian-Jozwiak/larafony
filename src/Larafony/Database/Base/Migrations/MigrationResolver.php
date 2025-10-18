@@ -13,11 +13,14 @@ readonly class MigrationResolver
     {
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getMigrationFiles(): array
     {
         $files = new Directory($this->migrationPath)->files
             |> (fn ($files) => array_filter($files, $this->isMigrationFile(...)))
-            |> (static fn ($files) => array_map(fn (\SplFileInfo $file) => $file->getPathname(), $files));
+            |> (static fn ($files) => array_map(static fn (\SplFileInfo $file) => $file->getPathname(), $files));
         sort($files);
         return $files;
     }
