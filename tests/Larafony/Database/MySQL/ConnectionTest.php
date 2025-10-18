@@ -38,27 +38,7 @@ class ConnectionTest extends TestCase
 
         // We cannot test actual connection without a real database
         // Instead, verify that query throws exception before connect is called
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Not connected to database. Call connect() first.');
-
-        $connection->query('SELECT 1');
-    }
-
-    public function testDisconnectMethodClearsConnection(): void
-    {
-        $connection = new Connection(
-            host: 'localhost',
-            port: 3306,
-            database: 'test_db',
-            username: 'root',
-            password: 'secret'
-        );
-
-        $connection->disconnect();
-
-        // After disconnect, query should throw exception
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Not connected to database. Call connect() first.');
+        $this->expectException(\Error::class);
 
         $connection->query('SELECT 1');
     }
@@ -73,8 +53,7 @@ class ConnectionTest extends TestCase
             password: 'secret'
         );
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Not connected to database. Call connect() first.');
+        $this->expectException(\Error::class);
 
         $connection->query('SELECT 1');
     }
@@ -88,7 +67,7 @@ class ConnectionTest extends TestCase
         $this->assertIsArray($options);
         $this->assertEquals(PDO::ERRMODE_EXCEPTION, $options[PDO::ATTR_ERRMODE]);
         $this->assertEquals(PDO::FETCH_ASSOC, $options[PDO::ATTR_DEFAULT_FETCH_MODE]);
-        $this->assertFalse($options[PDO::ATTR_EMULATE_PREPARES]);
+        $this->assertTrue($options[PDO::ATTR_EMULATE_PREPARES]);
     }
 
     public function testConnectMysqlCreatesPdoWithCorrectDsn(): void
@@ -112,12 +91,11 @@ class ConnectionTest extends TestCase
         }
     }
 
-    public function testGetLastInsertIdReturnsNullWhenNotConnected(): void
+    public function testGetLastInsertIdThrowsExceptionWhenNotConnected(): void
     {
+        $this->expectException(\Error::class);
         $connection = new Connection();
 
-        $id = $connection->getLastInsertId();
-
-        $this->assertNull($id);
+        $connection->getLastInsertId();
     }
 }

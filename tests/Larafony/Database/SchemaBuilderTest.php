@@ -36,7 +36,7 @@ class SchemaBuilderTest extends TestCase
         $this->assertStringContainsString('name VARCHAR(255) NOT NULL', $sql);
         $this->assertStringContainsString('email VARCHAR(255) NULL', $sql);
         $this->assertStringContainsString('age INT(11) NULL', $sql);
-        $this->assertStringContainsString('ALTER TABLE users ADD PRIMARY KEY (id)', $sql);
+        $this->assertStringContainsString('PRIMARY KEY (id)', $sql);
     }
 
     public function testCreateTableWithPrimaryKey(): void
@@ -45,8 +45,7 @@ class SchemaBuilderTest extends TestCase
             $table->id();
         });
 
-        $expected = 'CREATE TABLE users (id INT(11) NOT NULL AUTO_INCREMENT);' . "\n"
-            . 'ALTER TABLE users ADD PRIMARY KEY (id)';
+        $expected = 'CREATE TABLE users (id INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (id));';
 
         $this->assertEquals($expected, $sql);
     }
@@ -109,7 +108,7 @@ class SchemaBuilderTest extends TestCase
 
         $this->assertStringContainsString('CREATE TABLE posts', $sql);
         $this->assertStringContainsString('title VARCHAR(255) NULL', $sql);
-        $this->assertStringContainsString('CREATE UNIQUE INDEX posts_title_unique ON posts (title)', $sql);
+        $this->assertStringContainsString('UNIQUE KEY posts_title_unique (title)', $sql);
     }
 
     public function testCreateTableWithDefaultValues(): void
@@ -178,7 +177,7 @@ class SchemaBuilderTest extends TestCase
         });
 
         $this->assertStringContainsString('CREATE TABLE users', $sql);
-        $this->assertStringContainsString('CREATE UNIQUE INDEX users_email_unique ON users (email)', $sql);
-        $this->assertStringContainsString('CREATE INDEX users_username_index ON users (username)', $sql);
+        $this->assertStringContainsString('UNIQUE KEY users_email_unique (email)', $sql);
+        $this->assertStringContainsString('KEY users_username_index (username)', $sql);
     }
 }

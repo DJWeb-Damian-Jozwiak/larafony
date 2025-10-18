@@ -8,8 +8,6 @@ interface ConnectionContract
 {
     public function connect(): void;
 
-    public function disconnect(): void;
-
     /**
      * @param array<string|int, string|float|int|null> $params
      */
@@ -22,5 +20,5 @@ interface ConnectionContract
 
     public function getLastInsertId(): ?string;
 
-    public function quote(mixed $value): string;
+    public function quote(int|float|string|bool|null $value): string;
 }

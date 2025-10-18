@@ -10,7 +10,7 @@ use SensitiveParameter;
 
 final class Connection implements ConnectionContract
 {
-    private ?PDO $connection = null;
+    public private(set) PDO $connection;
 
     public function __construct(
         private readonly ?string $host = null,
@@ -25,10 +25,6 @@ final class Connection implements ConnectionContract
 
     public function connect(): void
     {
-        if ($this->connection) {
-            return;
-        }
-
         $this->connection = $this->connectMysql(
             $this->host,
             $this->port,
@@ -39,17 +35,8 @@ final class Connection implements ConnectionContract
         );
     }
 
-    public function disconnect(): void
-    {
-        $this->connection = null;
-    }
-
     public function query(string $sql, array $params = []): \PDOStatement
     {
-        if ($this->connection === null) {
-            throw new \RuntimeException('Not connected to database. Call connect() first.');
-        }
-
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
 
@@ -74,18 +61,13 @@ final class Connection implements ConnectionContract
         ];
     }
 
-    public function getLastInsertId(): ?string
+    public function getLastInsertId(): string
     {
-        $id = $this->connection?->lastInsertId();
-        return $id === false ? null : $id;
+        return $this->connection->lastInsertId();
     }
 
-    public function quote(mixed $value): string
+    public function quote(int|float|string|bool|null $value): string
     {
-        if ($this->connection === null) {
-            throw new \RuntimeException('Not connected to database. Call connect() first.');
-        }
-
         if ($value === null) {
             return 'NULL';
         }
@@ -93,11 +75,6 @@ final class Connection implements ConnectionContract
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-
         return $this->connection->quote((string) $value);
     }
 
