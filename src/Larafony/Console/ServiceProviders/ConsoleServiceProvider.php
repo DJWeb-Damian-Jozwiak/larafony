@@ -15,6 +15,7 @@ use Larafony\Framework\Console\Formatters\Styles\WarningStyle;
 use Larafony\Framework\Console\Output;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\ServiceProvider;
+use Larafony\Framework\Core\Helpers\CommandCaller;
 use Psr\Http\Message\StreamFactoryInterface;
 
 class ConsoleServiceProvider extends ServiceProvider
@@ -37,6 +38,9 @@ class ConsoleServiceProvider extends ServiceProvider
 
         // Register Output after streams are available
         $container->set(OutputContract::class, Output::class);
+
+        // Register CommandCaller
+        $container->set(CommandCaller::class, CommandCaller::class);
 
         return $this;
     }

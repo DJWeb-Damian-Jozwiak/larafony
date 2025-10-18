@@ -26,4 +26,17 @@ final class Str
     {
         return array_any($needle, static fn ($n) => str_ends_with($haystack, $n));
     }
+
+    /**
+     * Pluralize a word.
+     *
+     * @param string $word Word to pluralize
+     * @param int $count Count (if 1, returns singular form)
+     *
+     * @return string Pluralized word
+     */
+    public static function pluralize(string $word, int $count = 2): string
+    {
+        return Pluralizer::pluralize($word, $count);
+    }
 }

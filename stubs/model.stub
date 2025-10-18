@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyNamespace;
+
+use Larafony\Framework\Database\ORM\Model;
+
+class DummyClass extends Model
+{
+    public string $table {
+        get => 'DummyTable';
+    }
+}

@@ -8,13 +8,14 @@ use DateTimeZone;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\Enums\Timezone;
+use Larafony\Framework\Database\ORM\Contracts\Castable;
 
 /**
  * System clock implementation using real system time.
  *
  * Compatible with Carbon's testing API via setTestNow().
  */
-final class SystemClock implements Clock
+final class SystemClock implements Clock, Castable
 {
     private static ?\DateTimeImmutable $testNow = null;
 
@@ -26,6 +27,21 @@ final class SystemClock implements Clock
     public static function fromTimezone(?Timezone $timezone = null): self
     {
         return new self(new DateTimeZone($timezone->value ?? 'UTC'));
+    }
+
+    /**
+     * Create SystemClock from datetime string (Castable interface).
+     *
+     * @param string $value DateTime string to parse
+     *
+     * @return static
+     */
+    public static function from(string $value): static
+    {
+        $datetime = new \DateTimeImmutable($value);
+        $clock = new self($datetime->getTimezone());
+        self::withTestNow($datetime);
+        return $clock;
     }
 
     public function format(TimeFormat|string $format): string

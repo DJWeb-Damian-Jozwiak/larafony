@@ -11,6 +11,7 @@ use Larafony\Framework\Database\Base\Migrations\MigrationRepository as BaseMigra
 use Larafony\Framework\Database\Base\Migrations\MigrationResolver;
 use Larafony\Framework\Database\DatabaseManager;
 use Larafony\Framework\Database\Drivers\MySQL\Migrations\MigrationRepository;
+use Larafony\Framework\Database\ORM\DB;
 use Larafony\Framework\Database\Schema;
 
 class DatabaseServiceProvider extends ServiceProvider
@@ -48,6 +49,9 @@ class DatabaseServiceProvider extends ServiceProvider
 
         // Set Schema facade manager
         Schema::withManager($manager);
+
+        // Set DB (ORM) facade manager
+        DB::withManager($manager);
 
         // Register schema builder
         $container->set('db.schema', $manager->schema());

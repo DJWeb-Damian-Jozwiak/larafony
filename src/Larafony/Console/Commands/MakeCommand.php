@@ -22,9 +22,15 @@ abstract class MakeCommand extends Command
 
         $path = $this->getPath($name);
 
+        // Ensure directory exists
+        $directory = dirname($path);
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
         file_put_contents($path, $this->buildClass($name));
 
-        $this->output->info("Utworzono {$name}");
+        $this->output->info("Created {$name}");
 
         return 0;
     }
