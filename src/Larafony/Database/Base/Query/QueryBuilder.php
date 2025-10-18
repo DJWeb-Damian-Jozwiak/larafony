@@ -15,6 +15,7 @@ use Larafony\Framework\Database\Base\Query\Enums\OrderDirection;
  * Base Query Builder - provides fluent API
  * Abstract class - no SQL building here, only state management
  * Concrete implementations in drivers (MySQL, PostgreSQL, etc.)
+ *
  * @phpstan-consistent-constructor
  */
 abstract class QueryBuilder implements QueryBuilderContract

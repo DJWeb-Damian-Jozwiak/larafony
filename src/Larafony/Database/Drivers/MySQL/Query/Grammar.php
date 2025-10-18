@@ -8,6 +8,9 @@ use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\Base\Query\Contracts\GrammarContract;
 use Larafony\Framework\Database\Base\Query\Enums\QueryType;
 use Larafony\Framework\Database\Base\Query\QueryDefinition;
+use Larafony\Framework\Database\Drivers\MySQL\Query\Constraints\IsEscapedChar;
+use Larafony\Framework\Database\Drivers\MySQL\Query\Constraints\IsPlaceholder;
+use Larafony\Framework\Database\Drivers\MySQL\Query\Constraints\IsStringBoundary;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\DeleteBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\InsertBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\SelectBuilder;
@@ -19,7 +22,8 @@ use Larafony\Framework\Database\Drivers\MySQL\Query\Grammar\Builders\UpdateBuild
  */
 class Grammar implements GrammarContract
 {
-    public function __construct(private readonly ?ConnectionContract $connection = null)
+    private string $result = '';
+    public function __construct(private readonly ConnectionContract $connection)
     {
     }
     public function compileSelect(QueryDefinition $query): string
@@ -57,33 +61,46 @@ class Grammar implements GrammarContract
      */
     public function substituteBindingsIntoRawSql(string $sql, array $bindings): string
     {
-        if ($this->connection === null) {
-            throw new \RuntimeException('Connection required for substituteBindingsIntoRawSql');
-        }
+        $this->result = '';
+        $quotedBindings = array_map(fn ($value) => $this->connection->quote($value), $bindings);
+        $inString = false;
+        $length = strlen($sql);
 
-        $bindings = array_map(fn ($value) => $this->connection->quote($value), $bindings);
-
-        $query = '';
-        $isStringLiteral = false;
-
-        for ($i = 0; $i < strlen($sql); $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $char = $sql[$i];
-            $nextChar = $sql[$i + 1] ?? null;
+            $next = $sql[$i + 1] ?? '';
 
-            // Handle escaped characters and string literal boundaries
-            if (in_array($char . $nextChar, ["\'", "''", '??'], true)) {
-                $query .= $char . $nextChar;
-                $i += 1;
-            } elseif ($char === "'") {
-                $query .= $char;
-                $isStringLiteral = ! $isStringLiteral;
-            } elseif ($char === '?' && ! $isStringLiteral) {
-                $query .= array_shift($bindings) ?? '?';
+            if (IsEscapedChar::check($char, $next)) {
+                $this->appendEscapedChar($char, $next);
+                $i++;
+            } elseif (IsStringBoundary::check($char, $next)) {
+                $this->appendChar($char);
+                $inString = ! $inString;
+            } elseif (IsPlaceholder::check($char, $inString)) {
+                $this->appendBinding($quotedBindings);
             } else {
-                $query .= $char;
+                $this->appendChar($char);
             }
         }
 
-        return $query;
+        return $this->result;
+    }
+
+    private function appendEscapedChar(string $char, string $next): void
+    {
+        $this->result .= $char . $next;
+    }
+
+    private function appendChar(string $char): void
+    {
+        $this->result .= $char;
+    }
+
+    /**
+     * @param array<int, mixed> $bindings
+     */
+    private function appendBinding(array &$bindings): void
+    {
+        $this->result .= array_shift($bindings) ?? '?';
     }
 }

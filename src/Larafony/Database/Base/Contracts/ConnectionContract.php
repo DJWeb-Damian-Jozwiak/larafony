@@ -20,5 +20,5 @@ interface ConnectionContract
 
     public function getLastInsertId(): ?string;
 
-    public function quote(mixed $value): string;
+    public function quote(int|float|string|bool|null $value): string;
 }

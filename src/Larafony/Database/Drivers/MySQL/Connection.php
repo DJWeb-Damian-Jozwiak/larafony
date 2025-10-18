@@ -66,12 +66,8 @@ final class Connection implements ConnectionContract
         return $this->connection->lastInsertId();
     }
 
-    public function quote(mixed $value): string
+    public function quote(int|float|string|bool|null $value): string
     {
-        if ($this->connection === null) {
-            throw new \RuntimeException('Not connected to database. Call connect() first.');
-        }
-
         if ($value === null) {
             return 'NULL';
         }
@@ -79,11 +75,6 @@ final class Connection implements ConnectionContract
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-
         return $this->connection->quote((string) $value);
     }
 
