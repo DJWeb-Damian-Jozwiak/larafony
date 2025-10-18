@@ -25,7 +25,7 @@ final readonly class MigrationExecutor
         $executed = [];
 
         foreach ($migrations as $migration) {
-            $this->$method($migration);
+            $method($migration);
             $executed[] = $migration;
         }
 

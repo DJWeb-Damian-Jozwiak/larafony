@@ -22,7 +22,7 @@ class MigrateRollback extends Command
     protected bool $force = false;
 
     #[CommandOption(name: 'step', description: 'Liczba batchy do cofnięcia')]
-    protected ?int $step = 1;
+    protected int $step = 1;
 
     public function __construct(
         ContainerContract $container,
@@ -31,16 +31,6 @@ class MigrateRollback extends Command
     ) {
         $output = $container->get(OutputContract::class);
         parent::__construct($output, $container);
-    }
-
-    public function withMigrationRepository(MigrationRepository $repository): void
-    {
-        $this->repository = $repository;
-    }
-
-    public function withMigrationExecutor(MigrationExecutor $executor): void
-    {
-        $this->executor = $executor;
     }
 
     public function run(): int
@@ -66,19 +56,11 @@ class MigrateRollback extends Command
     {
         $lastBatch = $this->repository->getLastBatchNumber();
 
-        if ($lastBatch === 0) {
-            return [];
-        }
-
         $migrations = [];
-        $steps = $this->step ?? 1;
+        $steps = $this->step;
 
         for ($i = 0; $i < $steps; $i++) {
             $batchNumber = $lastBatch - $i;
-            if ($batchNumber <= 0) {
-                break;
-            }
-
             $batchMigrations = $this->repository->getMigrationsByBatch($batchNumber);
             $migrations = array_merge($migrations, $batchMigrations);
         }

@@ -20,7 +20,10 @@ readonly class MigrationResolver
     {
         $files = new Directory($this->migrationPath)->files
             |> (fn ($files) => array_filter($files, $this->isMigrationFile(...)))
-            |> (static fn ($files) => array_map(static fn (\SplFileInfo $file) => $file->getPathname(), $files));
+            |> (static fn ($files) => array_map(
+                static fn (\SplFileInfo $file) => pathinfo($file->getFilename(), PATHINFO_FILENAME),
+                $files
+            ));
         sort($files);
         return $files;
     }
@@ -36,9 +39,9 @@ readonly class MigrationResolver
         return $migration->withName($file);
     }
 
-    private function isMigrationFile(\SplFileObject $file): bool
+    private function isMigrationFile(\SplFileInfo $file): bool
     {
         $name = $file->getFilename();
-        return (bool) preg_match('/^\d{4}_\d{2}_\d{2}_\d{6}_\w+$/', $name);
+        return (bool) preg_match('/^\d{4}_\d{2}_\d{2}_\d{6}_\w+\.php$/', $name);
     }
 }

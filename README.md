@@ -72,7 +72,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Console Kernel — [Chapter 9](docs/Larafony/chapter9.md)
 - [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter10.md)
 - [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter11.md)
-- [ ] MySQL Migrations — Chapter 12
+- [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter12.md)
 - [ ] ORM — Chapter 13
 
 ### 🧱 Application Layer

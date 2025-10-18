@@ -35,21 +35,6 @@ class Migrate extends Command
         parent::__construct($output, $container);
     }
 
-    public function withMigrationRepository(MigrationRepository $repository): void
-    {
-        $this->repository = $repository;
-    }
-
-    public function withMigrationResolver(MigrationResolver $resolver): void
-    {
-        $this->resolver = $resolver;
-    }
-
-    public function withMigrationExecutor(MigrationExecutor $executor): void
-    {
-        $this->executor = $executor;
-    }
-
     public function run(): int
     {
         $this->repository->createMigrationsTable();
