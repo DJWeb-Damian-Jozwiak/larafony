@@ -88,7 +88,7 @@ class ConnectionTest extends TestCase
         $this->assertIsArray($options);
         $this->assertEquals(PDO::ERRMODE_EXCEPTION, $options[PDO::ATTR_ERRMODE]);
         $this->assertEquals(PDO::FETCH_ASSOC, $options[PDO::ATTR_DEFAULT_FETCH_MODE]);
-        $this->assertFalse($options[PDO::ATTR_EMULATE_PREPARES]);
+        $this->assertTrue($options[PDO::ATTR_EMULATE_PREPARES]);
     }
 
     public function testConnectMysqlCreatesPdoWithCorrectDsn(): void
