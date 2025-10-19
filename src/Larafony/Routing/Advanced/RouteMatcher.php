@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Routing\Advanced;
 
+use Larafony\Framework\Routing\Basic\Route as BasicRoute;
 use Larafony\Framework\Routing\Basic\RouteMatcher as BasicRouteMatcher;
 
 class RouteMatcher extends BasicRouteMatcher
 {
-    protected function matchesPath(string $path, Route $route): bool
+    protected function matchesPath(string $path, BasicRoute $route): bool
     {
+        // If it's not an Advanced\Route, fallback to parent
+        if (! $route instanceof Route) {
+            return parent::matchesPath($path, $route);
+        }
+
         $path = $this->normalizePath($path);
         $pattern = $this->buildPatternFromPath($route->path);
         $matches = [];

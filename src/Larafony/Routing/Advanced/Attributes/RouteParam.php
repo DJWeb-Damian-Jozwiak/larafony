@@ -12,8 +12,7 @@ readonly class RouteParam
     public function __construct(
         public string $name,
         public string|int|float|object|null $default = null,
-        public ?string $bind = null,
-    )
-    {
+        public string $bind = '',
+    ) {
     }
 }

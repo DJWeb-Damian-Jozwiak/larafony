@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Routing\Basic;
 
 use Larafony\Framework\Http\Enums\HttpMethod;
-use Larafony\Framework\Routing\Advanced\Route as AdvancedRoute;
 use Psr\Http\Message\ServerRequestInterface;
 
 class RouteMatcher
@@ -17,7 +16,7 @@ class RouteMatcher
      *
      * @return bool True if the route matches, false otherwise
      */
-    public function matches(ServerRequestInterface $request, AdvancedRoute $route): bool
+    public function matches(ServerRequestInterface $request, Route $route): bool
     {
         return $this->matchesPath($request->getUri()->getPath(), $route) &&
             $this->matchesMethod($request->getMethod(), $route);
@@ -29,7 +28,7 @@ class RouteMatcher
      *
      * @return bool True if the path matches, false otherwise
      */
-    protected function matchesPath(string $path, AdvancedRoute $route): bool
+    protected function matchesPath(string $path, Route $route): bool
     {
         $trimmed = rtrim($route->path, '/');
         $trimmed2 = rtrim($path, '/');

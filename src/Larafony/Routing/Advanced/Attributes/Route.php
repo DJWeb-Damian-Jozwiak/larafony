@@ -10,9 +10,9 @@ use Attribute;
 readonly class Route
 {
     /**
-     * @var string|array<int, string>
+     * @var array<int, string>
      */
-    public string|array $methods;
+    public array $methods;
 
     /**
      * @param string $path
@@ -21,9 +21,7 @@ readonly class Route
     public function __construct(
         public string $path,
         string|array $methods = ['GET'],
-    )
-    {
+    ) {
         $this->methods = is_string($methods) ? [$methods] : $methods;
     }
-
 }

@@ -12,7 +12,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Router implements RequestHandlerInterface
 {
-    public function __construct(public private(set) RouteCollection $routes, private ContainerContract $container)
+    public function __construct(public private(set) RouteCollection $routes, protected ContainerContract $container)
     {
     }
 

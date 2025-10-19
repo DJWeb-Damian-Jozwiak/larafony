@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 
 namespace Larafony\Framework\Routing\Advanced\Attributes;
 
@@ -19,8 +19,7 @@ class Middleware
         private array $beforeGlobal = [],
         private array $afterGlobal = [],
         private array $withoutMiddleware = []
-    )
-    {
+    ) {
     }
 
     public function addToRoute(Route $route): void

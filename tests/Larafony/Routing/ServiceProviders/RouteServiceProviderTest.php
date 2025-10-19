@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Routing\ServiceProviders;
 
+use Larafony\Framework\Routing\Advanced\Router;
 use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
 use Larafony\Framework\Routing\Basic\Factories\StringHandlerFactory;
-use Larafony\Framework\Routing\Basic\Router;
 use Larafony\Framework\Routing\ServiceProviders\RouteServiceProvider;
 use Larafony\Framework\Tests\TestCase;
 use Psr\Http\Server\RequestHandlerInterface;

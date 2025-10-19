@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Web;
 
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Http\Factories\ResponseFactory;
 use Larafony\Framework\Http\Factories\ServerRequestFactory;
 use Larafony\Framework\Http\Factories\StreamFactory;
-use Larafony\Framework\Routing\Basic\Router;
+use Larafony\Framework\Routing\Advanced\Router;
+use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
+use Larafony\Framework\Routing\Basic\Factories\StringHandlerFactory;
+use Larafony\Framework\Routing\Basic\RouteCollection;
+use Larafony\Framework\Routing\Basic\RouteHandlerFactory;
 use Larafony\Framework\Tests\TestCase;
 use Larafony\Framework\Web\Kernel;
+use Larafony\Framework\Web\Middleware\MiddlewareStack;
 use Psr\Http\Message\ServerRequestInterface;
 
 class KernelTest extends TestCase
@@ -27,9 +33,23 @@ class KernelTest extends TestCase
         $this->responseFactory = new ResponseFactory();
         $this->streamFactory = new StreamFactory();
 
-        $app = \Larafony\Framework\Web\Application::instance();
-        $this->router = $app->get(Router::class);
-        $this->kernel = new Kernel($this->router);
+        // Create fresh instances for each test to avoid state pollution
+        $container = $this->createMock(ContainerContract::class);
+        $arrayFactory = new ArrayHandlerFactory($container);
+        $stringFactory = new StringHandlerFactory($container);
+        $factory = new RouteHandlerFactory($arrayFactory, $stringFactory);
+
+        $container->method('get')->willReturnCallback(function ($id) use ($factory) {
+            if ($id === RouteHandlerFactory::class) {
+                return $factory;
+            }
+            throw new \Exception("Unexpected container get: $id");
+        });
+
+        $routes = new RouteCollection($container);
+        $this->router = new Router($routes, $container);
+        $middlewareStack = new MiddlewareStack($this->router);
+        $this->kernel = new Kernel($middlewareStack, $this->router);
     }
 
     public function testHandleProcessesRequest(): void

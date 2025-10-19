@@ -35,10 +35,16 @@ class Route extends BasicRoute
     ) {
         parent::__construct($path, $method, $handlerDefinition, $factory, $name);
         $this->parsedParams = new ParsedRouteDecorator($this->path);
+        $this->middleware = new RouteMiddleware();
     }
 
     public function bind(string $parameter, string $model, string $findMethod = 'findForRoute'): self
     {
+        // Check if this parameter name matches a route parameter
+        // and if the type is a class (potential model)
+        if (! isset($this->parsedParams->definitions[$parameter])) {
+            return $this;
+        }
         $this->bindings[$parameter] = new RouteBinding(modelClass: $model, findMethod: $findMethod);
 
         return $this;
@@ -71,5 +77,10 @@ class Route extends BasicRoute
     {
         $this->middleware->withoutMiddleware($middleware);
         return $this;
+    }
+
+    public function getMiddleware(): RouteMiddleware
+    {
+        return $this->middleware;
     }
 }

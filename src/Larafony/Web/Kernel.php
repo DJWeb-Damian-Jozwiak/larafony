@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Web;
 
-use Larafony\Framework\Routing\Basic\Router;
+use Larafony\Framework\Routing\Advanced\Router;
 use Larafony\Framework\Web\Middleware\MiddlewareStack;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,8 +12,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Kernel implements RequestHandlerInterface
 {
-    public function __construct(private MiddlewareStack $middlewareStack)
-    {
+    public function __construct(
+        private MiddlewareStack $middlewareStack,
+        private Router $router
+    ) {
     }
 
     public function handle(ServerRequestInterface $request, ?callable $exitCallback = null): ResponseInterface

@@ -26,9 +26,8 @@ readonly class RouterMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
         try {
-            return $this->router->handle($request, $handler);
+            return $this->router->handle($request);
         } catch (\Throwable $exception) {
             $request = $request->withAttribute('exception', $exception);
             return $handler->handle($request);

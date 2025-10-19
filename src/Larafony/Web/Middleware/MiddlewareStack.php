@@ -45,21 +45,19 @@ class MiddlewareStack implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $exception = $request->getAttribute('exception');
-        if($exception !== null) {
+        if ($exception !== null) {
             throw $exception;
         }
 
-        if ($this->currentIndex === count($this->middleware) && $this->routerExecuted) {
-            return $request->getAttribute('route_response', $this->originalResponse);
-        }
-        if ($this->currentIndex === count($this->middleware))
-        {
+        if ($this->currentIndex === count($this->middleware)) {
+            if ($this->routerExecuted) {
+                return $request->getAttribute('route_response', $this->originalResponse);
+            }
             $this->routerExecuted = true;
-            $this->originalResponse = $this->router->handle($request);
+            return $this->router->handle($request);
         }
         $middleware = $this->middleware[$this->currentIndex];
-        if ($middleware instanceof RouterMiddleware)
-        {
+        if ($middleware instanceof RouterMiddleware) {
             $this->routerExecuted = true;
         }
 

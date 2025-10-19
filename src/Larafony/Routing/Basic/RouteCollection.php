@@ -13,8 +13,10 @@ class RouteCollection
     /** @var array<int, Route> */
     public private(set) array $routes = [];
 
-    public function __construct(private readonly ContainerContract $container)
-    {
+    public function __construct(
+        private readonly ContainerContract $container,
+        private readonly ?RouteMatcher $matcher = null
+    ) {
     }
 
     public function addRoute(Route $route): void
@@ -33,7 +35,7 @@ class RouteCollection
      */
     public function findRoute(ServerRequestInterface $request): Route
     {
-        $matcher = new RouteMatcher();
+        $matcher = $this->matcher ?? new RouteMatcher();
         return array_find(
             $this->routes,
             static fn (Route $route) => $matcher->matches($request, $route)
