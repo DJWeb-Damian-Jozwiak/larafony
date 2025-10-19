@@ -19,11 +19,11 @@ readonly class ClassAttributesProcessor
      */
     public function __construct(ReflectionClass $controller)
     {
-        /** @var array<int, ?ReflectionAttribute<RouteGroup>> $groupAttributes */
+        /** @var array<int, ReflectionAttribute<RouteGroup>> $groupAttributes */
         $groupAttributes = $controller->getAttributes(RouteGroup::class);
-        $this->routeGroup = $groupAttributes[0]?->newInstance();
-        /** @var array<int, ?ReflectionAttribute<Middleware>> $middlewareAttributes */
+        $this->routeGroup = $groupAttributes ? $groupAttributes[0]->newInstance() : null;
+        /** @var array<int, ReflectionAttribute<Middleware>> $middlewareAttributes */
         $middlewareAttributes = $controller->getAttributes(Middleware::class);
-        $this->middleware = $middlewareAttributes[0]?->newInstance();
+        $this->middleware = $middlewareAttributes ? $middlewareAttributes[0]->newInstance() : null;
     }
 }

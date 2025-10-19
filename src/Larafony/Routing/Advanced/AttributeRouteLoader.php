@@ -24,7 +24,8 @@ readonly class AttributeRouteLoader
     public function loadFromDirectory(string $path): array
     {
         $classes = $this->scanner->scanDirectory($path);
-        return array_map($this->loadFromController(...), $classes);
+        $routesPerController = array_map($this->loadFromController(...), $classes);
+        return ! $routesPerController ? [] : array_merge(...$routesPerController);
     }
 
     /**

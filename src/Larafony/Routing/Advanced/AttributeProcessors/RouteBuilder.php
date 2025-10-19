@@ -34,7 +34,7 @@ class RouteBuilder
         RouteAttribute $route,
     ): Route {
         $classAttributesProcessor = new ClassAttributesProcessor($controller);
-        $groupPrefix = $classAttributesProcessor->routeGroup->prefix ?? '';
+        $groupPrefix = $classAttributesProcessor->routeGroup->name ?? '';
         $path = $groupPrefix . $route->path;
         $handler = [$controller->getName(), $method->getName()];
         $route = new Route(
