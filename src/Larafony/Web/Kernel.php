@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Larafony\Framework\Web;
 
 use Larafony\Framework\Routing\Basic\Router;
+use Larafony\Framework\Web\Middleware\MiddlewareStack;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class Kernel implements RequestHandlerInterface
 {
-    public function __construct(private Router $router)
+    public function __construct(private MiddlewareStack $middlewareStack)
     {
     }
 
     public function handle(ServerRequestInterface $request, ?callable $exitCallback = null): ResponseInterface
     {
-        return $this->router->handle($request)
+        return $this->middlewareStack->handle($request)
             |> $this->handleHeaders(...)
             |> (fn (ResponseInterface $response) => $this->handleRedirects($response, $exitCallback));
     }
