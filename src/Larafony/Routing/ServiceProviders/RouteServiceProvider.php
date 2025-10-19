@@ -7,6 +7,7 @@ namespace Larafony\Framework\Routing\ServiceProviders;
 use Larafony\Framework\Container\ServiceProvider;
 use Larafony\Framework\Routing\Advanced\AttributeRouteLoader;
 use Larafony\Framework\Routing\Advanced\AttributeRouteScanner;
+use Larafony\Framework\Routing\Advanced\Cache\RouteCache;
 use Larafony\Framework\Routing\Advanced\RouteMatcher;
 use Larafony\Framework\Routing\Advanced\Router;
 use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
@@ -39,5 +40,11 @@ class RouteServiceProvider extends ServiceProvider
             $container->get(RouteMatcher::class)
         );
         $container->set(RouteCollection::class, $collection);
+
+        // Register RouteCache with project-specific cache directory
+        $basePath = $container->getBinding('base_path');
+        $cacheDir = $basePath . '/storage/cache';
+        $routeCache = new RouteCache($cacheDir);
+        $container->set(RouteCache::class, $routeCache);
     }
 }

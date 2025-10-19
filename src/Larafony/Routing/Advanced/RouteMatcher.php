@@ -17,6 +17,15 @@ class RouteMatcher extends BasicRouteMatcher
         }
 
         $path = $this->normalizePath($path);
+
+        // Use compiled route if available (performance optimization)
+        if ($route->compiled !== null) {
+            $parameters = $route->compiled->match($path);
+            $route->withParameters($parameters ?? []);
+            return true;
+        }
+
+        // Fallback to dynamic matching
         $pattern = $this->buildPatternFromPath($route->path);
         $matches = [];
         if (! preg_match($pattern, $path, $matches)) {

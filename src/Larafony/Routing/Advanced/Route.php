@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Routing\Advanced;
 
 use Larafony\Framework\Http\Enums\HttpMethod;
+use Larafony\Framework\Routing\Advanced\Compiled\CompiledRoute;
 use Larafony\Framework\Routing\Advanced\Decorators\ParsedRouteDecorator;
 use Larafony\Framework\Routing\Advanced\Decorators\RouteMiddleware;
 use Larafony\Framework\Routing\Basic\Route as BasicRoute;
@@ -23,6 +24,8 @@ class Route extends BasicRoute
      * @var array<string, mixed>
      */
     public private(set) array $parameters = [];
+
+    public private(set) ?CompiledRoute $compiled = null;
 
     private readonly RouteMiddleware $middleware;
 
@@ -82,5 +85,11 @@ class Route extends BasicRoute
     public function getMiddleware(): RouteMiddleware
     {
         return $this->middleware;
+    }
+
+    public function compile(CompiledRoute $compiled): static
+    {
+        $this->compiled = $compiled;
+        return $this;
     }
 }

@@ -15,7 +15,7 @@ class RouteCollection
 
     public function __construct(
         private readonly ContainerContract $container,
-        private readonly ?RouteMatcher $matcher = null
+        private readonly ?RouteMatcher $matcher = null,
     ) {
     }
 
@@ -38,7 +38,16 @@ class RouteCollection
         $matcher = $this->matcher ?? new RouteMatcher();
         return array_find(
             $this->routes,
-            static fn (Route $route) => $matcher->matches($request, $route)
+            static fn (Route $route) => $matcher->matches($request, $route),
         ) ?? throw new RouteNotFoundError($request);
+    }
+
+    public function findRouteByName(string $name): Route
+    {
+        $msg = sprintf('Route for %s not found', $name);
+        return array_find(
+            $this->routes,
+            static fn (Route $route) => $route->name === $name,
+        ) ?? throw new \InvalidArgumentException($msg);
     }
 }
