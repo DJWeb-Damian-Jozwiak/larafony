@@ -59,7 +59,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 ### 🧩 Core Foundation
 - [x] Base framework configuration — [Chapter 1](docs/Larafony/chapter1.md)
 - [x] Simple error handling — [Chapter 2](docs/Larafony/chapter_2.md)
-- [ ] Simple timer using PSR-20 (Simple Carbon replacement) — Chapter 3
+- [x] Simple timer using PSR-20 (Simple Carbon replacement) — [Chapter 3](docs/Larafony/chapter_3.md)
 - [ ] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — Chapter 4
 - [ ] Dependency Injection using PSR-11 — Chapter 5
 
