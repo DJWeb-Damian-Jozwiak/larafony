@@ -70,40 +70,37 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### ⚙️ Console & Database
 - [x] Console Kernel — [Chapter 9](docs/Larafony/chapter_9.md)
-- [ ] DBAL Core & Contracts — [Chapter 10](docs/Larafony/chapter_10.md)
-- [ ] MySQL Schema Builder — Chapter 11
-- [ ] MySQL Query Builder — Chapter 12
-- [ ] MySQL Migrations — Chapter 13
-- [ ] ORM — Chapter 14
+- [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
+- [ ] MySQL Query Builder — Chapter 11
+- [ ] MySQL Migrations — Chapter 12
+- [ ] ORM (ActiveRecord with Property Observers) — Chapter 13
 
 ### 🧱 Application Layer
-- [ ] Logging System (PSR-3) — Chapter 15
-- [ ] Middleware System (PSR-15) — Chapter 16
-- [ ] Advanced Routing — Chapter 17
-- [ ] DTO-based Form Validation — Chapter 18
+- [ ] Logging System (PSR-3) — Chapter 14
+- [ ] Middleware System (PSR-15) + Advanced routing — Chapter 15
+- [ ] DTO-based Form Validation — Chapter 16
 
 ### 🎨 View Layer
-- [ ] View Core & Contracts — Chapter 19
-- [ ] Custom Blade Parser — Chapter 20
-- [ ] Twig Wrapper — Chapter 21
-- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 22
+- [ ] Custom Blade Parser — Chapter 17
+- [ ] Twig Wrapper — Chapter 18
+- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 19
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 23
-- [ ] Advanced Console Error Handling — Chapter 24
+- [ ] Advanced Web Error Handling — Chapter 20
+- [ ] Advanced Console Error Handling — Chapter 21`
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 25
-- [ ] Sending Emails (Symfony Mailer) — Chapter 26
-- [ ] Authorization System — Chapter 27
-- [ ] Cache Optimization (PSR-6) — Chapter 28
-- [ ] Event System (PSR-14 and alternatives) — Chapter 29
-- [ ] Jobs and Queues — Chapter 30
-- [ ] Simple WebSockets (almost from scratch) — Chapter 31
-- [ ] PSR — A new way of communication — Chapter 32
+- [ ] Encrypted Cookies and Sessions — Chapter 22
+- [ ] Sending Emails (Symfony Mailer) — Chapter 23
+- [ ] Authorization System — Chapter 24
+- [ ] Cache Optimization (PSR-6) — Chapter 25
+- [ ] Event System (PSR-14 and alternatives) — Chapter 26
+- [ ] Jobs and Queues — Chapter 27
+- [ ] Simple WebSockets (almost from scratch) — Chapter 28
+- [ ] PSR — A new way of communication — Chapter 29
 
 ### 🧭 Meta
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 33
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 30
 
 
 ## 🚀 Learn How It’s Built—From Scratch
