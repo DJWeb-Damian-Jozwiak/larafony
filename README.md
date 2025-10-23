@@ -60,8 +60,8 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Base framework configuration — [Chapter 1](docs/Larafony/chapter1.md)
 - [x] Simple error handling — [Chapter 2](docs/Larafony/chapter_2.md)
 - [x] Simple timer using PSR-20 (Simple Carbon replacement) — [Chapter 3](docs/Larafony/chapter_3.md)
-- [x] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 4](docs/Larafony/chapter_4.md)
-- [x] Dependency Injection using PSR-11 — [Chapter 5](docs/Larafony/chapter_5.md)
+- [ ] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 4](docs/Larafony/chapter_4.md)
+- [ ] Dependency Injection using PSR-11 — [Chapter 5](docs/Larafony/chapter_5.md)
 
 ### 🌐 HTTP Layer
 - [x] Routing using PSR-15 — [Chapter 6](docs/Larafony/chapter_6.md)
@@ -69,15 +69,15 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Environment variables and configuration — [Chapter 8](docs/Larafony/chapter_8.md)
 
 ### ⚙️ Console & Database
-- [x] Console Kernel — [Chapter 9](docs/Larafony/chapter9.md)
-- [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter10.md)
-- [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter11.md)
-- [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter12.md)
-- [x] ORM (ActiveRecord with Property Observers) — [Chapter 13](docs/Larafony/chapter13.md)
+- [x] Console Kernel — [Chapter 9](docs/Larafony/chapter_9.md)
+- [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
+- [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter_11.md)
+- [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter_12.md)
+- [x] ORM (ActiveRecord with Property Observers) — [Chapter 13](docs/Larafony/chapter_13.md)
 
 ### 🧱 Application Layer
-- [x] Logging System (PSR-3) — [Chapter 14](docs/Larafony/chapter14.md)
-- [x] Middleware System (PSR-15) + Advanced routing — [Chapter 15](docs/Larafony/chapter15.md)
+- [x] Logging System (PSR-3) — [Chapter 14](docs/Larafony/chapter_14.md)
+- [x] Middleware System (PSR-15) + Advanced routing — [Chapter 14](docs/Larafony/chapter_15.md)
 - [ ] DTO-based Form Validation — Chapter 16
 
 ### 🎨 View Layer
@@ -97,7 +97,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [ ] Event System (PSR-14 and alternatives) — Chapter 26
 - [ ] Jobs and Queues — Chapter 27
 - [ ] Simple WebSockets (almost from scratch) — Chapter 28
-- [ ] PSR — A new way of communication — Chapter 29
+- [ ] MCP — A new way of communication — Chapter 29
 
 ### 🧭 Meta
 - [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 30

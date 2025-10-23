@@ -133,4 +133,74 @@ final class ResponseFactoryTest extends TestCase
         $withVersion = $response->withProtocolVersion('2.0');
         $this->assertSame('2.0', $withVersion->getProtocolVersion());
     }
+
+    public function testCreateJsonResponseWithDefaultStatusCode(): void
+    {
+        $factory = new ResponseFactory();
+        $data = ['message' => 'success', 'id' => 123];
+        $response = $factory->createJsonResponse($data);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('OK', $response->getReasonPhrase());
+        $this->assertTrue($response->hasHeader('Content-Type'));
+        $this->assertStringContainsString('application/json', $response->getHeaderLine('Content-Type'));
+
+        $body = (string) $response->getBody();
+        $decoded = json_decode($body, true);
+        $this->assertSame(['message' => 'success', 'id' => 123], $decoded);
+    }
+
+    public function testCreateJsonResponseWithCustomStatusCode(): void
+    {
+        $factory = new ResponseFactory();
+        $data = ['error' => 'Not Found'];
+        $response = $factory->createJsonResponse($data, 404);
+
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame('Not Found', $response->getReasonPhrase());
+
+        $body = (string) $response->getBody();
+        $decoded = json_decode($body, true);
+        $this->assertSame(['error' => 'Not Found'], $decoded);
+    }
+
+    public function testCreateJsonResponseWithCustomHeaders(): void
+    {
+        $factory = new ResponseFactory();
+        $data = ['data' => 'test'];
+        $headers = ['X-Custom-Header' => 'custom-value'];
+        $response = $factory->createJsonResponse($data, 200, $headers);
+
+        $this->assertTrue($response->hasHeader('X-Custom-Header'));
+        $this->assertSame('custom-value', $response->getHeaderLine('X-Custom-Header'));
+    }
+
+    public function testCreateJsonResponseEncodesArrays(): void
+    {
+        $factory = new ResponseFactory();
+        $data = [
+            'users' => [
+                ['id' => 1, 'name' => 'Alice'],
+                ['id' => 2, 'name' => 'Bob'],
+            ]
+        ];
+        $response = $factory->createJsonResponse($data);
+
+        $body = (string) $response->getBody();
+        $decoded = json_decode($body, true);
+
+        $this->assertIsArray($decoded);
+        $this->assertArrayHasKey('users', $decoded);
+        $this->assertCount(2, $decoded['users']);
+    }
+
+    public function testCreateJsonResponseWith201Created(): void
+    {
+        $factory = new ResponseFactory();
+        $data = ['id' => 999, 'created' => true];
+        $response = $factory->createJsonResponse($data, 201);
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('Created', $response->getReasonPhrase());
+    }
 }

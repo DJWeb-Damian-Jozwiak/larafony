@@ -423,4 +423,4 @@ Hello, World!
 
 ---
 
-📚 **Learn More:** This implementation is explained in detail with step-by-step tutorials, tests, and best practices at [masterphp.eu](https://masterphp.eu)
+📚 **Learn More:** This implementation is explained in detail with step-by-step tutorials, tests, and best practices at [masterphp.eu](/rehttps://masterphp.eu)
