@@ -58,119 +58,52 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🧩 Core Foundation
 - [x] Base framework configuration — [Chapter 1](docs/Larafony/chapter1.md)
-- [x] Simple error handling — [Chapter 2](docs/Larafony/chapter2.md)
-- [x] Simple timer using PSR-20 (Simple Carbon replacement) — [Chapter 3](docs/Larafony/chapter3.md)
-- [x] Dependency Injection using PSR-11 — [Chapter 4](docs/Larafony/chapter4.md)
-- [x] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 5](docs/Larafony/chapter5.md) 
+- [x] Simple error handling — [Chapter 2](docs/Larafony/chapter_2.md)
+- [x] Simple timer using PSR-20 (Simple Carbon replacement) — [Chapter 3](docs/Larafony/chapter_3.md)
+- [ ] HTTP requests with PSR-7/PSR-17 (Simple Web Kernel) — [Chapter 4](docs/Larafony/chapter_4.md)
+- [ ] Dependency Injection using PSR-11 — [Chapter 5](docs/Larafony/chapter_5.md)
 
 ### 🌐 HTTP Layer
-- [x] Routing using PSR-15 — [Chapter 6](docs/Larafony/chapter6.md)
-- [x] HTTP client using PSR-18 (Simple Guzzle replacement) — [Chapter 7](docs/Larafony/chapter7.md)
-- [x] Environment variables and configuration — [Chapter 8](docs/Larafony/chapter8.md)
+- [x] Routing using PSR-15 — [Chapter 6](docs/Larafony/chapter_6.md)
+- [x] HTTP client using PSR-18 (Simple Guzzle replacement) — [Chapter 7](docs/Larafony/chapter_7.md)
+- [x] Environment variables and configuration — [Chapter 8](docs/Larafony/chapter_8.md)
 
 ### ⚙️ Console & Database
-- [x] Console Kernel — [Chapter 9](docs/Larafony/chapter9.md)
-- [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter10.md)
-- [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter11.md)
-- [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter12.md)
-- [x] ORM (ActiveRecord with Property Observers) — [Chapter 13](docs/Larafony/chapter13.md)
+- [x] Console Kernel — [Chapter 9](docs/Larafony/chapter_9.md)
+- [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
+- [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter_11.md)
+- [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter_12.md)
+- [ ] ORM (ActiveRecord with Property Observers) — Chapter 13
 
 ### 🧱 Application Layer
 - [ ] Logging System (PSR-3) — Chapter 14
-- [ ] Middleware System (PSR-15) — Chapter 15
-- [ ] Advanced Routing — Chapter 16
-- [ ] DTO-based Form Validation — Chapter 17
+- [ ] Middleware System (PSR-15) + Advanced routing — Chapter 15
+- [ ] DTO-based Form Validation — Chapter 16
 
 ### 🎨 View Layer
-- [ ] Custom Blade Parser — Chapter 18
-- [ ] Twig Wrapper — Chapter 19
-- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 20
+- [ ] Custom Blade Parser — Chapter 17
+- [ ] Twig Wrapper — Chapter 18
+- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 19
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 21
-- [ ] Advanced Console Error Handling — Chapter 22
+- [ ] Advanced Web Error Handling — Chapter 20
+- [ ] Advanced Console Error Handling — Chapter 21`
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 23
-- [ ] Sending Emails (Symfony Mailer) — Chapter 24
-- [ ] Authorization System — Chapter 25
-- [ ] Cache Optimization (PSR-6) — Chapter 26
-- [ ] Event System (PSR-14 and alternatives) — Chapter 27
-- [ ] Jobs and Queues — Chapter 28
-- [ ] Simple WebSockets (almost from scratch) — Chapter 29
-- [ ] PSR — A new way of communication — Chapter 30
+- [ ] Encrypted Cookies and Sessions — Chapter 22
+- [ ] Sending Emails (Symfony Mailer) — Chapter 23
+- [ ] Authorization System — Chapter 24
+- [ ] Cache Optimization (PSR-6) — Chapter 25
+- [ ] Event System (PSR-14 and alternatives) — Chapter 26
+- [ ] Jobs and Queues — Chapter 27
+- [ ] Simple WebSockets (almost from scratch) — Chapter 28
+- [ ] PSR — A new way of communication — Chapter 29
 
 ### 🧭 Meta
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 30
 
 
-## 🐛 Debugging Errors: The 4 Levels
-
-When debugging production issues, check logs in this order:
-
-### Level 1: Application Error Handler
-**Larafony's DetailedErrorHandler** - catches exceptions and errors in your application code.
-
-```bash
-# Check error output in browser/response
-# Or application logs if configured
-tail -f storage/logs/app.log
-```
-
-**What you'll find:** PHP exceptions, errors, stack traces with code context.
-
-### Level 2: Apache/Nginx Error Log
-**Web server logs** - catches errors before they reach PHP or server configuration issues.
-
-```bash
-# Apache
-tail -f /var/log/apache2/error.log
-
-# Nginx
-tail -f /var/log/nginx/error.log
-```
-
-**What you'll find:** 500 errors, request timeouts, server configuration issues, permission errors.
-
-### Level 3: PHP-FPM Error Log
-**PHP-FPM process logs** - catches fatal errors, segfaults, and PHP-FPM specific issues.
-
-```bash
-# Usually in:
-tail -f /var/log/php8.5-fpm.log
-# or
-tail -f /var/log/php-fpm/www-error.log
-```
-
-**What you'll find:** Fatal errors, PHP-FPM crashes, memory exhaustion, max execution time exceeded.
-
-### Level 4: Kernel Log (dmesg)
-**Linux kernel logs** - the lowest level, catches segfaults and system-level crashes.
-
-```bash
-dmesg | grep -i "segfault\|php" | tail -20
-```
-
-**What you'll find:**
-- Segmentation faults with memory addresses
-- Stack overflow (`error 6`)
-- Memory violations (`error 4`, `error 7`)
-- Kernel panics
-
-**Example output:**
-```
-php8.5[976807]: segfault at 7ffe11249ff8 ip 0000636cff38882f sp 00007ffe1124a000 error 6
-```
-
-- `error 4` = Read violation (accessing forbidden memory)
-- `error 6` = **Stack overflow** (infinite recursion)
-- `error 7` = Write violation
-
-**Pro tip:** If you see `error 6`, look for infinite loops or recursive function calls in your code!
-
----
-
-## 🚀 Learn How It's Built—From Scratch
+## 🚀 Learn How It’s Built—From Scratch
 
 Interested in **how Larafony is built step by step?**
 
