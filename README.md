@@ -71,7 +71,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 ### ⚙️ Console & Database
 - [x] Console Kernel — [Chapter 9](docs/Larafony/chapter_9.md)
 - [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
-- [ ] MySQL Query Builder — Chapter 11
+- [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter_11.md)
 - [ ] MySQL Migrations — Chapter 12
 - [ ] ORM (ActiveRecord with Property Observers) — Chapter 13
 
