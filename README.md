@@ -77,7 +77,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🧱 Application Layer
 - [x] Logging System (PSR-3) — [Chapter 14](docs/Larafony/chapter_14.md)
-- [ ] Middleware System (PSR-15) + Advanced routing — Chapter 15
+- [x] Middleware System (PSR-15) + Advanced routing — [Chapter 14](docs/Larafony/chapter_15.md)
 - [ ] DTO-based Form Validation — Chapter 16
 
 ### 🎨 View Layer
@@ -97,7 +97,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [ ] Event System (PSR-14 and alternatives) — Chapter 26
 - [ ] Jobs and Queues — Chapter 27
 - [ ] Simple WebSockets (almost from scratch) — Chapter 28
-- [ ] PSR — A new way of communication — Chapter 29
+- [ ] MCP — A new way of communication — Chapter 29
 
 ### 🧭 Meta
 - [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 30
