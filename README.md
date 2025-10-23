@@ -73,7 +73,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
 - [x] MySQL Query Builder — [Chapter 11](docs/Larafony/chapter_11.md)
 - [x] MySQL Migrations — [Chapter 12](docs/Larafony/chapter_12.md)
-- [ ] ORM (ActiveRecord with Property Observers) — Chapter 13
+- [x] ORM (ActiveRecord with Property Observers) — [Chapter 13](docs/Larafony/chapter_13.md)
 
 ### 🧱 Application Layer
 - [ ] Logging System (PSR-3) — Chapter 14
