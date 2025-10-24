@@ -77,8 +77,8 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🧱 Application Layer
 - [x] Logging System (PSR-3) — [Chapter 14](docs/Larafony/chapter_14.md)
-- [x] Middleware System (PSR-15) + Advanced routing — [Chapter 14](docs/Larafony/chapter_15.md)
-- [ ] DTO-based Form Validation — Chapter 16
+- [x] Middleware System (PSR-15) + Advanced routing — [Chapter 15](docs/Larafony/chapter_15.md)
+- [x] DTO-based Form Validation — [Chapter 16](docs/Larafony/chapter_16.md)
 
 ### 🎨 View Layer
 - [ ] Custom Blade Parser — Chapter 17
