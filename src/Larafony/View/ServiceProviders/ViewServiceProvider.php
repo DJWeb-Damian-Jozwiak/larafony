@@ -27,7 +27,7 @@ class ViewServiceProvider extends ServiceProvider
         );
 
         // Register named renderers for easy switching (future: Twig, etc.)
-        $container->set('view.renderer.blade',BladeAdapter::buildDefault());
+        $container->set('view.renderer.blade', BladeAdapter::buildDefault());
 
         return $this;
     }

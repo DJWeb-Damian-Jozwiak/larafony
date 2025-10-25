@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\View;
 
+use Larafony\Framework\View\Contracts\RendererContract;
 use Larafony\Framework\View\Engines\BladeAdapter;
 use ReflectionClass;
 use ReflectionProperty;
 
 abstract class Component
 {
+    private static ?RendererContract $sharedRenderer = null;
+
     private ?string $slot = null;
     /**
      * @var array<string, string>
@@ -28,7 +31,13 @@ abstract class Component
 
     public function render(): string
     {
-        $renderer = BladeAdapter::buildDefault();
+        // Use shared renderer if available, otherwise create new one
+        $renderer = self::$sharedRenderer ?? BladeAdapter::buildDefault();
+
+        // If this is the first component (no shared renderer yet), set it
+        if (self::$sharedRenderer === null) {
+            self::$sharedRenderer = $renderer;
+        }
 
         return $renderer->render(
             $this->getView(),
@@ -51,12 +60,11 @@ abstract class Component
     {
         $reflection = new ReflectionClass($this);
         $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+        $properties = array_filter($properties, static fn (ReflectionProperty $property) => ! $property->isStatic());
 
         $publicProperties = [];
         foreach ($properties as $property) {
-            if (! $property->isStatic()) {
-                $publicProperties[$property->getName()] = $property->getValue($this);
-            }
+            $publicProperties[$property->getName()] = $property->getValue($this);
         }
 
         return $publicProperties;

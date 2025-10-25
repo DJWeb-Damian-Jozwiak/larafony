@@ -8,6 +8,7 @@ use Larafony\Framework\Config\Environment\Dto\ParserResult;
 use Larafony\Framework\Config\Environment\Exception\EnvironmentError;
 use Larafony\Framework\Config\Environment\Parser\DotenvParser;
 use Larafony\Framework\Config\Environment\Parser\ParserContract;
+use Larafony\Framework\Storage\File;
 
 /**
  * Facade do ładowania zmiennych środowiskowych
@@ -28,9 +29,7 @@ class EnvironmentLoader
             throw new EnvironmentError("Environment file not found: {$path}");
         }
 
-        if (! is_readable($path)) {
-            throw new EnvironmentError("Environment file not readable: {$path}");
-        }
+        File::ensureFileIsReadable($path);
 
         $content = file_get_contents($path);
         if ($content === false) {

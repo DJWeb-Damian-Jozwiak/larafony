@@ -40,38 +40,12 @@ class HandleNotFound implements MiddlewareInterface
     private function renderFallback404(ServerRequestInterface $request): ResponseInterface
     {
         $path = $request->getUri()->getPath();
+        $path = htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
+        $html = '<h1>404 - Page Not Found</h1><p>The page ' . $path . ' does not exist.</p>';
 
-        $html = <<<HTML
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>404 Not Found</title>
-                <style>
-                    body {
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                        max-width: 600px;
-                        margin: 100px auto;
-                        padding: 20px;
-                        text-align: center;
-                    }
-                    h1 { color: #e74c3c; font-size: 72px; margin: 0; }
-                    h2 { color: #34495e; }
-                    a { color: #3498db; text-decoration: none; }
-                    a:hover { text-decoration: underline; }
-                    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
-                </style>
-            </head>
-            <body>
-                <h1>404</h1>
-                <h2>Page Not Found</h2>
-                <p>The page <code>{$path}</code> does not exist.</p>
-                <p><a href="/">← Go back home</a></p>
-            </body>
-            </html>
-            HTML;
+        $response = $this->responseFactory->createResponse(404);
+        $response->getBody()->write($html);
 
-        return $this->responseFactory->createResponse(404)
-            ->withContent($html)
-            ->withHeader('Content-Type', 'text/html; charset=utf-8');
+        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
     }
 }

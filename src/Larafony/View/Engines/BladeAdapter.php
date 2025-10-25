@@ -28,6 +28,8 @@ use Larafony\Framework\Web\Config;
 
 class BladeAdapter extends BaseAdapter implements RendererContract
 {
+    private static int $renderDepth = 0;
+
     private TemplateCompiler $compiler;
     private TemplateLoader $loader;
     private AssetManager $assetManager;
@@ -88,19 +90,25 @@ class BladeAdapter extends BaseAdapter implements RendererContract
 
     public function render(string $template, array $data = []): string
     {
-        $this->extendedTemplate = null;
+        self::$renderDepth++;
 
-        $content = $this->renderTemplate($template, $data);
+        try {
+            $this->extendedTemplate = null;
 
-        /**
-         * template is extended in views, in a render template method with layouts
-         */
-        /** @phpstan-ignore-next-line  */
-        if ($this->extendedTemplate !== null) {
-            return $this->render($this->extendedTemplate, $data);
+            $content = $this->renderTemplate($template, $data);
+
+            /**
+             * template is extended in views, in a render template method with layouts
+             */
+            /** @phpstan-ignore-next-line */
+            if ($this->extendedTemplate !== null) {
+                return $this->render($this->extendedTemplate, $data);
+            }
+
+            return $content;
+        } finally {
+            self::$renderDepth--;
         }
-
-        return $content;
     }
 
     public static function buildDefault(): RendererContract
@@ -154,12 +162,7 @@ class BladeAdapter extends BaseAdapter implements RendererContract
     private function isCached(string $template, string $cached_file): bool
     {
         // Convert dot notation to directory separator
-        $template = str_replace('.', '/', $template);
-
-        // Add .blade.php extension if not present
-        if (! str_ends_with($template, '.blade.php')) {
-            $template .= '.blade.php';
-        }
+        $template = str_replace('.', '/', $template) . '.blade.php';
 
         $template_path = $this->template_path . '/' . $template;
         return File::isCached($template_path, $cached_file);
@@ -185,7 +188,9 @@ class BladeAdapter extends BaseAdapter implements RendererContract
     {
         extract($data);
         ob_start();
-        include_once $cached_file;
+        // Use include (not include_once) to allow multiple instances of the same component
+        // template to be rendered within a single request (e.g., multiple <x-status-badge> components)
+        include $cached_file;
         /** @var string $buffer */
         $buffer = ob_get_clean();
         return $buffer;

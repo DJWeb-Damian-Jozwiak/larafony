@@ -18,8 +18,8 @@ class ComponentDirective extends Directive
             function ($matches) {
                 $slotName = $matches[1];
                 $slotContent = $this->compileComponents($matches[2]);
-                return "<?php \$__current_component = \$__component; ob_start(); ?>
-{$slotContent}<?php \$__component->withNamedSlot('{$slotName}', trim(ob_get_clean())); ?>";
+                return "<?php \$__slot_component = \$__component; ob_start(); ?>
+{$slotContent}<?php \$__slot_component->withNamedSlot('{$slotName}', trim(ob_get_clean())); ?>";
             }
         );
 
@@ -50,17 +50,19 @@ class ComponentDirective extends Directive
 
     private function compileComponents(string $content): string
     {
+        static $globalCounter = 0;
+
         return preg_replace_callback(
             '/\<x-([^>]+)(?:\s([^>]*))?\>(.*?)\<\/x-\1\>/s',
-            function ($matches) {
-                static $counter = 0;
-                $counter++;
+            function ($matches) use (&$globalCounter) {
+                $globalCounter++;
+                $uniqueId = $globalCounter . '_' . substr(md5($matches[0]), 0, 8);
 
                 $componentName = $this->formatComponentName($matches[1]);
                 $attributes = $this->parseAttributes($matches[2]);
                 $slot = $matches[3];
 
-                $varName = "\$__component_{$counter}";
+                $varName = "\$__component_{$uniqueId}";
 
                 $compiledSlot = $this->compileComponents($slot);
 

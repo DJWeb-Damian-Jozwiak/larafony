@@ -17,7 +17,7 @@ class IfDirective extends Directive
     public function compileIf(string $content): string
     {
         return $this->compilePattern(
-            '/\@if\s*\((.*?)\)/',
+            '/\@if\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
             $content,
             static fn ($matches) => "<?php if({$matches[1]}): ?>"
         );
@@ -26,7 +26,7 @@ class IfDirective extends Directive
     public function compileElseIf(string $content): string
     {
         return $this->compilePattern(
-            '/\@elseif\s*\((.*?)\)/',
+            '/\@elseif\s*\(((?:[^()]+|\((?:[^()]+|\([^()]*\))*\))*)\)/',
             $content,
             static fn ($matches) => "<?php elseif({$matches[1]}): ?>"
         );

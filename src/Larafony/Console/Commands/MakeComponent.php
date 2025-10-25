@@ -28,7 +28,7 @@ class MakeComponent extends MakeCommand
         $viewPath = $this->getViewPath();
         $directory = dirname($viewPath);
 
-        $this->output->info("Creating blade view...");
+        $this->output->info('Creating blade view...');
         $this->output->info("View path: {$viewPath}");
         $this->output->info("Directory: {$directory}");
 

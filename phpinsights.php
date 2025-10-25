@@ -23,6 +23,7 @@ return [
         'routing/vendor',
         'session/vendor',
         'view/vendor',
+        'demo-app/storage',
     ],
 
     'add' => [],

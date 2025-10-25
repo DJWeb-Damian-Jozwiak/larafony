@@ -11,7 +11,6 @@ use Larafony\Framework\Http\Factories\ResponseFactory;
 use Larafony\Framework\Web\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 
 class DemoController extends Controller
 {
