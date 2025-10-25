@@ -24,7 +24,6 @@ $app->withServiceProviders([
 $app->withRoutes(static function (Router $router): void {
     $router->addRouteByParams('GET', '/', [DemoController::class, 'home']);
     $router->addRouteByParams('GET', '/info', [DemoController::class, 'info']);
-    $router->addRouteByParams('GET', '/test404', [\App\Http\Controllers\TestController::class, 'test404']);
 });
 //$app->run();
 return $app;
