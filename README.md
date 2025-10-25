@@ -80,28 +80,34 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Middleware System (PSR-15) + Advanced routing — [Chapter 15](docs/Larafony/chapter_15.md)
 - [x] DTO-based Form Validation — [Chapter 16](docs/Larafony/chapter_16.md)
 
-### 🎨 View Layer
-- [ ] Custom Blade Parser — [Chapter 17](docs/Larafony/chapter_17.md)
-- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 18
+### 🎨 View Layer (simple)
+- [x] Custom Blade Parser — [Chapter 17](docs/Larafony/chapter_17.md)
+
+### 🌐 Migrating to packagist
+
+- [ ] Demo application as a separate project — Chapter 18
+
+### 🎨 View Layer (SPA)
+- [ ] Inertia.js Middleware (Vue.js) — Chapter 19
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 19
-- [ ] Advanced Console Error Handling — Chapter 20
+- [ ] Advanced Web Error Handling — Chapter 20
+- [ ] Advanced Console Error Handling — Chapter 21
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 21
-- [ ] Sending Emails — Chapter 22
-- [ ] Authorization System — Chapter 23
-- [ ] Cache Optimization (PSR-6) — Chapter 24
-- [ ] Event System (PSR-14 and alternatives) — Chapter 25
-- [ ] Jobs and Queues — Chapter 26
-- [ ] Simple WebSockets (almost from scratch) — Chapter 27
-- [ ] MCP — A new way of communication — Chapter 28
+- [ ] Encrypted Cookies and Sessions — Chapter 22
+- [ ] Sending Emails — Chapter 23
+- [ ] Authorization System — Chapter 24
+- [ ] Cache Optimization (PSR-6) — Chapter 25
+- [ ] Event System (PSR-14 and alternatives) — Chapter 26
+- [ ] Jobs and Queues — Chapter 27
+- [ ] Simple WebSockets (almost from scratch) — Chapter 28
+- [ ] MCP — A new way of communication — Chapter 29
 
 ### 🧭 Meta
-- [ ] Creating Larafony installer = Chapter 29
-- [ ] Demo Project: (Very) Simple Web Store - Chapter 30
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
+- [ ] Creating Larafony installer — Chapter 30
+- [ ] Demo Project: (Very) Simple Web Store — Chapter 31
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 32
 
 ### 🧩 The Philosophy of the Final Chapters
 
@@ -134,10 +140,10 @@ Welcome to the end of the framework —
 and the beginning of **your own**.
 
 ### ⚙️ Extending with mature Libraries
-- [ ] View Bridges (Twig & Smarty) - Chapter 32
-- [ ] Use Carbon instead of ClockFactory - Chapter 33
-- [ ] Use Monolog - Chapter 34
-- [ ] Replace Container with Laravel Container - Chapter 35
+- [ ] View Bridges (Twig & Smarty) — Chapter 33
+- [ ] Use Carbon instead of ClockFactory — Chapter 34
+- [ ] Use Monolog — Chapter 35
+- [ ] Replace Container with Laravel Container — Chapter 36
 
 ## 🚀 Learn How It’s Built—From Scratch
 

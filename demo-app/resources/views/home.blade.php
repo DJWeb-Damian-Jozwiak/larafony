@@ -20,13 +20,9 @@
     </x-info-card>
 
     <x-alert>
-        <p>Error Handler is active. Try these endpoints:</p>
     </x-alert>
 
     <ul>
         <li><a href="/info">📊 View Request Info (JSON)</a></li>
-        <li><a href="/error">⚠️ Trigger E_WARNING</a></li>
-        <li><a href="/exception">💥 Trigger Exception</a></li>
-        <li><a href="/fatal">☠️ Trigger Fatal Error</a></li>
     </ul>
 </x-layout>
