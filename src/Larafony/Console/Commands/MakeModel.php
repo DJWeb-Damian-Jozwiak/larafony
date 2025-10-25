@@ -8,6 +8,7 @@ use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Attributes\CommandOption;
 use Larafony\Framework\Core\Helpers\CommandCaller;
+use Larafony\Framework\Core\Helpers\FileSystem;
 use Larafony\Framework\Core\Support\Str;
 
 #[AsCommand(name: 'make:model')]
@@ -94,8 +95,7 @@ class MakeModel extends MakeCommand
 
     protected function buildClass(string $name): string
     {
-        $stub = file_get_contents($this->getStub());
-        $stub = $stub ? $stub : '';
+        $stub = FileSystem::tryGetFileContent($this->getStub());
 
         $this->replaceNamespace($stub, $name);
         $stub = $this->replaceClass($stub, $name);

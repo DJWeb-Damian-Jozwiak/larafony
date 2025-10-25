@@ -7,6 +7,7 @@ namespace Larafony\Framework\Console\Commands;
 use Larafony\Framework\Console\Attributes\CommandArgument;
 use Larafony\Framework\Console\Attributes\CommandOption;
 use Larafony\Framework\Console\Command;
+use Larafony\Framework\Core\Helpers\FileSystem;
 
 abstract class MakeCommand extends Command
 {
@@ -23,10 +24,7 @@ abstract class MakeCommand extends Command
         $path = $this->getPath($name);
 
         // Ensure directory exists
-        $directory = dirname($path);
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
+        FileSystem::createDirectoryIfMissing(dirname($path));
 
         file_put_contents($path, $this->buildClass($name));
 
@@ -48,9 +46,7 @@ abstract class MakeCommand extends Command
 
     protected function buildClass(string $name): string
     {
-        $stub = file_get_contents($this->getStub());
-
-        $stub = $stub ? $stub : '';
+        $stub = FileSystem::tryGetFileContent($this->getStub());
 
         return $this->replaceNamespace($stub, $name)->replaceClass(
             $stub,

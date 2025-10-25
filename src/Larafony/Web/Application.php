@@ -11,6 +11,9 @@ use Larafony\Framework\Http\Factories\ServerRequestFactory;
 
 final class Application extends Container
 {
+    public string $storage_path {
+        get => $this->base_path . '/storage';
+    }
     protected static ?self $instance = null;
     protected function __construct(public private(set) ?string $base_path = null)
     {

@@ -81,7 +81,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] DTO-based Form Validation — [Chapter 16](docs/Larafony/chapter_16.md)
 
 ### 🎨 View Layer
-- [ ] Custom Blade Parser — Chapter 17
+- [ ] Custom Blade Parser — [Chapter 17](docs/Larafony/chapter_17.md)
 - [ ] Twig Wrapper — Chapter 18
 - [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 19
 
