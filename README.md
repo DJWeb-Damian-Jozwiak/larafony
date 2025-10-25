@@ -82,26 +82,62 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🎨 View Layer
 - [ ] Custom Blade Parser — [Chapter 17](docs/Larafony/chapter_17.md)
-- [ ] Twig Wrapper — Chapter 18
-- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 19
+- [ ] Inertia.js Middleware (Vue.js SPA) — Chapter 18
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 20
-- [ ] Advanced Console Error Handling — Chapter 21`
+- [ ] Advanced Web Error Handling — Chapter 19
+- [ ] Advanced Console Error Handling — Chapter 20
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 22
-- [ ] Sending Emails (Symfony Mailer) — Chapter 23
-- [ ] Authorization System — Chapter 24
-- [ ] Cache Optimization (PSR-6) — Chapter 25
-- [ ] Event System (PSR-14 and alternatives) — Chapter 26
-- [ ] Jobs and Queues — Chapter 27
-- [ ] Simple WebSockets (almost from scratch) — Chapter 28
-- [ ] MCP — A new way of communication — Chapter 29
+- [ ] Encrypted Cookies and Sessions — Chapter 21
+- [ ] Sending Emails — Chapter 22
+- [ ] Authorization System — Chapter 23
+- [ ] Cache Optimization (PSR-6) — Chapter 24
+- [ ] Event System (PSR-14 and alternatives) — Chapter 25
+- [ ] Jobs and Queues — Chapter 26
+- [ ] Simple WebSockets (almost from scratch) — Chapter 27
+- [ ] MCP — A new way of communication — Chapter 28
 
 ### 🧭 Meta
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 30
+- [ ] Creating Larafony installer = Chapter 29
+- [ ] Demo Project: (Very) Simple Web Store - Chapter 30
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
+### 🧩 The Philosophy of the Final Chapters
+
+**This will be updated while following packages reach FULL php8.5 support.**
+
+Larafony’s journey doesn’t end with writing code — it ends with understanding.
+
+The last chapters are not about adding features, but about **liberating the developer**.  
+They show that every component — clock, container, logger, cache, or view — is *optional*, replaceable, and interchangeable.
+
+Each replacement (Carbon, Monolog, Laravel Container, Twig, etc.) isn’t a “plugin”, but a **lesson**:
+> how professional PHP code achieves the same result through different abstractions.
+
+By the time you reach the end, you won’t just *use* a framework —  
+you’ll **understand the architecture behind every framework**.
+
+> "The best framework is the one you can replace piece by piece — because you understand it completely."
+
+---
+
+🧠 **Larafony is not just a framework.**  
+It’s an open architecture, a teaching tool, and a manifesto of modern PHP.
+
+Every line of code exists to remind you that:
+- elegance is a function of simplicity,
+- performance is a side effect of clarity, and
+- real mastery means knowing when to write less.
+
+Welcome to the end of the framework —  
+and the beginning of **your own**.
+
+### ⚙️ Extending with mature Libraries
+- [ ] View Bridges (Twig & Smarty) - Chapter 32
+- [ ] Use Carbon instead of ClockFactory - Chapter 33
+- [ ] Use Monolog - Chapter 34
+- [ ] Replace Container with Laravel Container - Chapter 35
 
 ## 🚀 Learn How It’s Built—From Scratch
 
