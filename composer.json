@@ -39,6 +39,16 @@
             "Larafony\\Framework\\Tests\\": "tests/Larafony/"
         }
     },
+    "provide": {
+        "psr/container-implementation": "2.0",
+        "psr/http-message-implementation": "2.0",
+        "psr/http-factory-implementation": "1.1",
+        "psr/http-server-handler-implementation": "1.0",
+        "psr/http-server-middleware-implementation": "1.0",
+        "psr/http-client-implementation": "1.0",
+        "psr/log-implementation": "3.0",
+        "psr/clock-implementation": "1.0"
+    },
     "scripts": {
         "test": "php8.5 vendor/bin/phpunit --no-coverage",
         "test-coverage": "php8.5 vendor/bin/phpunit --coverage-text",

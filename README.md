@@ -85,7 +85,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🌐 Migrating to packagist
 
-- [ ] Demo application as a separate project — Chapter 18
+- [x] Demo application as a separate project — Chapter 18
 
 ### 🎨 View Layer (SPA)
 - [ ] Inertia.js Middleware (Vue.js) — Chapter 19
