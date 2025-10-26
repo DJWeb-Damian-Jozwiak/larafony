@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larafony\Framework\Routing\Basic\Factories;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
-use Larafony\Framework\Routing\Basic\Handlers\ClassMethodRouteHandler;
 use Larafony\Framework\Routing\Basic\Handlers\FunctionRouteHandler;
 use Larafony\Framework\Routing\Basic\Handlers\InvocableClassRouteHandler;
+use Larafony\Framework\Validation\Handlers\FormRequestAwareHandler;
 use Psr\Http\Server\RequestHandlerInterface;
 
 final class StringHandlerFactory
@@ -33,10 +33,11 @@ final class StringHandlerFactory
         return $this->createFunctionHandler($handler);
     }
 
-    private function createFromClassMethodNotation(string $handler): ClassMethodRouteHandler
+    private function createFromClassMethodNotation(string $handler): FormRequestAwareHandler
     {
         [$class, $method] = explode('@', $handler, 2);
-        return new ClassMethodRouteHandler($class, $method, $this->container);
+        // Use FormRequestAwareHandler to support both ServerRequest and FormRequest DTOs
+        return new FormRequestAwareHandler($class, $method, $this->container);
     }
 
     private function createInvocableClassHandler(string $class): InvocableClassRouteHandler

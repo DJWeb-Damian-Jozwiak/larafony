@@ -69,7 +69,8 @@ abstract class FormRequest extends ServerRequest
     private function propertyHasType(ReflectionProperty $property): bool
     {
         $type = $property->getType();
-        return $type instanceof \ReflectionNamedType;
+        // Accept both named types (string, int, etc.) and union types (string|null, string|array|null, etc.)
+        return $type instanceof \ReflectionNamedType || $type instanceof \ReflectionUnionType;
     }
 
     private function hasIsValidatedAttribute(\ReflectionProperty $property): bool
