@@ -12,9 +12,9 @@ interface RelationContract
     public function addConstraints(): void;
 
     /**
-     * @return array<int, Model>|Model
+     * @return array<int, Model>|Model|null
      */
-    public function getRelated(): array|Model;
+    public function getRelated(): array|Model|null;
 
     public function createQueryBuilder(): QueryBuilder;
 }
