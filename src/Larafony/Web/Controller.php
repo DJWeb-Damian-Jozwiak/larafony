@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Web;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
+use Larafony\Framework\Http\Factories\ResponseFactory;
 use Larafony\Framework\Http\JsonResponse;
 use Larafony\Framework\View\Contracts\RendererContract;
 use Larafony\Framework\View\ViewManager;
@@ -48,5 +49,12 @@ abstract class Controller
         array $headers = []
     ): ResponseInterface {
         return new JsonResponse($data, $statusCode, $headers);
+    }
+
+    public function redirect(string $url, int $status = 301): ResponseInterface
+    {
+        /** @var ResponseFactory $factory */
+        $factory = $this->container->get(ResponseFactory::class);
+        return $factory->createResponse($status)->withHeader('Location', $url);
     }
 }
