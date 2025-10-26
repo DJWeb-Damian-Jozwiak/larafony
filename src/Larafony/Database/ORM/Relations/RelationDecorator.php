@@ -30,6 +30,24 @@ class RelationDecorator
     }
 
     /**
+     * Get the relation instance (not the related models)
+     *
+     * @param string $name
+     *
+     * @return RelationContract
+     *
+     * @throws \ReflectionException
+     */
+    public function getRelationInstance(string $name): RelationContract
+    {
+        if (! isset($this->relations[$name])) {
+            $property = new ReflectionProperty($this->model, $name);
+            $this->initializeRelation($property);
+        }
+        return $this->relations[$name] ?? throw new \RuntimeException("Relation {$name} not found");
+    }
+
+    /**
      * @param string $name
      *
      * @return Model|array<int|string, Model>|null

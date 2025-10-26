@@ -181,8 +181,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
     {
         $sql = $this->grammar->compileSelect($this->query);
         $bindings = $this->query->getBindings();
-        $statement = $this->connection->query($sql, $bindings);
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->connection->select($sql, $bindings);
     }
 
     /**
@@ -214,7 +213,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         $this->query->values = $values;
 
         $sql = $this->grammar->compileInsert($this->query);
-        $this->connection->query($sql, array_values($values));
+        $this->connection->execute($sql, array_values($values));
 
         return true;
     }
@@ -239,7 +238,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         $sql = $this->grammar->compileUpdate($this->query);
         $bindings = $this->query->getBindings();
 
-        return $this->connection->query($sql, $bindings)->rowCount();
+        return $this->connection->execute($sql, $bindings);
     }
 
     public function delete(): int
@@ -249,7 +248,7 @@ class QueryBuilder extends \Larafony\Framework\Database\Base\Query\QueryBuilder
         $sql = $this->grammar->compileDelete($this->query);
         $bindings = $this->query->getBindings();
 
-        return $this->connection->query($sql, $bindings)->rowCount();
+        return $this->connection->execute($sql, $bindings);
     }
 
     public function toSql(): string
