@@ -51,6 +51,18 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     }
 
     /**
+     * Re-initialize components when model is cloned (for hydration)
+     */
+    public function __clone(): void
+    {
+        $this->query_builder = new ModelQueryBuilder($this);
+        $this->observer = new PropertyObserver($this);
+        $this->entity_manager = new EntityManager($this);
+        $this->relation_factory = new RelationFactory();
+        $this->relations = new RelationDecorator($this);
+    }
+
+    /**
      * Models cannot be directly serialized to JSON.
      *
      * This design decision enforces separation of concerns:
