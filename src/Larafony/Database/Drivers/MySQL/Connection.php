@@ -35,14 +35,57 @@ final class Connection implements ConnectionContract
         );
     }
 
+    /**
+     * Execute a SELECT query and return all results
+     * Cursor is automatically closed after fetching
+     *
+     * @param string $sql
+     * @param array<int, mixed> $params
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function select(string $sql, array $params = []): array
+    {
+        $statement = $this->connection->prepare($sql);
+        $statement->execute(array_values($params));
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $statement->closeCursor();
+
+        return $result;
+    }
+
+    /**
+     * Execute an INSERT/UPDATE/DELETE query and return affected rows
+     * Cursor is automatically closed after getting row count
+     *
+     * @param string $sql
+     * @param array<int, mixed> $params
+     *
+     * @return int Number of affected rows
+     */
+    public function execute(string $sql, array $params = []): int
+    {
+        $statement = $this->connection->prepare($sql);
+        $statement->execute(array_values($params));
+        $count = $statement->rowCount();
+        $statement->closeCursor();
+
+        return $count;
+    }
+
+    /**
+     * Raw query execution - returns PDOStatement
+     * Caller is responsible for cursor management (e.g., multi-statement queries in migrations)
+     *
+     * @param string $sql
+     * @param array<int, mixed> $params
+     *
+     * @return \PDOStatement
+     */
     public function query(string $sql, array $params = []): \PDOStatement
     {
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
-
-        // Close cursor to prevent "Cannot execute queries while there are pending result sets"
-        // This is needed when ATTR_EMULATE_PREPARES is true and we use multi-query
-        $statement->closeCursor();
 
         return $statement;
     }
@@ -64,6 +107,18 @@ final class Connection implements ConnectionContract
     public function getLastInsertId(): string
     {
         return $this->connection->lastInsertId();
+    }
+
+    public function quote(int|float|string|bool|null $value): string
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+        return $this->connection->quote((string) $value);
     }
 
     public function connectMysql(
