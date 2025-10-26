@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Routing\Basic\Factories;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
-use Larafony\Framework\Routing\Basic\Handlers\ClassMethodRouteHandler;
+use Larafony\Framework\Validation\Handlers\FormRequestAwareHandler;
 use Psr\Http\Server\RequestHandlerInterface;
 
 final readonly class ArrayHandlerFactory
@@ -34,6 +34,7 @@ final readonly class ArrayHandlerFactory
             );
         }
 
-        return new ClassMethodRouteHandler($class, $method, $this->container);
+        // Use FormRequestAwareHandler to support both ServerRequest and FormRequest DTOs
+        return new FormRequestAwareHandler($class, $method, $this->container);
     }
 }

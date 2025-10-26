@@ -52,7 +52,8 @@ class ArrayHandlerFactoryTest extends TestCase
 
         $handler = $this->factory->create([$controller::class, 'handle']);
 
-        $this->assertInstanceOf(ClassMethodRouteHandler::class, $handler);
+        // Now returns FormRequestAwareHandler which supports both ServerRequest and FormRequest DTOs
+        $this->assertInstanceOf(\Larafony\Framework\Validation\Handlers\FormRequestAwareHandler::class, $handler);
 
         $request = $this->requestFactory->createServerRequest('GET', '/test');
         $response = $handler->handle($request);

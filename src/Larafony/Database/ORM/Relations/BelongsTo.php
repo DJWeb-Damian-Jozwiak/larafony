@@ -21,11 +21,14 @@ class BelongsTo extends Relation
     }
 
     /**
-     * @return array<int, Model>|Model
+     * @return array<int, Model>|Model|null
      */
-    public function getRelated(): array|Model
+    public function getRelated(): array|Model|null
     {
         $result = $this->getResults();
+        if (empty($result)) {
+            return null;
+        }
         return new $this->related()->fill($result[0]);
     }
 
