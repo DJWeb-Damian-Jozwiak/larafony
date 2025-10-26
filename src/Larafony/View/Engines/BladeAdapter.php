@@ -140,23 +140,30 @@ class BladeAdapter extends BaseAdapter implements RendererContract
 
     private function registerDefaultDirectives(): void
     {
+        // Create ComponentDirective and give it access to the compiler
+        $componentDirective = new ComponentDirective();
+        $componentDirective->setCompiler($this->compiler);
+
         $this->compiler
-            ->addDirective(new ExtendDirective())
-            ->addDirective(new SectionDirective())
-            ->addDirective(new YieldDirective())
-            ->addDirective(new ComponentDirective())
-            ->addDirective(new SlotDirective())
-            ->addDirective(new StackDirective())
+            // Control flow directives must be compiled BEFORE components
             ->addDirective(new IfDirective())
             ->addDirective(new UnlessDirective())
-            ->addDirective(new ForDirective())
+            //foreach before for!
             ->addDirective(new ForeachDirective())
+            ->addDirective(new ForDirective())
             ->addDirective(new WhileDirective())
             ->addDirective(new DoWhileDirective())
             ->addDirective(new SwitchDirective())
             ->addDirective(new IssetDirective())
             ->addDirective(new EmptyDirective())
-            ->addDirective(new YieldDirective());
+            // Layout directives
+            ->addDirective(new ExtendDirective())
+            ->addDirective(new SectionDirective())
+            ->addDirective(new YieldDirective())
+            // Component directives (must be after control flow)
+            ->addDirective($componentDirective)
+            ->addDirective(new SlotDirective())
+            ->addDirective(new StackDirective());
     }
 
     private function isCached(string $template, string $cached_file): bool

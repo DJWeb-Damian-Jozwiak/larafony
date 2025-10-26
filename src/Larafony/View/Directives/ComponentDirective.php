@@ -6,9 +6,17 @@ namespace Larafony\Framework\View\Directives;
 
 use Larafony\Framework\Console\Input\ValueCaster;
 use Larafony\Framework\View\Engines\BladeAdapter;
+use Larafony\Framework\View\TemplateCompiler;
 
 class ComponentDirective extends Directive
 {
+    private ?TemplateCompiler $compiler = null;
+
+    public function setCompiler(TemplateCompiler $compiler): void
+    {
+        $this->compiler = $compiler;
+    }
+
     public function compile(string $content): string
     {
         // named slots (@slot('name'))
@@ -35,7 +43,7 @@ class ComponentDirective extends Directive
     ): string {
         /** @var BladeAdapter $adapter */
         $adapter = BladeAdapter::buildDefault();
-        $namespace = $adapter->componentNamespace;
+        $namespace = rtrim($adapter->componentNamespace, '\\');
         return "<?php
                     \$__prev_component = \$__component ?? null;
                     {$varName} = new {$namespace}\\{$componentName}({$attributes});
@@ -64,7 +72,13 @@ class ComponentDirective extends Directive
 
                 $varName = "\$__component_{$uniqueId}";
 
+                // First recursively compile nested components
                 $compiledSlot = $this->compileComponents($slot);
+
+                // Then compile all other Blade directives (if, foreach, etc.) using the full compiler
+                if ($this->compiler !== null) {
+                    $compiledSlot = $this->compiler->compile($compiledSlot);
+                }
 
                 return $this->getPhpCompiledString($varName, $componentName, $attributes, $compiledSlot);
             },
