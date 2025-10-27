@@ -88,19 +88,43 @@ class ComponentDirective extends Directive
 
     private function parseAttributes(string $attributesString): string
     {
-        preg_match_all('/(\w+)=[\'"](.*?)[\'"]/', $attributesString, $matches, PREG_SET_ORDER);
+        // Match both regular attributes and bound attributes (:attribute)
+        preg_match_all('/:?(\w+)=[\'"](.*?)[\'"]/', $attributesString, $matches, PREG_SET_ORDER);
 
         $attributes = [];
         array_walk($matches, function (&$match) use (&$attributes): void {
-            $value = $this->castBool($match[2]);
-            $attributes[$match[1]] = $value;
+            $fullMatch = $match[0];
+            $key = $match[1];
+            $value = $match[2];
+
+            // Check if this is a bound attribute (starts with :)
+            $isBound = str_starts_with($fullMatch, ':');
+
+            if (!$isBound) {
+                $value = $this->castBool($value);
+            }
+
+            $attributes[$key] = [
+                'value' => $value,
+                'bound' => $isBound
+            ];
         });
 
         return implode(', ', array_map(
-            static function ($key, $value) {
+            static function ($key, $attrData) {
+                $value = $attrData['value'];
+                $isBound = $attrData['bound'];
+
                 if (is_bool($value)) {
                     return "{$key}: " . ($value ? 'true' : 'false');
                 }
+
+                // If bound (e.g., :title="$title"), output the variable without quotes
+                if ($isBound) {
+                    return "{$key}: {$value}";
+                }
+
+                // Regular attribute, wrap in quotes
                 return "{$key}: '{$value}'";
             },
             array_keys($attributes),
