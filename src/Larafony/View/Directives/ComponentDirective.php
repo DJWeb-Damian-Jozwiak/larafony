@@ -6,9 +6,17 @@ namespace Larafony\Framework\View\Directives;
 
 use Larafony\Framework\Console\Input\ValueCaster;
 use Larafony\Framework\View\Engines\BladeAdapter;
+use Larafony\Framework\View\TemplateCompiler;
 
 class ComponentDirective extends Directive
 {
+    private ?TemplateCompiler $compiler = null;
+
+    public function setCompiler(TemplateCompiler $compiler): void
+    {
+        $this->compiler = $compiler;
+    }
+
     public function compile(string $content): string
     {
         // named slots (@slot('name'))
@@ -35,7 +43,7 @@ class ComponentDirective extends Directive
     ): string {
         /** @var BladeAdapter $adapter */
         $adapter = BladeAdapter::buildDefault();
-        $namespace = $adapter->componentNamespace;
+        $namespace = rtrim($adapter->componentNamespace, '\\');
         return "<?php
                     \$__prev_component = \$__component ?? null;
                     {$varName} = new {$namespace}\\{$componentName}({$attributes});
@@ -64,7 +72,13 @@ class ComponentDirective extends Directive
 
                 $varName = "\$__component_{$uniqueId}";
 
+                // First recursively compile nested components
                 $compiledSlot = $this->compileComponents($slot);
+
+                // Then compile all other Blade directives (if, foreach, etc.) using the full compiler
+                if ($this->compiler !== null) {
+                    $compiledSlot = $this->compiler->compile($compiledSlot);
+                }
 
                 return $this->getPhpCompiledString($varName, $componentName, $attributes, $compiledSlot);
             },
@@ -74,19 +88,43 @@ class ComponentDirective extends Directive
 
     private function parseAttributes(string $attributesString): string
     {
-        preg_match_all('/(\w+)=[\'"](.*?)[\'"]/', $attributesString, $matches, PREG_SET_ORDER);
+        // Match both regular attributes and bound attributes (:attribute)
+        preg_match_all('/:?(\w+)=[\'"](.*?)[\'"]/', $attributesString, $matches, PREG_SET_ORDER);
 
         $attributes = [];
         array_walk($matches, function (&$match) use (&$attributes): void {
-            $value = $this->castBool($match[2]);
-            $attributes[$match[1]] = $value;
+            $fullMatch = $match[0];
+            $key = $match[1];
+            $value = $match[2];
+
+            // Check if this is a bound attribute (starts with :)
+            $isBound = str_starts_with($fullMatch, ':');
+
+            if (!$isBound) {
+                $value = $this->castBool($value);
+            }
+
+            $attributes[$key] = [
+                'value' => $value,
+                'bound' => $isBound
+            ];
         });
 
         return implode(', ', array_map(
-            static function ($key, $value) {
+            static function ($key, $attrData) {
+                $value = $attrData['value'];
+                $isBound = $attrData['bound'];
+
                 if (is_bool($value)) {
                     return "{$key}: " . ($value ? 'true' : 'false');
                 }
+
+                // If bound (e.g., :title="$title"), output the variable without quotes
+                if ($isBound) {
+                    return "{$key}: {$value}";
+                }
+
+                // Regular attribute, wrap in quotes
                 return "{$key}: '{$value}'";
             },
             array_keys($attributes),
