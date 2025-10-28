@@ -26,7 +26,7 @@ class BelongsTo extends Relation
     public function getRelated(): array|Model|null
     {
         $result = $this->getResults();
-        if (empty($result)) {
+        if ($result === []) {
             return null;
         }
         return new $this->related()->fill($result[0]);
