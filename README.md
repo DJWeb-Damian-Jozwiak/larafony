@@ -159,3 +159,6 @@ Check out my full PHP 8.5 course, where I explain everything from architecture t
 - [PHPUnit Documentation](https://phpunit.de/)
 - [PHPStan Documentation](https://phpstan.org/)
 - [Composer Documentation](https://getcomposer.org/doc/)
+
+License
+The Larafony framework is open-sourced software licensed under the [MIT license](https://opensource.org/license/MIT).
