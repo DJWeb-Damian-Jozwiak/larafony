@@ -10,12 +10,6 @@ use Larafony\Framework\View\TemplateCompiler;
 
 class ComponentDirective extends Directive
 {
-    private ?TemplateCompiler $compiler = null;
-
-    public function setCompiler(TemplateCompiler $compiler): void
-    {
-        $this->compiler = $compiler;
-    }
 
     public function compile(string $content): string
     {
@@ -75,11 +69,6 @@ class ComponentDirective extends Directive
                 // First recursively compile nested components
                 $compiledSlot = $this->compileComponents($slot);
 
-                // Then compile all other Blade directives (if, foreach, etc.) using the full compiler
-                if ($this->compiler !== null) {
-                    $compiledSlot = $this->compiler->compile($compiledSlot);
-                }
-
                 return $this->getPhpCompiledString($varName, $componentName, $attributes, $compiledSlot);
             },
             $content
@@ -112,12 +101,8 @@ class ComponentDirective extends Directive
 
         return implode(', ', array_map(
             static function ($key, $attrData) {
-                $value = $attrData['value'];
+                $value = $attrData['value'] |> $this->castBool(...);
                 $isBound = $attrData['bound'];
-
-                if (is_bool($value)) {
-                    return "{$key}: " . ($value ? 'true' : 'false');
-                }
 
                 // If bound (e.g., :title="$title"), output the variable without quotes
                 if ($isBound) {
@@ -134,9 +119,6 @@ class ComponentDirective extends Directive
 
     private function castBool(mixed $value): mixed
     {
-        if (! is_string($value)) {
-            return $value;
-        }
         $booleans = ['true', 'false'];
         return in_array($value, $booleans, true) ? ValueCaster::cast($value) : $value;
     }
