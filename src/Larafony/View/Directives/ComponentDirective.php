@@ -100,13 +100,13 @@ class ComponentDirective extends Directive
             // Check if this is a bound attribute (starts with :)
             $isBound = str_starts_with($fullMatch, ':');
 
-            if (!$isBound) {
+            if (! $isBound) {
                 $value = $this->castBool($value);
             }
 
             $attributes[$key] = [
                 'value' => $value,
-                'bound' => $isBound
+                'bound' => $isBound,
             ];
         });
 

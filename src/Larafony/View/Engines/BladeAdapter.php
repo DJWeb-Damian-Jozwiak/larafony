@@ -20,6 +20,7 @@ use Larafony\Framework\View\Directives\SlotDirective;
 use Larafony\Framework\View\Directives\StackDirective;
 use Larafony\Framework\View\Directives\SwitchDirective;
 use Larafony\Framework\View\Directives\UnlessDirective;
+use Larafony\Framework\View\Directives\ViteDirective;
 use Larafony\Framework\View\Directives\WhileDirective;
 use Larafony\Framework\View\Directives\YieldDirective;
 use Larafony\Framework\View\TemplateCompiler;
@@ -163,7 +164,9 @@ class BladeAdapter extends BaseAdapter implements RendererContract
             // Component directives (must be after control flow)
             ->addDirective($componentDirective)
             ->addDirective(new SlotDirective())
-            ->addDirective(new StackDirective());
+            ->addDirective(new StackDirective())
+            // Inertia/Asset directives
+            ->addDirective(new ViteDirective());
     }
 
     private function isCached(string $template, string $cached_file): bool

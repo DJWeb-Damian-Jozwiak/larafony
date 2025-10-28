@@ -8,6 +8,7 @@ use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Http\Factories\ResponseFactory;
 use Larafony\Framework\Http\JsonResponse;
 use Larafony\Framework\View\Contracts\RendererContract;
+use Larafony\Framework\View\Inertia\Inertia;
 use Larafony\Framework\View\ViewManager;
 use Psr\Http\Message\ResponseInterface;
 
@@ -56,5 +57,20 @@ abstract class Controller
         /** @var ResponseFactory $factory */
         $factory = $this->container->get(ResponseFactory::class);
         return $factory->createResponse($status)->withHeader('Location', $url);
+    }
+
+    /**
+     * Render an Inertia.js response
+     *
+     * @param string $component Vue component name (e.g., 'Home/Index')
+     * @param array<string, mixed> $props Data to pass to the component
+     *
+     * @return ResponseInterface
+     */
+    public function inertia(string $component, array $props = []): ResponseInterface
+    {
+        /** @var Inertia $inertia */
+        $inertia = $this->container->get(Inertia::class);
+        return $inertia->render($component, $props);
     }
 }
