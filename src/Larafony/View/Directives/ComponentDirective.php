@@ -6,11 +6,9 @@ namespace Larafony\Framework\View\Directives;
 
 use Larafony\Framework\Console\Input\ValueCaster;
 use Larafony\Framework\View\Engines\BladeAdapter;
-use Larafony\Framework\View\TemplateCompiler;
 
 class ComponentDirective extends Directive
 {
-
     public function compile(string $content): string
     {
         // named slots (@slot('name'))
@@ -48,6 +46,32 @@ class ComponentDirective extends Directive
                     echo \$__component->render();
                     \$__component = \$__prev_component;
                 ?>";
+    }
+
+    /**
+     * @param array<int|string, mixed> $attributes
+     */
+    public function implodeParsedAttributes(array $attributes): string
+    {
+        return implode(
+            ', ',
+            array_map(
+                static function ($key, $attrData) {
+                    $value = $attrData['value'] |> $this->castBool(...);
+                    $isBound = $attrData['bound'];
+
+                    // If bound (e.g., :title="$title"), output the variable without quotes
+                    if ($isBound) {
+                        return "{$key}: {$value}";
+                    }
+
+                    // Regular attribute, wrap in quotes
+                    return "{$key}: '{$value}'";
+                },
+                array_keys($attributes),
+                $attributes
+            )
+        );
     }
 
     private function compileComponents(string $content): string
@@ -99,22 +123,7 @@ class ComponentDirective extends Directive
             ];
         });
 
-        return implode(', ', array_map(
-            static function ($key, $attrData) {
-                $value = $attrData['value'] |> $this->castBool(...);
-                $isBound = $attrData['bound'];
-
-                // If bound (e.g., :title="$title"), output the variable without quotes
-                if ($isBound) {
-                    return "{$key}: {$value}";
-                }
-
-                // Regular attribute, wrap in quotes
-                return "{$key}: '{$value}'";
-            },
-            array_keys($attributes),
-            $attributes
-        ));
+        return $this->implodeParsedAttributes($attributes);
     }
 
     private function castBool(mixed $value): mixed
