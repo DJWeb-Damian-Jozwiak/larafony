@@ -99,22 +99,7 @@ class ComponentDirective extends Directive
             ];
         });
 
-        return implode(', ', array_map(
-            static function ($key, $attrData) {
-                $value = $attrData['value'] |> $this->castBool(...);
-                $isBound = $attrData['bound'];
-
-                // If bound (e.g., :title="$title"), output the variable without quotes
-                if ($isBound) {
-                    return "{$key}: {$value}";
-                }
-
-                // Regular attribute, wrap in quotes
-                return "{$key}: '{$value}'";
-            },
-            array_keys($attributes),
-            $attributes
-        ));
+        return $this->implodeParsedAttributes($attributes);
     }
 
     private function castBool(mixed $value): mixed
@@ -128,5 +113,31 @@ class ComponentDirective extends Directive
         $name = str_replace('-', ' ', $name);
         $name = ucwords($name);
         return str_replace(' ', '', $name);
+    }
+
+    /**
+     * @param array<int|string, mixed> $attributes
+     */
+    public function implodeParsedAttributes(array $attributes): string
+    {
+        return implode(
+            ', ',
+            array_map(
+                static function ($key, $attrData) {
+                    $value = $attrData['value'] |> $this->castBool(...);
+                    $isBound = $attrData['bound'];
+
+                    // If bound (e.g., :title="$title"), output the variable without quotes
+                    if ($isBound) {
+                        return "{$key}: {$value}";
+                    }
+
+                    // Regular attribute, wrap in quotes
+                    return "{$key}: '{$value}'";
+                },
+                array_keys($attributes),
+                $attributes
+            )
+        );
     }
 }
