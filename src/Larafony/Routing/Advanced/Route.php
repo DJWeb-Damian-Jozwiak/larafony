@@ -10,6 +10,8 @@ use Larafony\Framework\Routing\Advanced\Decorators\ParsedRouteDecorator;
 use Larafony\Framework\Routing\Advanced\Decorators\RouteMiddleware;
 use Larafony\Framework\Routing\Basic\Route as BasicRoute;
 use Larafony\Framework\Routing\Basic\RouteHandlerFactory;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Route extends BasicRoute
 {
@@ -91,5 +93,19 @@ class Route extends BasicRoute
     {
         $this->compiled = $compiled;
         return $this;
+    }
+
+    /**
+     * Handle the request by adding route parameters to request attributes
+     * before delegating to the handler
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        // Add all route parameters to request attributes
+        foreach ($this->parameters as $name => $value) {
+            $request = $request->withAttribute($name, $value);
+        }
+
+        return parent::handle($request);
     }
 }
