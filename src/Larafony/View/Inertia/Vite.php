@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\View\Inertia;
 
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Storage\File;
 use Larafony\Framework\Web\Config;
 
 class Vite
 {
     private const string VITE_DEV_SERVER = 'http://localhost:5173';
+    public function __construct(private readonly ContainerContract $container)
+    {
+    }
 
     /**
      * Render Vite asset tags
@@ -41,13 +45,13 @@ class Vite
         $entries = array_map(static fn ($entry) => sprintf(
             '<script type="module" src="%s/%s"></script>',
             self::VITE_DEV_SERVER,
-            $entry
+            $entry,
         ), $entrypoints);
 
         $tags = [
             sprintf(
                 '<script type="module" src="%s/@vite/client"></script>',
-                self::VITE_DEV_SERVER
+                self::VITE_DEV_SERVER,
             ),
             ...$entries,
         ];
@@ -70,7 +74,7 @@ class Vite
         foreach ($entrypoints as $entry) {
             if (! isset($manifest[$entry])) {
                 throw new \RuntimeException(
-                    "Entry point '{$entry}' not found in Vite manifest. Did you run 'npm run build'?"
+                    "Entry point '{$entry}' not found in Vite manifest. Did you run 'npm run build'?",
                 );
             }
             $asset = $manifest[$entry];
@@ -98,7 +102,8 @@ class Vite
      */
     private function loadManifest(): array
     {
-        $manifestPath = $this->getPublicPath() . '/build/.vite/manifest.json';
+        $path = $this->container->getBinding('base_path');
+        $manifestPath = $path . '/public/build/.vite/manifest.json';
 
         File::ensureFileExists($manifestPath);
 
@@ -116,15 +121,5 @@ class Vite
     private function isDevelopment(): bool
     {
         return Config::get('app.env', 'production') === 'local';
-    }
-
-    /**
-     * Get public directory path
-     */
-    private function getPublicPath(): string
-    {
-        // Assuming standard Laravel-like structure
-        $basePath = dirname(__DIR__, 5); // Go up from src/Larafony/View/Inertia/
-        return $basePath . '/public';
     }
 }

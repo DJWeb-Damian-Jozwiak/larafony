@@ -15,7 +15,7 @@ class Inertia
      */
     public private(set) array $sharedProps = [];
 
-    private string $rootView = 'inertia.blade.php';
+    private string $rootView = 'inertia';
 
     private ?string $version = null;
 
