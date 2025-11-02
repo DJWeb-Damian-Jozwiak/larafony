@@ -11,6 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class ClassMethodRouteHandler implements RequestHandlerInterface
 {
+    private readonly ParameterResolver $parameterResolver;
     private string $class {
         get => $this->class;
         set {
@@ -37,14 +38,18 @@ final class ClassMethodRouteHandler implements RequestHandlerInterface
         string $class,
         string $method,
         private readonly ContainerContract $container,
+        ?ParameterResolver $parameterResolver = null,
     ) {
         $this->class = $class;
         $this->method = $method;
+        $this->parameterResolver = $parameterResolver ?? new ParameterResolver();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $instance = $this->container->get($this->class);
-        return $instance->{$this->method}($request);
+        $reflection = new \ReflectionMethod($this->class, $this->method);
+        $arguments = $this->parameterResolver->resolve($reflection, $request);
+        return $instance->{$this->method}(...$arguments);
     }
 }
