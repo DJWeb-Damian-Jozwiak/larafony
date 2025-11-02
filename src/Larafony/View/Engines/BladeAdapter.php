@@ -142,8 +142,6 @@ class BladeAdapter extends BaseAdapter implements RendererContract
     private function registerDefaultDirectives(): void
     {
         // Create ComponentDirective and give it access to the compiler
-        $componentDirective = new ComponentDirective();
-        $componentDirective->setCompiler($this->compiler);
 
         $this->compiler
             // Control flow directives must be compiled BEFORE components
@@ -162,7 +160,7 @@ class BladeAdapter extends BaseAdapter implements RendererContract
             ->addDirective(new SectionDirective())
             ->addDirective(new YieldDirective())
             // Component directives (must be after control flow)
-            ->addDirective($componentDirective)
+            ->addDirective(new ComponentDirective())
             ->addDirective(new SlotDirective())
             ->addDirective(new StackDirective())
             // Inertia/Asset directives
