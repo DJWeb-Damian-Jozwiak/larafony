@@ -123,7 +123,7 @@ class ComponentDirective extends Directive
         return implode(
             ', ',
             array_map(
-                static function ($key, $attrData) {
+                function ($key, $attrData) {
                     $value = $attrData['value'] |> $this->castBool(...);
                     $isBound = $attrData['bound'];
 
