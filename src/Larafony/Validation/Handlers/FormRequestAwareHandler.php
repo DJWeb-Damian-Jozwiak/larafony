@@ -6,6 +6,8 @@ namespace Larafony\Framework\Validation\Handlers;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Http\Factories\ServerRequestFactory;
+use Larafony\Framework\Routing\Basic\Handlers\ParameterResolver;
+use Larafony\Framework\Routing\Contracts\PreResolutionHookContract;
 use Larafony\Framework\Validation\Helpers\FormRequestFactory;
 use Larafony\Framework\Validation\Helpers\FormRequestTypeDetector;
 use Psr\Http\Message\ResponseInterface;
@@ -21,12 +23,13 @@ use ReflectionMethod;
  *
  * Complexity: 5 (facade pattern)
  */
-final class FormRequestAwareHandler implements RequestHandlerInterface
+final class FormRequestAwareHandler implements RequestHandlerInterface, PreResolutionHookContract
 {
     private string $class;
     private string $method;
     private FormRequestTypeDetector $typeDetector;
     private FormRequestFactory $factory;
+    private ParameterResolver $parameterResolver;
 
     public function __construct(
         string $class,
@@ -34,38 +37,48 @@ final class FormRequestAwareHandler implements RequestHandlerInterface
         private readonly ContainerContract $container,
         ?FormRequestTypeDetector $typeDetector = null,
         ?FormRequestFactory $factory = null,
+        ?ParameterResolver $parameterResolver = null,
     ) {
         $this->typeDetector = $typeDetector ?? new FormRequestTypeDetector();
         $this->factory = $factory ?? new FormRequestFactory(new ServerRequestFactory());
-        if (! class_exists($class)) {
-            throw new \InvalidArgumentException(sprintf('Class %s does not exist', $class));
-        }
-
-        if (! method_exists($class, $method)) {
-            throw new \InvalidArgumentException(
-                sprintf('Method %s does not exist in class %s', $method, $class)
-            );
-        }
+        $this->parameterResolver = $parameterResolver ?? new ParameterResolver();
 
         $this->class = $class;
         $this->method = $method;
     }
 
+    public function beforeResolution(ServerRequestInterface $request, callable $callable): ServerRequestInterface
+    {
+        $reflection = new ReflectionMethod($this->class, $this->method);
+        $formRequestClass = $this->typeDetector->detect($reflection);
+
+        if ($formRequestClass) {
+            $formRequest = $this->factory->create($formRequestClass, $request);
+            $formRequest->populateProperties();
+            $formRequest->validate();
+
+            // Add validated FormRequest to attributes (will be picked up by ParameterResolver)
+            foreach ($reflection->getParameters() as $param) {
+                $type = $param->getType();
+                if ($type instanceof \ReflectionNamedType && $type->getName() === $formRequestClass) {
+                    $request = $request->withAttribute($param->getName(), $formRequest);
+                    break;
+                }
+            }
+        }
+
+        return $request;
+    }
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $instance = $this->container->get($this->class);
-        $reflection = new ReflectionMethod($this->class, $this->method);
+        $reflection = new \ReflectionMethod($this->class, $this->method);
+        $callable = [$instance, $this->method];
 
-        $formRequestClass = $this->typeDetector->detect($reflection);
+        // ParameterResolver will call beforeResolution() hook automatically
+        $arguments = $this->parameterResolver->resolve($reflection, $request, $this, $callable);
 
-        if (! $formRequestClass) {
-            return $instance->{$this->method}($request);
-        }
-
-        $formRequest = $this->factory->create($formRequestClass, $request);
-        $formRequest->populateProperties();
-        $formRequest->validate();
-
-        return $instance->{$this->method}($formRequest);
+        return $instance->{$this->method}(...$arguments);
     }
 }
