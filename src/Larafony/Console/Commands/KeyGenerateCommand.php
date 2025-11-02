@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larafony\Framework\Console\Commands;
 
 use Larafony\Framework\Console\Attributes\AsCommand;
@@ -11,7 +13,6 @@ use Larafony\Framework\Storage\EnvFileHandler;
 class KeyGenerateCommand extends Command
 {
     private const string KEY_LINE = 'APP_KEY';
-
     public function run(): int
     {
         new EnvFileHandler()->update(self::KEY_LINE, new KeyGenerator()->generateKey());

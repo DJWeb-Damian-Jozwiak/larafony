@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('mail_log', function ($table) {
+            $table->id();
+            $table->string('from_email');
+            $table->string('from_name')->nullable();
+            $table->string('to_email');
+            $table->string('to_name')->nullable();
+            $table->text('cc_email')->nullable();
+            $table->text('bcc_email')->nullable();
+            $table->string('reply_to_email')->nullable();
+            $table->string('subject');
+            $table->enum('status', ['sent', 'failed']);
+            $table->text('error')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->index('status');
+            $table->index('created_at');
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('mail_log') |> Schema::execute(...);
+    }
+};

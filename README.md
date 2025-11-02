@@ -96,7 +96,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🔐 Security & Communication
 - [x] Encrypted Cookies and Sessions — [Chapter 22](docs/Larafony/chapter_22.md)
-- [ ] Sending Emails — Chapter 23
+- [x] Sending Emails — [Chapter 23](docs/Larafony/chapter_23.md)
 - [ ] Authorization System — Chapter 24
 - [ ] Cache Optimization (PSR-6) — Chapter 25
 - [ ] Event System (PSR-14 and alternatives) — Chapter 26
