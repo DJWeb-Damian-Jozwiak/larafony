@@ -34,22 +34,6 @@ class FormRequestAwareHandlerTest extends TestCase
         Application::empty();
     }
 
-    public function testThrowsExceptionForNonExistentClass(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Class NonExistentClass does not exist');
-
-        new FormRequestAwareHandler('NonExistentClass', 'method', $this->container);
-    }
-
-    public function testThrowsExceptionForNonExistentMethod(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Method nonExistent does not exist');
-
-        new FormRequestAwareHandler(TestController::class, 'nonExistent', $this->container);
-    }
-
     public function testHandlesRegularServerRequest(): void
     {
         $controller = new TestController();

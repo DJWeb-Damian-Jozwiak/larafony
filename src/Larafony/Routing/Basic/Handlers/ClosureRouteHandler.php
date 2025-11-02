@@ -10,13 +10,19 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class ClosureRouteHandler implements RequestHandlerInterface
 {
+    private readonly ParameterResolver $parameterResolver;
+
     public function __construct(
         private readonly \Closure $handler,
+        ?ParameterResolver $parameterResolver = null,
     ) {
+        $this->parameterResolver = $parameterResolver ?? new ParameterResolver();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return ($this->handler)($request);
+        $reflection = new \ReflectionFunction($this->handler);
+        $arguments = $this->parameterResolver->resolve($reflection, $request);
+        return ($this->handler)(...$arguments);
     }
 }

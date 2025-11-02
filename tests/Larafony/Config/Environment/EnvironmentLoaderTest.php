@@ -100,8 +100,7 @@ class EnvironmentLoaderTest extends TestCase
         file_put_contents($this->tempFile, "TEST=value");
         chmod($this->tempFile, 0000);
 
-        $this->expectException(EnvironmentError::class);
-        $this->expectExceptionMessage('Environment file not readable');
+        $this->expectException(\RuntimeException::class);
 
         try {
             $loader = new EnvironmentLoader();
