@@ -138,4 +138,8 @@ class ComponentDirective extends Directive
         $name = ucwords($name);
         return str_replace(' ', '', $name);
     }
+
+    /**
+     * @param array<int|string, mixed> $attributes
+     */
 }
