@@ -92,7 +92,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 💥 Error Handling
 - [x] Advanced Web Error Handling — [Chapter 20](docs/Larafony/chapter_20.md)
-- [ ] Advanced Console Error Handling — Chapter 21
+- [x] Advanced Console Error Handling — [Chapter 20](docs/Larafony/chapter_21.md)
 
 ### 🔐 Security & Communication
 - [ ] Encrypted Cookies and Sessions — Chapter 22

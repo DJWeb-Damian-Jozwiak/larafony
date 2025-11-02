@@ -7,7 +7,10 @@ namespace Larafony\Framework\ErrorHandler\ServiceProviders;
 use Larafony\Framework\Config\Environment\EnvReader;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\ServiceProvider;
+use Larafony\Framework\ErrorHandler\BaseHandler;
 use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
+use Larafony\Framework\ErrorHandler\Handlers\ConsoleHandler;
+use Larafony\Framework\ErrorHandler\Renderers\Partials\ConsoleRendererFactory;
 use Larafony\Framework\View\ViewManager;
 
 class ErrorHandlerServiceProvider extends ServiceProvider
@@ -25,14 +28,32 @@ class ErrorHandlerServiceProvider extends ServiceProvider
     {
         parent::register($container);
 
-        // Register error handler with ViewManager and debug flag
         $debug = EnvReader::read('APP_DEBUG', 'false') === 'true';
-        $viewManager = $container->get(ViewManager::class);
 
-        $container->set(
-            DetailedErrorHandler::class,
-            new DetailedErrorHandler($viewManager, $debug)
-        );
+        // Determine if we're running in console mode
+        $isConsole = php_sapi_name() === 'cli';
+
+        if ($isConsole) {
+            // Register console error handler
+            $factory = new ConsoleRendererFactory($container);
+            $renderer = $factory->create();
+
+            $handler = new ConsoleHandler(
+                $renderer,
+                fn(int $exitCode) => exit($exitCode)
+            );
+
+            $container->set(BaseHandler::class, $handler);
+            $container->set(ConsoleHandler::class, $handler);
+        } else {
+            // Register web error handler with ViewManager and debug flag
+            $viewManager = $container->get(ViewManager::class);
+
+            $handler = new DetailedErrorHandler($viewManager, $debug);
+
+            $container->set(BaseHandler::class, $handler);
+            $container->set(DetailedErrorHandler::class, $handler);
+        }
 
         return $this;
     }
@@ -40,9 +61,9 @@ class ErrorHandlerServiceProvider extends ServiceProvider
     public function boot(ContainerContract $container): void
     {
         /**
-         * @var DetailedErrorHandler $item
+         * @var BaseHandler $handler
          */
-        $item = $container->get(DetailedErrorHandler::class);
-        $item->register();
+        $handler = $container->get(BaseHandler::class);
+        $handler->register();
     }
 }
