@@ -88,7 +88,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Demo application as a separate project — [Chapter 18](docs/Larafony/chapter_18.md)
 
 ### 🎨 View Layer (SPA)
-- [ ] Inertia.js Middleware (Vue.js) — Chapter 19
+- [x] Inertia.js Middleware (Vue.js) — [Chapter 19](docs/Larafony/chapter_19.md)
 
 ### 💥 Error Handling
 - [ ] Advanced Web Error Handling — Chapter 20
