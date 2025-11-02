@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larafony\Framework\ErrorHandler;
 
 class TraceCollection
@@ -31,5 +33,4 @@ class TraceCollection
 
         return new self(array_map(static fn (array $frame) => TraceFrame::fromArray($frame), $trace));
     }
-
 }

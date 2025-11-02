@@ -10,11 +10,11 @@ use Larafony\Framework\ErrorHandler\Contracts\ErrorHandler;
 use Larafony\Framework\View\ViewManager;
 use Throwable;
 
-final class DetailedErrorHandler implements ErrorHandler
+class DetailedErrorHandler implements ErrorHandler
 {
     public function __construct(
-        private readonly ViewManager $viewManager,
-        private readonly bool $debug = false
+        protected readonly ViewManager $viewManager,
+        protected readonly bool $debug = false,
     ) {
     }
 
@@ -23,15 +23,10 @@ final class DetailedErrorHandler implements ErrorHandler
         $statusCode = $this->getStatusCode($throwable);
         http_response_code($statusCode);
 
-        try {
-            if ($this->debug) {
-                echo $this->renderDebugView($throwable);
-            } else {
-                echo $this->renderProductionView($statusCode);
-            }
-        } catch (\Throwable $e) {
-            // Fallback if view rendering fails
-            echo $this->renderFallback($statusCode, $throwable, $e);
+        if ($this->debug) {
+            echo $this->renderDebugView($throwable);
+        } else {
+            echo $this->renderProductionView($statusCode);
         }
     }
 
@@ -55,35 +50,24 @@ final class DetailedErrorHandler implements ErrorHandler
     /**
      * @param array{type: int, message: string, file: string, line: int} $error
      */
-    private function handleFatalError(array $error): void
+    protected function handleFatalError(array $error): void
     {
         http_response_code(500);
         $exception = new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
         echo $this->renderDebugView($exception);
     }
 
-    private function isFatalError(int $type): bool
+    protected function isFatalError(int $type): bool
     {
         return in_array($type, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true);
     }
 
-    private function renderDebugView(Throwable $exception): string
+    protected function renderDebugView(Throwable $exception): string
     {
         $backtrace = new Backtrace();
         $trace = $backtrace->generate($exception);
 
-        $frames = array_map(function ($frame) {
-            return [
-                'file' => $frame->file,
-                'line' => $frame->line,
-                'class' => $frame->class,
-                'function' => $frame->function,
-                'snippet' => [
-                    'lines' => $frame->snippet->lines,
-                    'errorLine' => $frame->snippet->errorLine,
-                ],
-            ];
-        }, $trace->frames);
+        $frames = array_map($this->mapFrame(...), $trace->frames);
 
         return $this->viewManager->make('errors.debug', [
             'exception' => [
@@ -97,7 +81,24 @@ final class DetailedErrorHandler implements ErrorHandler
         ])->render()->getBody()->__toString();
     }
 
-    private function renderProductionView(int $statusCode): string
+    /**
+     * @return array<string, mixed>
+     */
+    protected function mapFrame(TraceFrame $frame): array
+    {
+        return [
+            'file' => $frame->file,
+            'line' => $frame->line,
+            'class' => $frame->class,
+            'function' => $frame->function,
+            'snippet' => [
+                'lines' => $frame->snippet->lines,
+                'errorLine' => $frame->snippet->errorLine,
+            ],
+        ];
+    }
+
+    protected function renderProductionView(int $statusCode): string
     {
         $view = match ($statusCode) {
             404 => 'errors.404',
@@ -107,35 +108,11 @@ final class DetailedErrorHandler implements ErrorHandler
         return $this->viewManager->make($view)->render()->getBody()->__toString();
     }
 
-    private function getStatusCode(Throwable $exception): int
+    protected function getStatusCode(Throwable $exception): int
     {
         return match (true) {
             $exception instanceof NotFoundError => 404,
             default => 500
         };
-    }
-
-    private function renderFallback(int $statusCode, Throwable $original, Throwable $renderError): string
-    {
-        $title = $statusCode === 404 ? '404 Not Found' : '500 Internal Server Error';
-        $message = $statusCode === 404
-            ? 'The requested page could not be found.'
-            : 'An error occurred while processing your request.';
-
-        if ($this->debug) {
-            return sprintf(
-                '<h1>%s</h1><p>%s</p><hr><h2>Original Error:</h2><pre>%s</pre><hr><h2>Render Error:</h2><pre>%s</pre>',
-                htmlspecialchars($title),
-                htmlspecialchars($message),
-                htmlspecialchars($original->__toString()),
-                htmlspecialchars($renderError->__toString())
-            );
-        }
-
-        return sprintf(
-            '<h1>%s</h1><p>%s</p>',
-            htmlspecialchars($title),
-            htmlspecialchars($message)
-        );
     }
 }
