@@ -22,7 +22,8 @@ readonly class FrameSourceRenderer extends BaseFrameRenderer
     public function render(TraceCollection $trace, int $frameIndex): void
     {
         $frame = $this->getFrame($trace, $frameIndex);
-        if (! $frame) { return;
+        if (! $frame) {
+            return;
         }
 
         $this->output->info(sprintf(

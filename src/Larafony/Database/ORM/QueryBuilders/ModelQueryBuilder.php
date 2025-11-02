@@ -173,6 +173,11 @@ class ModelQueryBuilder
         return $this->builder->count($column);
     }
 
+    public function delete(): int
+    {
+        return $this->builder->delete();
+    }
+
     /**
      * @param array<string, mixed> $attributes
      */

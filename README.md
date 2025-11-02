@@ -95,7 +95,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Advanced Console Error Handling — [Chapter 21](docs/Larafony/chapter_21.md)
 
 ### 🔐 Security & Communication
-- [ ] Encrypted Cookies and Sessions — Chapter 22
+- [x] Encrypted Cookies and Sessions — [Chapter 22](docs/Larafony/chapter_22.md)
 - [ ] Sending Emails — Chapter 23
 - [ ] Authorization System — Chapter 24
 - [ ] Cache Optimization (PSR-6) — Chapter 25
@@ -106,8 +106,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 
 ### 🧭 Meta
 - [ ] Creating Larafony installer — Chapter 30
-- [ ] Demo Project: (Very) Simple Web Store — Chapter 31
-- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 32
+- [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
 ### 🧩 The Philosophy of the Final Chapters
 
@@ -140,10 +139,10 @@ Welcome to the end of the framework —
 and the beginning of **your own**.
 
 ### ⚙️ Extending with mature Libraries
-- [ ] View Bridges (Twig & Smarty) — Chapter 33
-- [ ] Use Carbon instead of ClockFactory — Chapter 34
-- [ ] Use Monolog — Chapter 35
-- [ ] Replace Container with Laravel Container — Chapter 36
+- [ ] View Bridges (Twig & Smarty) — Chapter 32
+- [ ] Use Carbon instead of ClockFactory — Chapter 33
+- [ ] Use Monolog — Chapter 34
+- [ ] Replace Container with Laravel Container — Chapter 35
 
 ## 🚀 Learn How It’s Built—From Scratch
 

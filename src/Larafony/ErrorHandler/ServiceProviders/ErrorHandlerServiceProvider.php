@@ -40,7 +40,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
 
             $handler = new ConsoleHandler(
                 $renderer,
-                fn(int $exitCode) => exit($exitCode)
+                static fn (int $exitCode) => exit($exitCode)
             );
 
             $container->set(BaseHandler::class, $handler);

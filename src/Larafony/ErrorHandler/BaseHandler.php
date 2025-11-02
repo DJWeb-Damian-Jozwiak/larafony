@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\ErrorHandler;
 
-use Larafony\Framework\Exceptions\FatalError;
 use ErrorException;
+use Larafony\Framework\Exceptions\FatalError;
 use Throwable;
 
 abstract class BaseHandler
@@ -23,18 +23,16 @@ abstract class BaseHandler
         restore_exception_handler();
     }
 
-    public abstract function handleException(Throwable $exception): void;
+    abstract public function handleException(Throwable $exception): void;
 
     public function handleError(
         int $level,
         string $message,
         string $file = '',
         int $line = 0
-    ): bool
-    {
+    ): bool {
         if (! (error_reporting() & $level)) {
             return false;
-
         }
 
         throw new ErrorException($message, 0, $level, $file, $line);
@@ -53,7 +51,6 @@ abstract class BaseHandler
                     $error['line']
                 )
             );
-
         }
     }
 

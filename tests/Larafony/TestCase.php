@@ -19,5 +19,6 @@ abstract class TestCase extends PHPUnitTestCase
     {
         parent::tearDown();
         Application::empty();
+        $_SERVER = [];
     }
 }
