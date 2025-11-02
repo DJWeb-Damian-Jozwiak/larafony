@@ -85,7 +85,15 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
 
     public function findForRoute(string|int $value): static
     {
-        return self::query()->where('id', '=', $value)->first();
+        $result = self::query()->where('id', '=', $value)->first();
+
+        if ($result === null) {
+            throw new \Larafony\Framework\Core\Exceptions\NotFoundError(
+                sprintf('Model %s with id %s not found', static::class, $value)
+            );
+        }
+
+        return $result;
     }
 
     /**

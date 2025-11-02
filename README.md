@@ -91,7 +91,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Inertia.js Middleware (Vue.js) — [Chapter 19](docs/Larafony/chapter_19.md)
 
 ### 💥 Error Handling
-- [ ] Advanced Web Error Handling — Chapter 20
+- [x] Advanced Web Error Handling — [Chapter 20](docs/Larafony/chapter_20.md)
 - [ ] Advanced Console Error Handling — Chapter 21
 
 ### 🔐 Security & Communication
