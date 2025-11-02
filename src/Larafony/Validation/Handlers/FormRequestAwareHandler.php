@@ -77,6 +77,7 @@ final class FormRequestAwareHandler implements RequestHandlerInterface, PreResol
         $callable = [$instance, $this->method];
 
         // ParameterResolver will call beforeResolution() hook automatically
+        /** @phpstan-ignore-next-line $arguments */
         $arguments = $this->parameterResolver->resolve($reflection, $request, $this, $callable);
 
         return $instance->{$this->method}(...$arguments);

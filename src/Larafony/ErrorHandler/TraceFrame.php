@@ -1,7 +1,8 @@
 <?php
 
-namespace Larafony\Framework\ErrorHandler;
+declare(strict_types=1);
 
+namespace Larafony\Framework\ErrorHandler;
 
 readonly class TraceFrame
 {
@@ -20,8 +21,7 @@ readonly class TraceFrame
         public string $function,
         public array $args,
         public CodeSnippet $snippet
-    )
-    {
+    ) {
     }
 
     /**

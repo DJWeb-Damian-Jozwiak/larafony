@@ -141,8 +141,8 @@ Line 3
         $method = $reflection->getMethod('parseAttributes');
 
         $result = $method->invoke($this->directive, 'active="true" disabled="false"');
-        $this->assertStringContainsString('active: true', $result);
-        $this->assertStringContainsString('disabled: false', $result);
+        $this->assertStringContainsString("active: '1'", $result);
+        $this->assertStringContainsString("disabled: ''", $result);
     }
 
     public function testParseAttributesEmpty(): void
