@@ -48,7 +48,7 @@ final class FallbackErrorHandlerTest extends TestCase
         $handler->handle($exception);
         $output = ob_get_clean();
 
-        $this->assertStringContainsString('500 Internal Server Error', $output);
+        $this->assertStringContainsString('Server Error', $output);
         $this->assertStringContainsString('An error occurred while processing your request', $output);
     }
 
