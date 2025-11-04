@@ -1,7 +1,7 @@
 {
     "name": "larafony/core",
     "description": "Larafony is a modern PHP 8.5 framework combining the elegance of Laravel, the stability of Symfony, and the power of PSR standards — built for production, not tutorials. Minimal dependencies, full PSR support, custom middleware stack, and analytics without cookies or Google.",
-    "keywords": ["php", "framework", "laravel", "symfony", "psr", "http", "middleware", "container", "inertia", "vue", "twig", "blade", "php8", "modern", "clean-code"],
+    "keywords": ["php", "framework", "psr", "http", "middleware", "container", "inertia", "vue", "blade", "php8", "modern", "clean-code"],
     "homepage": "https://www.larafony.com",
     "type": "library",
     "authors": [
