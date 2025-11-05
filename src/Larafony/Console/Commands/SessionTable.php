@@ -8,31 +8,16 @@ use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Command;
+use Larafony\Framework\Console\Contracts\OutputContract;
+use Larafony\Framework\Container\Contracts\ContainerContract;
 
 #[AsCommand(name: 'table:session')]
-class SessionTable extends Command
+class SessionTable extends MakeMigration
 {
-    public function run(): int
+    public function __construct(OutputContract $output, protected ContainerContract $container)
     {
-        $migrationName = ClockFactory::now()->format('Y_m_d_His_') . 'create_sessions_table.php';
-
-        $default = 'database/migrations/';
-        $path = $this->container->get(ConfigContract::class)->get('database.migrations.path', $default);
-
-        $fullPath = $path . '/' . $migrationName;
-
-        $stub = $this->getStub();
-        $content = str_replace('DummyRootNamespace', 'App\\Database\\Migrations', $stub);
-
-        if (! is_dir($path)) {
-            mkdir($path, 0755, true);
-        }
-
-        file_put_contents($fullPath, $content);
-
-        $this->output->success("Migration created successfully: {$migrationName}");
-
-        return 0;
+        parent::__construct($output, $container);
+        $this->name = ClockFactory::now()->format('Y_m_d_His_') . 'create_sessions_table.php';
     }
 
     protected function getStub(): string
@@ -40,5 +25,10 @@ class SessionTable extends Command
         $stubPath = dirname(__DIR__, 4) . '/stubs/session_migration.stub';
 
         return file_get_contents($stubPath);
+    }
+
+    public function run(): int
+    {
+        return $this->buildFromName($this->name);
     }
 }

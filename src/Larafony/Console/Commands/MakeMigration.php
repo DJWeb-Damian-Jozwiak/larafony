@@ -43,4 +43,25 @@ class MakeMigration extends MakeCommand
 
         return ClockFactory::now()->format('Y_m_d_His_') . $name;
     }
+
+    protected function buildFromName(string $migrationName): int
+    {
+        $default = 'database/migrations/';
+        $path = $this->container->get(ConfigContract::class)->get('database.migrations.path', $default);
+
+        $fullPath = $path . '/' . $migrationName;
+
+        $stub = $this->getStub();
+        $content = str_replace('DummyRootNamespace', 'App\\Database\\Migrations', $stub);
+
+        if (! is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        file_put_contents($fullPath, $content);
+
+        $this->output->success("Migration created successfully: {$migrationName}");
+
+        return 0;
+    }
 }
