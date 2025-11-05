@@ -8,31 +8,21 @@ use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Command;
+use Larafony\Framework\Console\Contracts\OutputContract;
+use Larafony\Framework\Container\Contracts\ContainerContract;
 
 #[AsCommand(name: 'table:mail-log')]
-class MailLogTable extends Command
+class MailLogTable extends MakeMigration
 {
+    public function __construct(OutputContract $output, protected ContainerContract $container)
+    {
+        parent::__construct($output, $container);
+        $this->name = ClockFactory::now()->format('Y_m_d_His_') . 'create_mail_log_table.php';
+    }
+
     public function run(): int
     {
-        $migrationName = ClockFactory::now()->format('Y_m_d_His_') . 'create_mail_log_table.php';
-
-        $default = 'database/migrations/';
-        $path = $this->container->get(ConfigContract::class)->get('database.migrations.path', $default);
-
-        $fullPath = $path . '/' . $migrationName;
-
-        $stub = $this->getStub();
-        $content = str_replace('DummyRootNamespace', 'App\\Database\\Migrations', $stub);
-
-        if (! is_dir($path)) {
-            mkdir($path, 0755, true);
-        }
-
-        file_put_contents($fullPath, $content);
-
-        $this->output->success("Migration created successfully: {$migrationName}");
-
-        return 0;
+        return $this->buildFromName($this->name);
     }
 
     protected function getStub(): string
