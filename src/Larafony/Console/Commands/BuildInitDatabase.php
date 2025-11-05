@@ -37,6 +37,7 @@ class BuildInitDatabase extends Command
 
         $commands = [
             'table:database-log',
+            'table:session',
             'migrate:fresh',
         ];
 
