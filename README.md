@@ -68,7 +68,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] HTTP client using PSR-18 (Simple Guzzle replacement) — [Chapter 7](docs/Larafony/chapter_7.md)
 - [x] Environment variables and configuration — [Chapter 8](docs/Larafony/chapter_8.md)
 
-### ⚙️ Console & Database
+### ⚙️ Console & Databasechap
 - [x] Console Kernel — [Chapter 9](docs/Larafony/chapter_9.md)
 - [x] MySQL Schema Builder — [Chapter 10](docs/Larafony/chapter_10.md)
 - [ ] MySQL Query Builder — Chapter 11
