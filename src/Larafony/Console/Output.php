@@ -49,12 +49,60 @@ readonly class Output implements OutputContract
         $this->writeln("<success>{$message}</success>");
     }
 
-    public function question(string $text): string
+    public function question(string $text, string $default = ''): string
     {
         $outputStream = $this->container->get('output_stream');
         $inputStream = $this->container->get('input_stream');
         $this->info($text);
         $outputStream->write(PHP_EOL);
+        $result = trim($inputStream->read(1024));
+        if (! $result) {
+            $result = $default;
+        }
+        return $result;
+    }
+
+    public function secret(string $text): string
+    {
+        $outputStream = $this->container->get('output_stream');
+        $inputStream = $this->container->get('input_stream');
+
+        $this->info($text);
+        $outputStream->write(PHP_EOL);
+
+        // Check if we're in a TTY (interactive terminal)
+        if ($this->isTty()) {
+            // Disable echo
+            $this->withStty('-echo');
+
+            $value = trim($inputStream->read(1024));
+
+            // Re-enable echo
+            $this->withStty('echo');
+
+            // Add newline after hidden input
+            $outputStream->write(PHP_EOL);
+
+            return $value;
+        }
+
+        // Fallback for non-TTY environments (tests, pipes, etc.)
         return trim($inputStream->read(1024));
+    }
+
+    private function isTty(): bool
+    {
+        return function_exists('posix_isatty') && posix_isatty(STDIN);
+    }
+
+    private function withStty(string $mode): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Windows doesn't support stty, skip
+            return;
+        }
+
+        // Suppress errors in case stty is not available
+        shell_exec("stty {$mode}");
     }
 }
