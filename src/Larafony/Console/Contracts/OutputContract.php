@@ -18,5 +18,7 @@ interface OutputContract
 
     public function success(string $message): void;
 
-    public function question(string $text): string;
+    public function question(string $text, string $default): string;
+
+    public function secret(string $text): string;
 }
