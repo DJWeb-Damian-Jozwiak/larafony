@@ -413,6 +413,46 @@ LOG_DRIVER=monolog
 
 **The rest of your application requires zero changes.** This is the power of coding to interfaces (PSR-3) rather than implementations—a core principle of SOLID design and dependency inversion.
 
----
+## Console Commands for Development
+
+Chapter 14 also introduces a comprehensive set of console commands to streamline database management and code generation workflows. These commands leverage the framework's attribute-based architecture and provide an intuitive CLI experience.
+
+### Database Initialization
+
+**database:init** - One-command database setup wizard (src/Larafony/Console/Commands/BuildInitDatabase.php:10)
+
+This "installer" command provides a streamlined workflow for initial database setup:
+
+```bash
+php bin/larafony database:init
+```
+
+The command orchestrates three steps:
+1. **database:connect** - Interactive connection wizard (prompts for credentials if needed)
+2. **table:database-log** - Creates the logs table migration
+3. **migrate:fresh** - Drops all tables and runs all migrations
+
+If database credentials are updated during the process, the command intelligently restarts with the new configuration to complete the initialization.
+
+### Database Connection Management
+
+**database:connect** - Interactive database connection setup (src/Larafony/Console/Commands/ConnectToDatabase.php:13)
+
+```bash
+php bin/larafony database:connect
+```
+
+Features:
+- Tests existing connection from configuration
+- Interactive prompts for credentials if connection fails
+- Validates input (e.g., numeric port)
+- Securely handles password input (masked)
+- Updates `.env` file with new credentials
+- Retries until successful connection
+
+Exit codes:
+- `0` - Already connected or connection successful
+- `2` - Credentials updated, configuration reload required
+
 
 📚 **Learn More:** This implementation is explained in detail with step-by-step tutorials, tests, and best practices at [masterphp.eu](https://masterphp.eu)
