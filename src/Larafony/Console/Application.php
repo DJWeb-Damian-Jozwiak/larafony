@@ -37,9 +37,9 @@ class Application extends Container
         return self::$instance;
     }
 
-    public function handle(): int
+    public function handle(?array $args = null): int
     {
-        $args = $_SERVER['argv'];
+        $args ??= $_SERVER['argv'];
         try {
             return $this->kernel->handle($args);
         } catch (CommandNotFoundError) {
