@@ -508,6 +508,36 @@ Table created successfully!
 Columns: id, name, email, created_at, updated_at
 ```
 
+### Interactive Database Setup
+
+The framework includes a `database:connect` command that interactively configures database credentials and automatically updates the `.env` file:
+
+```bash
+php bin/larafony database:connect
+```
+
+**Features:**
+
+- **Interactive prompts** - Asks for host, port, database, username, and password with sensible defaults
+- **Password security** - Uses `secret()` input to hide password characters (Unix/Linux/macOS)
+- **Connection validation** - Tests the connection before saving credentials
+- **Auto-retry** - If connection fails, prompts again with helpful error messages
+- **Exit code signaling** - Returns exit code `2` when credentials are updated (useful for orchestrator commands)
+
+**Example interaction:**
+
+```
+Configure database connection
+Enter host [127.0.0.1]: ↵
+Enter port [3306]: ↵
+Enter database [larafony]: my_app↵
+Enter username [root]: ↵
+Enter password: ******* (hidden)
+Database connected successfully!
+```
+
+The command automatically updates `.env` with `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` values.
+
 ### Key Takeaways
 
 - **Configuration Layer Integration**: Database configuration uses the Config system from Chapter 9 (EnvReader), demonstrating how framework components build on each other
