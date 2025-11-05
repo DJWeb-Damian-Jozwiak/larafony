@@ -231,6 +231,42 @@ php bin/console.php user:create
 
 - **Simplified Output API**: Larafony's `Output` class provides a clean API (`info()`, `success()`, `error()`, `warning()`) with tag-based formatting, simpler than Symfony's extensive styling system but more powerful than raw echo statements.
 
+## Enhanced Features
+
+### Secret Input for Passwords
+
+The `Output` class includes a `secret()` method for secure password input that hides characters as the user types using terminal capabilities (`stty -echo`). **Unix/Linux/macOS only** - Windows falls back to regular input.
+
+```php
+$password = $this->output->secret('Enter password: ');
+// User input is hidden on Unix systems
+```
+
+### Default Values for Questions
+
+The `question()` method accepts default values for improved interactive command UX:
+
+```php
+$host = $this->output->question('Enter host [127.0.0.1]: ', '127.0.0.1');
+// User presses Enter to accept default
+```
+
+### Command Orchestration
+
+Commands can call other commands via the `call()` method, enabling composition patterns:
+
+```php
+protected function call(string $command, array $arguments = []): int;
+
+// Usage
+$this->call('database:connect');
+$this->call('migrate:fresh');
+```
+
+### Application Handle Defaults
+
+The `Application::handle()` method automatically uses `$_SERVER['argv']` when arguments aren't provided, simplifying CLI usage.
+
 ## Real World Integration
 
 This chapter's features are demonstrated in the demo application with a fully functional console command showcasing attribute-based arguments, options, and formatted output.

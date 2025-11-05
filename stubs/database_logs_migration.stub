@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('database_logs', function ($table) {
+            $table->id();
+            $table->string('level');
+            $table->text('message');
+            $table->json('context');
+            $table->json('metadata')->nullable(true);
+            $table->timestamp('created_at')->current();
+            $table->index('level');
+            $table->index('created_at');
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('database_logs') |> Schema::execute(...);
+    }
+};
