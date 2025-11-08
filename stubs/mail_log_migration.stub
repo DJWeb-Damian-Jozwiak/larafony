@@ -17,16 +17,16 @@ return new class extends Migration
         Schema::create('mail_log', function ($table) {
             $table->id();
             $table->string('from_email');
-            $table->string('from_name')->nullable();
+            $table->string('from_name')->nullable(true);
             $table->string('to_email');
-            $table->string('to_name')->nullable();
-            $table->text('cc_email')->nullable();
-            $table->text('bcc_email')->nullable();
-            $table->string('reply_to_email')->nullable();
+            $table->string('to_name')->nullable(true);
+            $table->text('cc_email')->nullable(true);
+            $table->text('bcc_email')->nullable(true);
+            $table->string('reply_to_email')->nullable(true);
             $table->string('subject');
             $table->enum('status', ['sent', 'failed']);
-            $table->text('error')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->text('error')->nullable(true);
+            $table->timestamp('created_at')->current();
             $table->index('status');
             $table->index('created_at');
         }) |> Schema::execute(...);

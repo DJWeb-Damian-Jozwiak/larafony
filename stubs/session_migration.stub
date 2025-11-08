@@ -15,12 +15,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sessions', function ($table) {
-            $table->string('id', 255)->primary();
+            $table->string('id', 255)->nullable(false);
             $table->text('payload');
             $table->integer('last_activity');
-            $table->string('user_ip', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('user_ip', 45)->nullable(true);
+            $table->text('user_agent')->nullable(true);
+            $table->bigInteger('user_id')->unsigned(true)->nullable(true);
+
+            // Indexes
+            $table->primary('id');
             $table->index('last_activity');
             $table->index('user_id');
         }) |> Schema::execute(...);
