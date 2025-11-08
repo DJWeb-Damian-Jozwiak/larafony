@@ -52,8 +52,7 @@ final class SystemClock implements Clock, Castable
 
     public function now(): \DateTimeImmutable
     {
-        self::$testNow ??= new \DateTimeImmutable('now', $this->timezone);
-        return self::$testNow;
+        return self::$testNow ?? new \DateTimeImmutable('now', $this->timezone);
     }
 
     /**

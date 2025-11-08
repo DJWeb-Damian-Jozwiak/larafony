@@ -14,6 +14,8 @@
         "ext-uri": "*",
         "ext-curl": "*",
         "ext-pdo": "*",
+        "ext-redis": "*",
+        "ext-memcached": "*",
         "psr/clock": "^1.0",
         "psr/container": "^2.0",
         "psr/http-message": "^2.0",
@@ -21,7 +23,8 @@
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "psr/http-client": "^1.0",
-        "psr/log": "^3.0"
+        "psr/log": "^3.0",
+        "psr/cache": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.4.0",

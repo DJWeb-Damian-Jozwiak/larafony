@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM\Entities;
 
+use Larafony\Framework\Cache\Cache;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany;
 use Larafony\Framework\Database\ORM\Model;
@@ -105,16 +106,65 @@ class User extends Model
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
         $relation = $this->relations->getRelationInstance('roles');
         $relation->attach([$role->id]);
+
+        // Invalidate cache after role change
+        $this->clearAuthCache();
+    }
+
+    public function removeRole(Role $role): void
+    {
+        /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
+        $relation = $this->relations->getRelationInstance('roles');
+        $relation->detach([$role->id]);
+
+        // Invalidate cache after role change
+        $this->clearAuthCache();
     }
 
     public function hasRole(string $roleName): bool
     {
-        return array_any($this->roles, static fn (Role $role) => $role->name === $roleName);
+        $cacheKey = "user.{$this->id}.roles";
+
+        $roleNames = Cache::instance()->remember(
+            $cacheKey,
+            3600, // 1 hour
+            fn() => array_map(fn(Role $role) => $role->name, $this->roles)
+        );
+
+        return in_array($roleName, $roleNames, true);
     }
 
     public function hasPermission(string $permissionName): bool
     {
-        return array_any($this->roles, static fn (Role $role) => $role->hasPermission($permissionName));
+        $cacheKey = "user.{$this->id}.permissions";
+
+        $permissions = Cache::instance()->remember(
+            $cacheKey,
+            3600, // 1 hour
+            function() {
+                $allPermissions = [];
+                foreach ($this->roles as $role) {
+                    foreach ($role->permissions as $permission) {
+                        $allPermissions[] = $permission->name;
+                    }
+                }
+                return array_unique($allPermissions);
+            }
+        );
+
+        return in_array($permissionName, $permissions, true);
+    }
+
+    /**
+     * Clear user's cached roles and permissions
+     *
+     * @return void
+     */
+    public function clearAuthCache(): void
+    {
+        $cache = Cache::instance();
+        $cache->forget("user.{$this->id}.roles");
+        $cache->forget("user.{$this->id}.permissions");
     }
 
     protected array $casts = [

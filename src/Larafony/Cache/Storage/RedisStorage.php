@@ -1,0 +1,245 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Larafony\Framework\Cache\Storage;
+
+use Larafony\Framework\Cache\Contracts\StorageContract;
+use Larafony\Framework\Cache\Enums\RedisEvictionPolicy;
+use Larafony\Framework\Clock\ClockFactory;
+use Redis;
+
+class RedisStorage extends BaseStorage
+{
+    /**
+     * @param Redis $redis
+     * @param string $prefix
+     */
+    public function __construct(
+        private Redis $redis,
+        private string $prefix = 'cmp_cache:'
+    ) {
+        $this->withEvictionPolicy(RedisEvictionPolicy::ALLKEYS_LFU);
+    }
+
+    /**
+     * Set Redis eviction policy
+     *
+     * @param RedisEvictionPolicy $policy
+     * @return void
+     */
+    public function withEvictionPolicy(RedisEvictionPolicy $policy): void
+    {
+        $this->redis->config('SET', 'maxmemory-policy', $policy->value);
+    }
+
+    /**
+     * Set maximum memory capacity
+     *
+     * @param int $size Size in bytes (e.g., 256 * 1024 * 1024 for 256MB)
+     * @return void
+     */
+    public function maxCapacity(int $size): void
+    {
+        $this->redis->config('SET', 'maxmemory', (string)$size);
+    }
+
+
+    /**
+     * Get Redis connection info
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        try {
+            $info = $this->redis->info();
+            return [
+                'connected' => $this->redis->isConnected(),
+                'memory_used' => $info['used_memory_human'] ?? 'N/A',
+                'memory_peak' => $info['used_memory_peak_human'] ?? 'N/A',
+                'total_keys' => $this->redis->dbSize(),
+                'uptime_days' => isset($info['uptime_in_days']) ? (int)$info['uptime_in_days'] : 0,
+            ];
+        } catch (\RedisException $e) {
+            error_log('[CMP Cache] Redis info error: ' . $e->getMessage());
+            return [
+                'connected' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    protected function getFromBackend(string $key): ?array
+    {
+        $data = $this->redis->get($this->prefix . $key);
+        if ($data === false) {
+            return null;
+        }
+
+        // Decompress if needed
+        $decompressed = $this->maybeDecompress($data);
+        $unserialized = unserialize($decompressed);
+
+        return is_array($unserialized) ? $unserialized : null;
+    }
+
+    protected function setToBackend(string $key, array $data): bool
+    {
+        $key = $this->prefix . $key;
+        $serialized = serialize($data);
+
+        // Compress if needed
+        $compressed = $this->maybeCompress($serialized);
+
+        $ttl = isset($data['expiry']) ? $data['expiry'] - ClockFactory::now()->getTimestamp() : 0;
+
+        if ($ttl > 0) {
+            return $this->redis->setex($key, $ttl, $compressed);
+        }
+
+        return $this->redis->set($key, $compressed);
+    }
+
+    protected function deleteFromBackend(string $key): bool
+    {
+        // Redis del() returns number of keys deleted (0 or 1)
+        // We return true even if key doesn't exist (idempotent operation)
+        $this->redis->del($this->prefix . $key);
+        return true;
+    }
+
+    protected function clearBackend(): bool
+    {
+        $iterator = null;
+        $pattern = $this->prefix . '*';
+        $deleted = 0;
+
+        do {
+            $keys = $this->redis->scan($iterator, $pattern, 100);
+            if ($keys !== false && !empty($keys)) {
+                $deleted += $this->redis->del($keys);
+            }
+        } while ($iterator > 0);
+
+        return true;
+    }
+
+    /**
+     * Batch set multiple items using Redis pipeline
+     *
+     * @param array<string, array> $items Key-value pairs with expiry
+     * @return bool
+     */
+    public function setMultiple(array $items): bool
+    {
+        if (empty($items)) {
+            return true;
+        }
+
+        $pipe = $this->redis->multi(\Redis::PIPELINE);
+        $currentTime = ClockFactory::now()->getTimestamp();
+
+        foreach ($items as $key => $data) {
+            $prefixedKey = $this->prefix . $key;
+            $serialized = serialize($data);
+            $compressed = $this->maybeCompress($serialized);
+
+            $ttl = isset($data['expiry']) ? $data['expiry'] - $currentTime : 0;
+
+            if ($ttl > 0) {
+                $pipe->setex($prefixedKey, $ttl, $compressed);
+            } else {
+                $pipe->set($prefixedKey, $compressed);
+            }
+        }
+
+        $results = $pipe->exec();
+
+        // Check if all operations succeeded
+        return !in_array(false, $results, true);
+    }
+
+    /**
+     * Batch get multiple items using Redis pipeline
+     *
+     * @param array<int, string> $keys
+     * @return array<string, array|null>
+     */
+    public function getMultiple(array $keys): array
+    {
+        if (empty($keys)) {
+            return [];
+        }
+
+        $prefixedKeys = array_map(
+            fn($key) => $this->prefix . $key,
+            $keys
+        );
+
+        $values = $this->redis->mGet($prefixedKeys);
+
+        $result = [];
+        foreach ($keys as $index => $key) {
+            $value = $values[$index];
+
+            if ($value === false) {
+                $result[$key] = null;
+                continue;
+            }
+
+            $decompressed = $this->maybeDecompress($value);
+            $unserialized = unserialize($decompressed);
+            $result[$key] = is_array($unserialized) ? $unserialized : null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Batch delete multiple items using Redis pipeline
+     *
+     * @param array<int, string> $keys
+     * @return bool
+     */
+    public function deleteMultiple(array $keys): bool
+    {
+        if (empty($keys)) {
+            return true;
+        }
+
+        $prefixedKeys = array_map(
+            fn($key) => $this->prefix . $key,
+            $keys
+        );
+
+        $deleted = $this->redis->del($prefixedKeys);
+
+        // Returns number of keys deleted
+        return $deleted > 0;
+    }
+
+    /**
+     * Atomically increment a value
+     *
+     * @param string $key
+     * @param int $value
+     * @return int The new value after increment
+     */
+    public function increment(string $key, int $value = 1): int
+    {
+        return $this->redis->incrBy($this->prefix . $key, $value);
+    }
+
+    /**
+     * Atomically decrement a value
+     *
+     * @param string $key
+     * @param int $value
+     * @return int The new value after decrement
+     */
+    public function decrement(string $key, int $value = 1): int
+    {
+        return $this->redis->decrBy($this->prefix . $key, $value);
+    }
+}

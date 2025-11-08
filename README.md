@@ -97,8 +97,8 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 ### 🔐 Security & Communication
 - [x] Encrypted Cookies and Sessions — [Chapter 22](docs/Larafony/chapter_22.md)
 - [x] Sending Emails — [Chapter 23](docs/Larafony/chapter_23.md)
-- [ ] Authorization System — [Chapter 24](docs/Larafony/chapter_24.md)
-- [ ] Cache Optimization (PSR-6) — Chapter 25
+- [x] Authorization System — [Chapter 24](docs/Larafony/chapter_24.md)
+- [x] Cache Optimization (PSR-6) — [Chapter 25](docs/Larafony/chapter_25.md)
 - [ ] Event System (PSR-14 and alternatives) — Chapter 26
 - [ ] Jobs and Queues — Chapter 27
 - [ ] Simple WebSockets (almost from scratch) — Chapter 28
@@ -108,7 +108,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [ ] Creating Larafony installer — Chapter 30
 - [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
-### 🧩 The Philosophy of the Final Chapters
+### 🧩 The Philosophy of the Final Chaptersczy
 
 **This will be updated while following packages reach FULL php8.5 support.**
 
