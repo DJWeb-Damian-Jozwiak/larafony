@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larafony\Framework\DBAL\Models\Entities;
+namespace Larafony\Framework\Database\ORM\Entities;
 
 use Larafony\Framework\Database\ORM\Model;
 
 class DatabaseLog extends Model
 {
-    public string $table {
-        get => 'database_logs';
-    }
-
     public string $level {
         get => $this->level;
         set {
@@ -31,7 +27,6 @@ class DatabaseLog extends Model
     /**
      * @var array<int|string, mixed>
      */
-
     public array $context {
         get => $this->context;
         set {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\Drivers\MySQL\Schema;
 
 use Larafony\Framework\Database\Drivers\MySQL\Schema\ColumnDefinitions\DateTimeColumn;
+use Larafony\Framework\Database\Drivers\MySQL\Schema\ColumnDefinitions\EnumColumn;
 use Larafony\Framework\Database\Drivers\MySQL\Schema\ColumnDefinitions\IntColumn;
 use Larafony\Framework\Database\Drivers\MySQL\Schema\ColumnDefinitions\StringColumn;
 use Larafony\Framework\Database\Drivers\MySQL\Schema\ColumnDefinitions\TextColumn;
@@ -102,5 +103,15 @@ class TableDefinition extends \Larafony\Framework\Database\Base\Schema\TableDefi
         $index = new UniqueIndex($this->tableName, $columns, $indexName, type: 'unique');
         $this->addIndex($index);
         return $index;
+    }
+
+    /**
+     * @param array<int, string> $values
+     */
+    public function enum(string $column, array $values): EnumColumn
+    {
+        $col = new EnumColumn($column, $values);
+        $this->addColumn($col);
+        return $col;
     }
 }

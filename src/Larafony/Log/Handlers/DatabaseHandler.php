@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Log\Handlers;
 
-use Larafony\Framework\DBAL\Models\Entities\DatabaseLog;
+use Larafony\Framework\Database\ORM\Entities\DatabaseLog;
 use Larafony\Framework\Log\Contracts\HandlerContract;
 use Larafony\Framework\Log\Formatters\JsonFormatter;
 use Larafony\Framework\Log\Message;
