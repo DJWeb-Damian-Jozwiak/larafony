@@ -27,7 +27,7 @@ class MailLogTable extends MakeMigration
 
     protected function getStub(): string
     {
-        $stubPath = dirname(__DIR__, 3) . '/stubs/mail_log_migration.stub';
+        $stubPath = dirname(__DIR__, 4) . '/stubs/mail_log_migration.stub';
 
         return file_get_contents($stubPath);
     }

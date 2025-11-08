@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larafony\Framework\DBAL\Models\Entities;
+namespace Larafony\Framework\Database\ORM\Entities;
 
 use Larafony\Framework\Database\ORM\Model;
 
 class MailLog extends Model
 {
-    public string $table {
-        get => 'mail_log';
-    }
-
     public string $from_email {
         get => $this->from_email;
         set {

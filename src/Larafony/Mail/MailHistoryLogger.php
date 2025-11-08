@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Mail;
 
-use Larafony\Framework\DBAL\Models\Entities\MailLog;
+use Larafony\Framework\Database\ORM\Entities\MailLog;
 use Larafony\Framework\Mail\Contracts\MailHistoryLoggerContract;
 use Larafony\Framework\Mail\Message\Email;
 
