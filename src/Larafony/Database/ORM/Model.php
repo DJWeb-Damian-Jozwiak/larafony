@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM;
 
+use Larafony\Framework\Clock\ClockFactory;
+use Larafony\Framework\Core\Support\Str;
 use Larafony\Framework\Database\ORM\Contracts\PropertyChangesContract;
 use Larafony\Framework\Database\ORM\Decorators\EntityManager;
 use Larafony\Framework\Database\ORM\QueryBuilders\ModelQueryBuilder;
@@ -13,7 +15,10 @@ use LogicException;
 
 abstract class Model implements PropertyChangesContract, \JsonSerializable
 {
-    abstract public string $table { get; }
+    protected ?string $_table = null;
+    public string $table {
+        get => $this->_table ?? ($this::class |> Str::classBasename(...) |> Str::snake(...) |> Str::pluralize(...));
+    }
 
     public protected(set) string $primary_key_name = 'id';
     public protected(set) ModelQueryBuilder $query_builder;
@@ -85,7 +90,15 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
 
     public function findForRoute(string|int $value): static
     {
-        return self::query()->where('id', '=', $value)->first();
+        $result = self::query()->where('id', '=', $value)->first();
+
+        if ($result === null) {
+            throw new \Larafony\Framework\Core\Exceptions\NotFoundError(
+                sprintf('Model %s with id %s not found', static::class, $value)
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -99,7 +112,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
             if (! property_exists($this, $key)) {
                 continue;
             }
-            if (isset($this->casts[$key])) {
+            if (isset($this->casts[$key]) && $value !== null) {
                 $value = $this->castAttribute($value, $this->casts[$key]);
             }
             $this->$key = $value;
@@ -133,9 +146,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     protected function castAttribute(mixed $value, string $type): mixed
     {
         return match (true) {
-            $type === 'datetime' => $value instanceof \DateTimeImmutable
-                ? $value
-                : new \DateTimeImmutable($value),
+            $type === 'datetime' => ClockFactory::parse($value),
             is_subclass_of($type, \BackedEnum::class) => $type::from($value),
             is_subclass_of($type, Contracts\Castable::class) => $type::from($value),
             default => $value,
