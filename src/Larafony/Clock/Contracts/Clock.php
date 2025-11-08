@@ -38,4 +38,9 @@ interface Clock extends ClockInterface
      * Check if given date is today.
      */
     public function isToday(\DateTimeInterface $date): bool;
+
+    /**
+     * Parse a date string and return a new Clock instance.
+     */
+    public function parse(string $date): self;
 }
