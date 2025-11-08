@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('users', function ($table) {
+            $table->id();
+            $table->string('email', 100);
+            $table->string('username', 50)->nullable(true);
+            $table->string('password');
+            $table->string('remember_token', 100)->nullable(true);
+            $table->string('password_reset_token', 100)->nullable(true);
+            $table->timestamp('password_reset_expires')->nullable(true);
+            $table->timestamp('email_verified_at')->nullable(true);
+            $table->integer('is_active', 'TINYINT')->length(1)->default(1);
+            $table->timestamp('last_login_at')->nullable(true);
+            $table->timestamps();
+
+            // Indexes
+            $table->unique('email');
+            $table->unique('username');
+            $table->index('is_active');
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('users') |> Schema::execute(...);
+    }
+};

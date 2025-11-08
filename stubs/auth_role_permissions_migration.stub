@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('role_permissions', function ($table) {
+            $table->id();
+            $table->bigInteger('role_id')->unsigned(true);
+            $table->bigInteger('permission_id')->unsigned(true);
+            $table->timestamp('created_at')->current();
+            $table->index('role_id');
+            $table->index('permission_id');
+            $table->unique(['role_id', 'permission_id']);
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('role_permissions') |> Schema::execute(...);
+    }
+};

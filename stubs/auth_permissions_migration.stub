@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('permissions', function ($table) {
+            $table->id();
+            $table->string('name', 100);
+            $table->string('description')->nullable(true);
+            $table->timestamp('created_at')->current();
+            $table->timestamp('updated_at')->current();
+
+            // Indexes
+            $table->unique('name');
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('permissions') |> Schema::execute(...);
+    }
+};
