@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Larafony\Framework\DBAL\Models\Entities;
+namespace Larafony\Framework\Database\ORM\Entities;
 
 use Larafony\Framework\Database\ORM\Model;
 
 class Session extends Model
 {
-    public string $table {
-        get => 'sessions';
-    }
-
     public string $payload {
         get => $this->payload;
         set {

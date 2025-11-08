@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Storage\Session\Handlers;
 
 use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\DBAL\Models\Entities\Session;
+use Larafony\Framework\Database\ORM\Entities\Session;
 use Larafony\Framework\Storage\Session\SessionSecurity;
 use Larafony\Framework\Web\Config;
 

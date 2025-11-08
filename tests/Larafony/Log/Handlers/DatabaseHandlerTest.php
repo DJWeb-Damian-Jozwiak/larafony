@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Tests\Log\Handlers;
 
 use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\DBAL\Models\Entities\DatabaseLog;
+use Larafony\Framework\Database\ORM\Entities\DatabaseLog;
 use Larafony\Framework\Enums\Log\LogLevel;
 use Larafony\Framework\Log\Context;
 use Larafony\Framework\Log\Handlers\DatabaseHandler;
