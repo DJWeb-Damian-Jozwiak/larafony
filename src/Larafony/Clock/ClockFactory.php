@@ -105,4 +105,12 @@ final class ClockFactory
     {
         return self::instance()->isToday($date);
     }
+
+    /**
+     * Parse a date string and return a new Clock instance.
+     */
+    public static function parse(string $date): Clock
+    {
+        return self::instance()->parse($date);
+    }
 }

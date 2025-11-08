@@ -6,6 +6,7 @@ namespace Larafony\Framework\Database\Base\Schema;
 
 use Larafony\Framework\Database\Base\Schema\Columns\BaseColumn;
 use Larafony\Framework\Database\Base\Schema\Columns\DateTimeColumn;
+use Larafony\Framework\Database\Base\Schema\Columns\EnumColumn;
 use Larafony\Framework\Database\Base\Schema\Columns\IntColumn;
 use Larafony\Framework\Database\Base\Schema\Columns\StringColumn;
 use Larafony\Framework\Database\Base\Schema\Columns\TextColumn;
@@ -81,6 +82,10 @@ abstract class TableDefinition
         $this->timestamp('deleted_at')->nullable(true);
     }
 
+    /**
+     * @param array<int, string> $values
+     */
+    abstract public function enum(string $column, array $values): EnumColumn;
     abstract public function integer(string $column, string $type = 'INT'): IntColumn;
     abstract public function bigInteger(string $column, string $type = 'MEDIUMINT'): IntColumn;
     abstract public function smallInteger(string $column, string $type = 'MEDIUMINT'): IntColumn;

@@ -135,4 +135,12 @@ final class FrozenClock implements Clock
     {
         return $value >= 0 ? '+' : '';
     }
+
+    /**
+     * Parse a date string and return a new Clock instance.
+     */
+    public function parse(string $date): self
+    {
+        return new self($date);
+    }
 }
