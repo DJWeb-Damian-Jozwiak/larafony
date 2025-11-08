@@ -28,6 +28,31 @@ final class Str
     }
 
     /**
+     * Get the class basename from a fully qualified class name.
+     *
+     * @param class-string<object> $class The class name or object
+     *
+     * @return string The class basename
+     */
+    public static function classBasename(string $class): string
+    {
+        return explode('\\', $class) |> array_last(...);
+    }
+
+    public static function snake(string $value): string
+    {
+        // If already lowercase with underscores, return as-is
+        $replace = ['_', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        if (str_replace($replace, '', $value) |> ctype_lower(...)) {
+            return $value;
+        }
+
+        // Insert underscores before uppercase letters and convert to lowercase
+        $value = preg_replace('/([a-z\d])([A-Z])/', '$1_$2', $value);
+        return preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1_$2', $value) |> strtolower(...);
+    }
+
+    /**
      * Pluralize a word.
      *
      * @param string $word Word to pluralize
