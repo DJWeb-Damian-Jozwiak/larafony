@@ -105,4 +105,35 @@ readonly class Output implements OutputContract
         // Suppress errors in case stty is not available
         shell_exec("stty {$mode}");
     }
+
+    /**
+     * Display a selection menu and return the chosen option
+     *
+     * @param array<int, string> $options
+     * @return string The selected option
+     */
+    public function select(array $options, string $question = 'Please select an option:'): string
+    {
+        $outputStream = $this->container->get('output_stream');
+        $inputStream = $this->container->get('input_stream');
+
+        $this->info($question);
+        $outputStream->write(PHP_EOL);
+
+        foreach ($options as $index => $option) {
+            $this->writeln("  [{$index}] {$option}");
+        }
+
+        $outputStream->write(PHP_EOL);
+        $outputStream->write("<info>Enter your choice: </info>");
+
+        $choice = trim($inputStream->read(1024));
+
+        if (!is_numeric($choice) || !isset($options[(int)$choice])) {
+            $this->error("Invalid choice. Please select a valid option.");
+            return $this->select($options, $question);
+        }
+
+        return $options[(int)$choice];
+    }
 }

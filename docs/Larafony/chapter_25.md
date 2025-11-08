@@ -10,13 +10,13 @@ Chapter 25 introduces advanced cache optimization features and seamless integrat
 
 > **⚠️ PHP 8.5 Extension Compatibility Notice (Nov. 8, 2025)**
 >
-> As of November 8, 2025, there are **no official builds for Redis and Memcached extensions for PHP 8.5**. Because of this limitation:
+> As of November 8, 2025, there are **no official builds for Redis and Memcached extensions for PHP 8.5**.
 >
-> - **Recommended:** Use **FileStorage** driver for development and testing
-> - **Alternative:** Use `build.sh` script from the root of Larafony repository to build Redis and Memcached extensions from scratch
-> - **Documentation Update:** This documentation will be updated after the official PHP 8.5 release when extension support becomes available
+> **Options:**
+> - **Recommended:** Use **FileStorage** driver (works out of the box, no setup required)
+> - **Advanced:** Want Redis/Memcached? After running `composer create-project`, execute `./build.sh` from your project root to compile extensions from source
 >
-> All code examples and tests work with FileStorage out of the box. Redis and Memcached examples are provided for future compatibility.
+> All code examples and tests work with FileStorage out of the box. Redis and Memcached examples are provided for future compatibility and for users who compile extensions manually.
 
 The chapter also demonstrates real-world cache usage by integrating the cache system with the authorization layer (User and Role entities), significantly reducing database queries for permission checks through intelligent caching with automatic invalidation.
 
