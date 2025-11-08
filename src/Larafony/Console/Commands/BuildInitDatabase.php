@@ -24,6 +24,13 @@ class BuildInitDatabase extends Command
 
         // Continue with initialization
         $this->call('table:database-log');
+        $this->call('table:session');
+        $this->call('table:mail-log');
+        $this->call('table:auth-permission');
+        $this->call('table:auth-role');
+        $this->call('table:auth-user');
+        $this->call('table:auth-role-permission');
+        $this->call('table:auth-user-role');
         $this->call('migrate:fresh');
         $this->output->success('Database initialized successfully!');
 
@@ -39,6 +46,11 @@ class BuildInitDatabase extends Command
             'table:database-log',
             'table:session',
             'table:mail-log',
+            'table:auth-permission',
+            'table:auth-role',
+            'table:auth-user',
+            'table:auth-role-permission',
+            'table:auth-user-role',
             'migrate:fresh',
         ];
 
