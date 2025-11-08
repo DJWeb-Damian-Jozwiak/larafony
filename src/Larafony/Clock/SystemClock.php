@@ -126,4 +126,15 @@ final class SystemClock implements Clock
     {
         usleep($microseconds);
     }
+
+    /**
+     * Parse a date string and return a new Clock instance.
+     */
+    public function parse(string $date): self
+    {
+        $datetime = new \DateTimeImmutable($date);
+        $clock = new self($datetime->getTimezone());
+        self::withTestNow($datetime);
+        return $clock;
+    }
 }
