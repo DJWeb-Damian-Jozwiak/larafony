@@ -14,8 +14,6 @@
         "ext-uri": "*",
         "ext-curl": "*",
         "ext-pdo": "*",
-        "ext-redis": "*",
-        "ext-memcached": "*",
         "psr/clock": "^1.0",
         "psr/container": "^2.0",
         "psr/http-message": "^2.0",
@@ -30,6 +28,10 @@
         "phpunit/phpunit": "^12.4.0",
         "phpstan/phpstan": "^2.1.30",
         "nunomaduro/phpinsights": "dev-master"
+    },
+    "suggest": {
+        "ext-redis": "For caching using Redis",
+        "ext-memcached": "For caching uing Memcached"
     },
     "license": "MIT",
     "autoload": {
