@@ -9,6 +9,11 @@ use Larafony\Framework\View\Contracts\DirectiveContract;
 class TemplateCompiler
 {
     /**
+     * @var array<int, string> Map of compiled line number => original content
+     */
+    public private(set) array $lineMapping = [];
+
+    /**
      * @param array<int, DirectiveContract> $directives
      */
     public function __construct(
@@ -18,16 +23,22 @@ class TemplateCompiler
 
     public function compile(string $content): string
     {
+        $this->lineMapping = [];
+        $originalContent = $content;
+
         $content = $this->compileComments($content);
 
         $content = $this->compileEchos($content);
 
         array_walk(
             array: $this->directives,
-            callback: static function (DirectiveContract $directive) use (&$content): void {
+            callback: function (DirectiveContract $directive) use (&$content): void {
                 $content = $directive->compile($content);
             }
         );
+
+        // Build final mapping after all transformations
+        $this->buildFinalMapping($originalContent, $content);
 
         return $content;
     }
@@ -54,5 +65,32 @@ class TemplateCompiler
             '<?php echo htmlspecialchars($1, ENT_QUOTES, \'UTF-8\'); ?>',
             $content
         ) ?? '';
+    }
+
+    private function buildFinalMapping(string $original, string $compiled): void
+    {
+        $originalLines = explode("\n", $original)
+            |> (static fn ($lines) => array_filter($lines, static fn ($line) => trim($line) !== ''));
+        $compiledLines = explode("\n", $compiled)
+            |> (static fn ($lines) => array_filter($lines, static fn ($line) => str_contains($line, '<?php')));
+        $this->lineMapping = [];
+        foreach ($compiledLines as $compiledNum => $compiledLine)
+        {
+            $compliedClean = trim($compiledLine);
+            $similarity = [];
+            foreach ($originalLines as $originalNum => $originalLine)
+            {
+                $originalLine = trim($originalLine);
+                if ($originalLine === '') {
+                    continue;
+                }
+                $similarity[$originalNum] = similar_text($compliedClean, $originalLine);
+            }
+            $max = max($similarity);
+            $matchingLine = array_search($max, $similarity);
+            if(!in_array($matchingLine, $this->lineMapping, true)) {
+                $this->lineMapping[$compiledNum] = $matchingLine;
+            }
+        }
     }
 }

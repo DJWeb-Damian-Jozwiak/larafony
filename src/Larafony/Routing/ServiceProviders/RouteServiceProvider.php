@@ -13,6 +13,7 @@ use Larafony\Framework\Routing\Advanced\Router;
 use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
 use Larafony\Framework\Routing\Basic\Factories\StringHandlerFactory;
 use Larafony\Framework\Routing\Basic\RouteCollection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class RouteServiceProvider extends ServiceProvider
@@ -22,8 +23,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public array $providers {
         get => [
-            RequestHandlerInterface::class => Router::class,
-            Router::class => Router::class,
             ArrayHandlerFactory::class => ArrayHandlerFactory::class,
             StringHandlerFactory::class => StringHandlerFactory::class,
             AttributeRouteScanner::class => AttributeRouteScanner::class,
@@ -46,5 +45,19 @@ class RouteServiceProvider extends ServiceProvider
         $cacheDir = $basePath . '/storage/cache';
         $routeCache = new RouteCache($cacheDir);
         $container->set(RouteCache::class, $routeCache);
+
+        // Register Router with EventDispatcher
+        $eventDispatcher = $container->has(EventDispatcherInterface::class)
+            ? $container->get(EventDispatcherInterface::class)
+            : null;
+
+        $router = new Router(
+            $collection,
+            $container,
+            $eventDispatcher
+        );
+
+        $container->set(Router::class, $router);
+        $container->set(RequestHandlerInterface::class, $router);
     }
 }

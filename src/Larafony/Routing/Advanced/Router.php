@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Larafony\Framework\Routing\Advanced;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
+use Larafony\Framework\Events\Routing\RouteMatched;
 use Larafony\Framework\Routing\Basic\RouteCollection;
 use Larafony\Framework\Routing\Basic\Router as BaseRouter;
 use Larafony\Framework\Routing\Exceptions\RouteNotFoundError;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -20,8 +22,11 @@ class Router extends BaseRouter
 
     private ModelBinder $modelBinder;
 
-    public function __construct(RouteCollection $routes, ContainerContract $container)
-    {
+    public function __construct(
+        RouteCollection $routes,
+        ContainerContract $container,
+        private readonly ?EventDispatcherInterface $eventDispatcher = null,
+    ) {
         parent::__construct($routes, $container);
         $this->modelBinder = new ModelBinder($container);
     }
@@ -42,6 +47,13 @@ class Router extends BaseRouter
         if ($route instanceof Route && $route->bindings) {
             $boundParameters = $this->modelBinder->resolveBindings($route);
             $route = $route->withParameters($boundParameters);
+        }
+
+        // Dispatch RouteMatched event
+        if ($this->eventDispatcher && $route instanceof Route) {
+            $this->eventDispatcher->dispatch(
+                new RouteMatched($route, $route->parameters)
+            );
         }
 
         return $route->handle($request);

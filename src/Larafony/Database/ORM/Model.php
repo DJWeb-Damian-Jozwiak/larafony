@@ -94,7 +94,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
 
         if ($result === null) {
             throw new \Larafony\Framework\Core\Exceptions\NotFoundError(
-                sprintf('Model %s with id %s not found', static::class, $value)
+                sprintf('Model %s with id %s not found', static::class, $value),
             );
         }
 
@@ -124,8 +124,16 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     {
         $this->observer->markPropertyAsChanged(
             $property_name,
-            $this->$property_name
+            $this->$property_name,
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray (): array
+    {
+        return $this->observer->changedProperties;
     }
 
     public function save(): void

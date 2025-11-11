@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\Drivers\MySQL;
 
+use Larafony\Framework\Web\Application;
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
+use Larafony\Framework\Events\Database\QueryExecuted;
+use Larafony\Framework\View\BladeSourceMapper;
 use PDO;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use SensitiveParameter;
 
 final class Connection implements ConnectionContract
@@ -46,10 +50,14 @@ final class Connection implements ConnectionContract
      */
     public function select(string $sql, array $params = []): array
     {
+        $startTime = microtime(true);
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
         $statement->closeCursor();
+        $time = (microtime(true) - $startTime) * 1000; // Convert to ms
+
+        $this->dispatchQueryEvent($sql, $params, $time);
 
         return $result;
     }
@@ -65,10 +73,14 @@ final class Connection implements ConnectionContract
      */
     public function execute(string $sql, array $params = []): int
     {
+        $startTime = microtime(true);
         $statement = $this->connection->prepare($sql);
         $statement->execute(array_values($params));
         $count = $statement->rowCount();
         $statement->closeCursor();
+        $time = (microtime(true) - $startTime) * 1000; // Convert to ms
+
+        $this->dispatchQueryEvent($sql, $params, $time);
 
         return $count;
     }
@@ -143,5 +155,68 @@ final class Connection implements ConnectionContract
             $password,
             $this->getConnectionOptions()
         );
+    }
+
+    /**
+     * @param array<int, mixed> $params
+     */
+    private function dispatchQueryEvent(string $sql, array $params, float $time): void
+    {
+        $app = Application::instance();
+        if (! $app->has(EventDispatcherInterface::class)) {
+            return;
+        }
+
+        $rawSql = $sql;
+        foreach ($params as $param) {
+            $value = $this->quote($param);
+            $rawSql = preg_replace('/\?/', $value, $rawSql, 1);
+        }
+
+        // Get backtrace (limit to 10 frames)
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+        $projectRoot = Application::instance()->base_path . '/';
+
+        $backtrace = array_map(function ($frame) use ($projectRoot) {
+            $file = $frame['file'] ?? null;
+            $line = $frame['line'] ?? null;
+            $compiledFile = null;
+            $compiledLine = null;
+
+            // Try to resolve compiled Blade files to original source
+            if ($file !== null && $line !== null && str_contains($file, '/cache/blade/')) {
+                $compiledFile = $file;
+                $compiledLine = $line;
+
+                $resolved = BladeSourceMapper::resolve($file, $line);
+                if ($resolved !== null) {
+                    $file = $resolved['file'];
+                    $line = $resolved['line'];
+                }
+            }
+
+            // Remove project path prefix
+            if ($file !== null && str_starts_with($file, $projectRoot)) {
+                $file = substr($file, strlen($projectRoot));
+            }
+
+            return [
+                'file' => $file,
+                'line' => $line,
+                'class' => $frame['class'] ?? null,
+                'function' => $frame['function'] ?? null,
+                'compiled_file' => $compiledFile,
+                'compiled_line' => $compiledLine,
+            ];
+        }, $trace);
+
+        $eventDispatcher = $app->get(EventDispatcherInterface::class);
+        $eventDispatcher->dispatch(new QueryExecuted(
+            $sql,
+            $rawSql,
+            $time,
+            'default',
+            $backtrace
+        ));
     }
 }

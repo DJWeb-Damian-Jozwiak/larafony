@@ -134,6 +134,7 @@ class BladeAdapter extends BaseAdapter implements RendererContract
             $content = $this->loader->load($template);
             $compiled = $this->compiler->compile($content);
             $this->cache($cached_file, $compiled);
+            $this->cacheMapping($cached_file, $template);
         }
 
         return $this->evaluateTemplate($cached_file, $data);
@@ -184,6 +185,21 @@ class BladeAdapter extends BaseAdapter implements RendererContract
     private function cache(string $path, string $content): void
     {
         File::create($path, $content);
+    }
+
+    private function cacheMapping(string $cached_file, string $template): void
+    {
+        $template_file = str_replace('.', '/', $template) . '.blade.php';
+        $original_path = $this->template_path . '/' . $template_file;
+
+        $mapping = [
+            'original' => $original_path,
+            'template' => $template,
+            'lines' => $this->compiler->lineMapping,
+        ];
+
+        $mapping_file = $cached_file . '.map.json';
+        File::create($mapping_file, json_encode($mapping, JSON_PRETTY_PRINT));
     }
 
     /**

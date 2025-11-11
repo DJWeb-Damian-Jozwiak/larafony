@@ -29,12 +29,30 @@ class Route extends BasicRoute
 
     public private(set) ?CompiledRoute $compiled = null;
 
+    public string $action {
+        get {
+            if (is_string($this->handlerDefinition)) {
+                return $this->handlerDefinition;
+            }
+
+            if (is_array($this->handlerDefinition)) {
+                return implode('@', $this->handlerDefinition);
+            }
+
+            if (is_callable($this->handlerDefinition)) {
+                return 'Closure';
+            }
+
+            return 'Unknown';
+        }
+    }
+
     private readonly RouteMiddleware $middleware;
 
     public function __construct(
         string $path,
         HttpMethod $method,
-        \Closure|array|string $handlerDefinition,
+        private \Closure|array|string $handlerDefinition,
         RouteHandlerFactory $factory,
         ?string $name = null,
     ) {
