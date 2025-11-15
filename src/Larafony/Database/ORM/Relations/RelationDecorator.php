@@ -48,6 +48,17 @@ class RelationDecorator
     }
 
     /**
+     * Set eager loaded relation data (called by eager loader)
+     *
+     * @param string $name
+     * @param Model|array<int|string, Model>|null $value
+     */
+    public function withEagerRelation(string $name, Model|array|null $value): void
+    {
+        $this->relationsCache[$name] = $value;
+    }
+
+    /**
      * @param string $name
      *
      * @return Model|array<int|string, Model>|null

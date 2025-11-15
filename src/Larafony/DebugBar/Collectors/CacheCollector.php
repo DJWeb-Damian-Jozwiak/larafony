@@ -10,6 +10,7 @@ use Larafony\Framework\Events\Cache\CacheHit;
 use Larafony\Framework\Events\Cache\CacheMissed;
 use Larafony\Framework\Events\Cache\KeyForgotten;
 use Larafony\Framework\Events\Cache\KeyWritten;
+use Larafony\Framework\Web\Config;
 
 final class CacheCollector implements DataCollectorContract
 {
@@ -22,14 +23,19 @@ final class CacheCollector implements DataCollectorContract
     private int $misses = 0;
     private int $writes = 0;
     private int $deletes = 0;
+    private int $totalSize = 0;  // Total bytes written
 
     #[Listen]
     public function onCacheHit(CacheHit $event): void
     {
+        $format = Config::get('cache.debugbar_format');
+        $expiresAt = $event->expiresAt?->format($format->value ?? 'Y-m-d H:i:s');
+
         $this->operations[] = [
             'type' => 'hit',
             'key' => $event->key,
             'time' => microtime(true),
+            'expires_at' => $expiresAt,
         ];
         $this->hits++;
     }
@@ -53,8 +59,10 @@ final class CacheCollector implements DataCollectorContract
             'key' => $event->key,
             'time' => microtime(true),
             'ttl' => $event->ttl,
+            'size' => $event->size,
         ];
         $this->writes++;
+        $this->totalSize += $event->size ?? 0;
     }
 
     #[Listen]
@@ -77,6 +85,7 @@ final class CacheCollector implements DataCollectorContract
             'writes' => $this->writes,
             'deletes' => $this->deletes,
             'total' => count($this->operations),
+            'total_size' => $this->totalSize,
             'hit_ratio' => $this->hits + $this->misses > 0
                 ? round(($this->hits / ($this->hits + $this->misses)) * 100, 2)
                 : 0,

@@ -10,6 +10,7 @@ final readonly class KeyWritten
         public string $key,
         public mixed $value,
         public ?int $ttl = null,
+        public ?int $size = null,  // Size in bytes
     ) {
     }
 }

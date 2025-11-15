@@ -6,8 +6,10 @@ namespace Larafony\Framework\Cache\Factories;
 
 use Larafony\Framework\Cache\CacheItemPool;
 use Larafony\Framework\Cache\Contracts\StorageContract;
+use Larafony\Framework\Web\Application;
 use Larafony\Framework\Web\Config;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class StorageFactory
 {
@@ -26,7 +28,12 @@ class StorageFactory
             'redis' => $this->createRedisStorage($configArray),
             default => throw new \InvalidArgumentException("Unsupported cache driver: {$driver}"),
         };
-        return new CacheItemPool($storage);
+
+        // Get dispatcher from container if available
+        $app = Application::instance();
+        $dispatcher = $app->has(EventDispatcherInterface::class) ? $app->get(EventDispatcherInterface::class) : null;
+
+        return new CacheItemPool($storage, $dispatcher);
     }
     private function createFileStorage(array $config): StorageContract
     {

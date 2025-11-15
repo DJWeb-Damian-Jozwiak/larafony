@@ -7,8 +7,12 @@ namespace Larafony\Framework\Cache;
 use DateTimeImmutable;
 use Larafony\Framework\Cache\Contracts\StorageContract;
 use Larafony\Framework\Clock\ClockFactory;
+use Larafony\Framework\Events\Cache\CacheHit;
+use Larafony\Framework\Events\Cache\CacheMissed;
+use Larafony\Framework\Events\Cache\KeyWritten;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class CacheItemPool implements CacheItemPoolInterface
 {
@@ -17,8 +21,10 @@ class CacheItemPool implements CacheItemPoolInterface
      */
     private array $deferred = [];
 
-    public function __construct(public readonly StorageContract $storage)
-    {
+    public function __construct(
+        public readonly StorageContract $storage,
+        private readonly ?EventDispatcherInterface $dispatcher = null
+    ) {
     }
 
     /**
@@ -61,7 +67,9 @@ class CacheItemPool implements CacheItemPoolInterface
         }
         $item = new CacheItem($key);
         $data = $this->storage->get($key);
+
         if ($data === null) {
+            $this->dispatcher?->dispatch(new CacheMissed($key));
             return $item;
         }
 
@@ -72,11 +80,17 @@ class CacheItemPool implements CacheItemPoolInterface
         if ($expiry !== null && $expiry <= $currentTime) {
             // Item expired, delete it
             $this->storage->delete($key);
+            $this->dispatcher?->dispatch(new CacheMissed($key));
             return $item;
         }
 
         // Item is valid, populate it
         $item->set($data['value'])->withIsHit(true);
+
+        // Get expiry as DateTimeImmutable for the event
+        $expiryTime = $expiry !== null ? new DateTimeImmutable('@' . $expiry) : null;
+
+        $this->dispatcher?->dispatch(new CacheHit($key, $data['value'], $expiryTime));
 
         // Only set expiry if it exists (lazy creation of DateTimeImmutable)
         if ($expiry !== null) {
@@ -135,10 +149,23 @@ class CacheItemPool implements CacheItemPoolInterface
             $expiry = $expiryObj?->getTimestamp();
         }
 
-        return $this->storage->set($item->getKey(), [
+        $data = [
             'value' => $item->get(),
             'expiry' => $expiry,
-        ]);
+        ];
+
+        $result = $this->storage->set($item->getKey(), $data);
+
+        if ($result) {
+            $ttl = $expiry ? $expiry - ClockFactory::now()->getTimestamp() : null;
+
+            // Calculate size (serialized)
+            $size = $data |> serialize(...) |> strlen(...);
+
+            $this->dispatcher?->dispatch(new KeyWritten($item->getKey(), $item->get(), $ttl, $size));
+        }
+
+        return $result;
     }
 
     public function saveDeferred(CacheItemInterface $item): bool

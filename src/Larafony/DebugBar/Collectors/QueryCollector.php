@@ -25,7 +25,9 @@ final class QueryCollector implements DataCollectorContract
             'rawSql' => $event->rawSql,
             'time' => $event->time,
             'connection' => $event->connection,
-            'backtrace' => $event->backtrace,
+            'backtrace' => $event->backtrace
+                |> (static fn (array $backtrace) => array_filter(
+                    $backtrace, static fn(array $line) => !str_contains($line['file'], 'Larafony')))
         ];
 
         $this->totalTime += $event->time;

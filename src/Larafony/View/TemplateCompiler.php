@@ -37,6 +37,9 @@ class TemplateCompiler
             }
         );
 
+        // Extract and move use statements to the top
+        $content = $this->extractUseStatements($content);
+
         // Build final mapping after all transformations
         $this->buildFinalMapping($originalContent, $content);
 
@@ -65,6 +68,34 @@ class TemplateCompiler
             '<?php echo htmlspecialchars($1, ENT_QUOTES, \'UTF-8\'); ?>',
             $content
         ) ?? '';
+    }
+
+    /**
+     * Extract all use statements from PHP blocks and move them to the top of the file
+     */
+    private function extractUseStatements(string $content): string
+    {
+        $useStatements = [];
+
+        // Find all use statements
+        if (preg_match_all('/^\s*use\s+[^;]+;/m', $content, $matches)) {
+            foreach ($matches[0] as $useStatement) {
+                $trimmed = trim($useStatement);
+                if (!in_array($trimmed, $useStatements, true)) {
+                    $useStatements[] = $trimmed;
+                }
+                // Remove the use statement from its current location
+                $content = str_replace($useStatement, '', $content);
+            }
+        }
+
+        // If we found any use statements, prepend them to the content
+        if (!empty($useStatements)) {
+            $useBlock = "<?php\n" . implode("\n", $useStatements) . "\n?>\n";
+            $content = $useBlock . $content;
+        }
+
+        return $content;
     }
 
     private function buildFinalMapping(string $original, string $compiled): void

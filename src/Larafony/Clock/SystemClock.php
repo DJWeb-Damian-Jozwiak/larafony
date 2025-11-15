@@ -21,6 +21,7 @@ final class SystemClock implements Clock, Castable
 
     public function __construct(
         private readonly ?\DateTimeZone $timezone = null,
+        private readonly ?\DateTimeImmutable $frozenTime = null,
     ) {
     }
 
@@ -39,9 +40,9 @@ final class SystemClock implements Clock, Castable
     public static function from(string $value): static
     {
         $datetime = new \DateTimeImmutable($value);
-        $clock = new self($datetime->getTimezone());
-        self::withTestNow($datetime);
-        return $clock;
+        // Create a frozen clock instance that represents this specific time
+        // without affecting the global time (uses instance-level frozen time)
+        return new self($datetime->getTimezone(), $datetime);
     }
 
     public function format(TimeFormat|string $format): string
@@ -52,7 +53,8 @@ final class SystemClock implements Clock, Castable
 
     public function now(): \DateTimeImmutable
     {
-        return self::$testNow ?? new \DateTimeImmutable('now', $this->timezone);
+        // Priority: instance frozen time > global test time > real time
+        return $this->frozenTime ?? self::$testNow ?? new \DateTimeImmutable('now', $this->timezone);
     }
 
     /**
@@ -144,12 +146,14 @@ final class SystemClock implements Clock, Castable
 
     /**
      * Parse a date string and return a new Clock instance.
+     *
+     * Note: This creates a NEW clock instance representing the parsed time,
+     * it does NOT freeze the global time.
      */
     public function parse(string $date): self
     {
         $datetime = new \DateTimeImmutable($date);
-        $clock = new self($datetime->getTimezone());
-        self::withTestNow($datetime);
-        return $clock;
+        // Create a frozen clock instance without affecting global time
+        return new self($datetime->getTimezone(), $datetime);
     }
 }

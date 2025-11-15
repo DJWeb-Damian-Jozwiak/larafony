@@ -9,6 +9,7 @@ final readonly class CacheHit
     public function __construct(
         public string $key,
         public mixed $value,
+        public ?\DateTimeImmutable $expiresAt = null,
     ) {
     }
 }

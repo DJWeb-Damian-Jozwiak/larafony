@@ -72,7 +72,9 @@ class RedisStorage extends BaseStorage
 
     protected function getFromBackend(string $key): ?array
     {
-        $data = $this->redis->get($this->prefix . $key);
+        $fullKey = $this->prefix . $key;
+        $data = $this->redis->get($fullKey);
+
         if ($data === false) {
             return null;
         }
@@ -86,7 +88,7 @@ class RedisStorage extends BaseStorage
 
     protected function setToBackend(string $key, array $data): bool
     {
-        $key = $this->prefix . $key;
+        $fullKey = $this->prefix . $key;
         $serialized = serialize($data);
 
         // Compress if needed
@@ -95,10 +97,10 @@ class RedisStorage extends BaseStorage
         $ttl = isset($data['expiry']) ? $data['expiry'] - ClockFactory::now()->getTimestamp() : 0;
 
         if ($ttl > 0) {
-            return $this->redis->setex($key, $ttl, $compressed);
+            return $this->redis->setex($fullKey, $ttl, $compressed);
         }
 
-        return $this->redis->set($key, $compressed);
+        return $this->redis->set($fullKey, $compressed);
     }
 
     protected function deleteFromBackend(string $key): bool

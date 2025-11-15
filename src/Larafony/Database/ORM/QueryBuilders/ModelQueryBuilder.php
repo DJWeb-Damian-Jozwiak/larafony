@@ -9,11 +9,17 @@ use Larafony\Framework\Database\Base\Query\Enums\JoinType;
 use Larafony\Framework\Database\Base\Query\Enums\OrderDirection;
 use Larafony\Framework\Database\Base\Query\QueryBuilder;
 use Larafony\Framework\Database\ORM\DB;
+use Larafony\Framework\Database\ORM\EagerLoading\EagerRelationsLoader;
 use Larafony\Framework\Database\ORM\Model;
 
 class ModelQueryBuilder
 {
     protected QueryBuilder $builder;
+
+    /**
+     * @var array<string, array<string>>
+     */
+    protected array $eagerLoad = [];
 
     public function __construct(public readonly Model $model)
     {
@@ -154,18 +160,48 @@ class ModelQueryBuilder
     }
 
     /**
+     * Set relations to be eager loaded
+     *
+     * @param array<int, string> $relations
+     */
+    public function with(array $relations): static
+    {
+        foreach ($relations as $relation) {
+            // Support nested relations: 'user.profile'
+            $parts = explode('.', $relation);
+            $this->eagerLoad[$parts[0]] = array_slice($parts, 1);
+        }
+
+        return $this;
+    }
+
+    /**
      * @return array<int, Model>
      */
     public function get(): array
     {
         $results = $this->builder->get();
-        return $this->hydrateMany($results);
+        $models = $this->hydrateMany($results);
+
+        if (!empty($this->eagerLoad)) {
+            $loader = new EagerRelationsLoader();
+            $loader->load($models, $this->eagerLoad);
+        }
+
+        return $models;
     }
 
     public function first(): ?Model
     {
         $result = $this->builder->first();
-        return $result ? $this->hydrate($result) : null;
+        $model = $result ? $this->hydrate($result) : null;
+
+        if ($model !== null && !empty($this->eagerLoad)) {
+            $loader = new EagerRelationsLoader();
+            $loader->load([$model], $this->eagerLoad);
+        }
+
+        return $model;
     }
 
     public function count(string $column = '*'): int

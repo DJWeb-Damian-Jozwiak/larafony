@@ -36,7 +36,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
         get => $this->observer->is_new;
     }
 
-    protected private(set) RelationDecorator $relations;
+    public private(set) RelationDecorator $relations;
 
     /**
      * @var array<string, string>

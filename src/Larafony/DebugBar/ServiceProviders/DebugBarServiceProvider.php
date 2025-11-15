@@ -11,6 +11,7 @@ use Larafony\Framework\DebugBar\Collectors\PerformanceCollector;
 use Larafony\Framework\DebugBar\Collectors\QueryCollector;
 use Larafony\Framework\DebugBar\Collectors\RequestCollector;
 use Larafony\Framework\DebugBar\Collectors\RouteCollector;
+use Larafony\Framework\DebugBar\Collectors\TimelineCollector;
 use Larafony\Framework\DebugBar\Collectors\ViewCollector;
 use Larafony\Framework\DebugBar\DebugBar;
 use Larafony\Framework\Events\ListenerDiscovery;
@@ -32,6 +33,7 @@ class DebugBarServiceProvider extends ServiceProvider
         $viewCollector = $container->get(ViewCollector::class);
         $routeCollector = $container->get(RouteCollector::class);
         $performanceCollector = $container->get(PerformanceCollector::class);
+        $timelineCollector = $container->get(TimelineCollector::class);
 
         // Add collectors to debugbar
         $debugBar->addCollector('queries', $queryCollector);
@@ -39,6 +41,7 @@ class DebugBarServiceProvider extends ServiceProvider
         $debugBar->addCollector('views', $viewCollector);
         $debugBar->addCollector('route', $routeCollector);
         $debugBar->addCollector('performance', $performanceCollector);
+        $debugBar->addCollector('timeline', $timelineCollector);
 
         // Add request collector if request is available
         if ($container->has(ServerRequestInterface::class)) {
@@ -55,6 +58,7 @@ class DebugBarServiceProvider extends ServiceProvider
             $cacheCollector,
             $viewCollector,
             $routeCollector,
+            $timelineCollector,
         ]);
         $discovery->discover();
     }

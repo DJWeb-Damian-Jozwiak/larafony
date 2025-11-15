@@ -22,11 +22,37 @@ final class ViewCollector implements DataCollectorContract
     {
         $this->views[] = [
             'view' => $event->view,
-            'data' => array_keys($event->data),
+            'data' => $this->serializeData($event->data),
+            'data_keys' => array_keys($event->data),
             'renderTime' => $event->renderTime,
         ];
 
         $this->totalTime += $event->renderTime;
+    }
+
+    /**
+     * @param mixed $data
+     * @return mixed
+     */
+    private function serializeData(mixed $data): mixed
+    {
+        if (is_object($data)) {
+            return get_class($data) . ' (object)';
+        }
+
+        if (is_array($data)) {
+            $result = [];
+            foreach ($data as $key => $value) {
+                $result[$key] = $this->serializeData($value);
+            }
+            return $result;
+        }
+
+        if (is_string($data) && strlen($data) > 100) {
+            return substr($data, 0, 100) . '...';
+        }
+
+        return $data;
     }
 
     public function collect(): array

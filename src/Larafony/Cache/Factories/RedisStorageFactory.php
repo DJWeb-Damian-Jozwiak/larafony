@@ -17,15 +17,19 @@ class RedisStorageFactory implements StorageFactoryContract
      */
     public function create(array $config): StorageContract
     {
+        $isNewConnection = self::$redis === null;
         self::$redis ??= new Redis();
-        self::$redis->connect(
-            $config['host'] ?? 'localhost',
-            $config['port'] ?? 6379,
-            $config['timeout'] ?? 0.0,
-        );
 
-        if (isset($config['password'])) {
-            self::$redis->auth($config['password']);
+        if ($isNewConnection || !self::$redis->isConnected()) {
+            self::$redis->connect(
+                $config['host'] ?? 'localhost',
+                $config['port'] ?? 6379,
+                $config['timeout'] ?? 0.0,
+            );
+
+            if (isset($config['password'])) {
+                self::$redis->auth($config['password']);
+            }
         }
 
         if (isset($config['database'])) {

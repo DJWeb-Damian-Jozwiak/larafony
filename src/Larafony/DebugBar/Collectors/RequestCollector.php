@@ -19,14 +19,21 @@ final class RequestCollector implements DataCollectorContract
 
     public function collect(): array
     {
+        $session = [];
+        if (isset($_SESSION)) {
+            $session = $_SESSION;
+        }
+
         return [
             'method' => $this->request->getMethod(),
             'uri' => (string) $this->request->getUri(),
             'path' => $this->request->getUri()->getPath(),
             'query' => $this->request->getQueryParams(),
+            'post' => $this->request->getParsedBody() ?? [],
             'headers' => $this->request->getHeaders(),
             'server' => $this->request->getServerParams(),
             'cookies' => $this->request->getCookieParams(),
+            'session' => $session,
             'content_type' => $this->request->getHeaderLine('Content-Type'),
             'ip' => $this->request->getServerParams()['REMOTE_ADDR'] ?? 'unknown',
             'user_agent' => $this->request->getHeaderLine('User-Agent'),
