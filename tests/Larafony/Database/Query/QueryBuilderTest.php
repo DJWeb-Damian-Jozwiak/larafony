@@ -182,27 +182,35 @@ class QueryBuilderTest extends TestCase
 
     public function testBuildsComplexSelectQuery(): void
     {
-        $sql = $this->builder
+        $builder = $this->builder
             ->table('users')
             ->select(['users.id', 'users.name', 'profiles.bio'])
             ->leftJoin('profiles', 'users.id', '=', 'profiles.user_id')
             ->where('users.status', '=', 'active')
             ->whereNested(function (QueryBuilder $q) {
-                $q->where('users.age', '>', 18)
-                  ->orWhere('users.verified', '=', true);
+                $q
+                    ->where('users.age', '>', 18)
+                    ->orWhere('users.verified', '=', true);
             }, 'and')
             ->whereNotNull('users.email_verified_at')
             ->orderBy('users.created_at', OrderDirection::DESC)
             ->limit(10)
-            ->offset(20)
-            ->toSql();
+            ->offset(20);
 
         $expected = 'SELECT users.id, users.name, profiles.bio FROM users ' .
-                    'LEFT JOIN profiles ON users.id = profiles.user_id ' .
-                    'WHERE users.status = ? and (users.age > ? or users.verified = ?) and users.email_verified_at IS NOT NULL ' .
-                    'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
+            'LEFT JOIN profiles ON users.id = profiles.user_id ' .
+            'WHERE users.status = ? and (users.age > ? or users.verified = ?) and users.email_verified_at IS NOT NULL ' .
+            'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
 
-        $this->assertSame($expected, $sql);
+
+        $this->assertSame($expected, $builder->toSql());
+
+        $expected = 'SELECT users.id, users.name, profiles.bio FROM users ' .
+            'LEFT JOIN profiles ON users.id = profiles.user_id ' .
+            'WHERE users.status = \'active\' and (users.age > 10 or users.verified = 1) and users.email_verified_at IS NOT NULL ' .
+            'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
+
+        $this->assertSame($expected, $builder->toRawSql());
     }
 
     public function testBuildsInsertQuery(): void

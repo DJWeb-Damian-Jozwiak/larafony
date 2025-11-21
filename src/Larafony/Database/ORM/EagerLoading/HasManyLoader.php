@@ -29,7 +29,7 @@ class HasManyLoader implements RelationLoaderContract
         }
 
         // Load related models
-        $query = (new $relatedClass())->query_builder->whereIn($foreignKey, array_unique($localKeyValues));
+        $query = new $relatedClass()->query_builder->whereIn($foreignKey, array_unique($localKeyValues));
 
         // Support nested eager loading
         if (!empty($nested)) {

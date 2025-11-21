@@ -99,13 +99,13 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Sending Emails — [Chapter 23](docs/Larafony/chapter_23.md)
 - [x] Authorization System — [Chapter 24](docs/Larafony/chapter_24.md)
 - [x] Cache Optimization (PSR-6) — [Chapter 25](docs/Larafony/chapter_25.md)
-- [ ] Event System (PSR-14 and alternatives) — Chapter 26
-- [ ] Jobs and Queues — Chapter 27
-- [ ] Simple WebSockets (almost from scratch) — Chapter 28
-- [ ] MCP — A new way of communication — Chapter 29
+- [X] Event System (PSR-14) — [Chapter 26](docs/Larafony/chapter_26.md)
+- [X] Debugbar +  Model Eager Loading— [Chapter 27](docs/Larafony/chapter_27.md)
+- [ ] Jobs and Queues — Chapter 28
+- [ ] Simple WebSockets (almost from scratch) — Chapter 29
+- [ ] Model Context Protocol — A new way of communication — Chapter 30
 
 ### 🧭 Meta
-- [ ] Creating Larafony installer — Chapter 30
 - [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
 ### 🧩 The Philosophy of the Final Chaptersczy

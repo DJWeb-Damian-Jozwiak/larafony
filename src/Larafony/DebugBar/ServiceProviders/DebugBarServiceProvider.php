@@ -4,62 +4,40 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\DebugBar\ServiceProviders;
 
+use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\ServiceProvider;
-use Larafony\Framework\DebugBar\Collectors\CacheCollector;
-use Larafony\Framework\DebugBar\Collectors\PerformanceCollector;
-use Larafony\Framework\DebugBar\Collectors\QueryCollector;
-use Larafony\Framework\DebugBar\Collectors\RequestCollector;
-use Larafony\Framework\DebugBar\Collectors\RouteCollector;
-use Larafony\Framework\DebugBar\Collectors\TimelineCollector;
-use Larafony\Framework\DebugBar\Collectors\ViewCollector;
 use Larafony\Framework\DebugBar\DebugBar;
 use Larafony\Framework\Events\ListenerDiscovery;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 class DebugBarServiceProvider extends ServiceProvider
 {
-
     public function boot(ContainerContract $container): void
     {
-        // Create singleton DebugBar instance
+        $config = $container->get(ConfigContract::class);
+        if(!$config->get('debugbar.enabled', false)) {
+            return;
+        }
         $debugBar = new DebugBar();
 
+        // Get collectors configuration
+        $collectors = $config->get('debugbar.collectors', []);
+        $collectorInstances = [];
 
-        // Create collector instances
-        $queryCollector = $container->get(QueryCollector::class);
-        $cacheCollector = $container->get(CacheCollector::class);
-        $viewCollector = $container->get(ViewCollector::class);
-        $routeCollector = $container->get(RouteCollector::class);
-        $performanceCollector = $container->get(PerformanceCollector::class);
-        $timelineCollector = $container->get(TimelineCollector::class);
-
-        // Add collectors to debugbar
-        $debugBar->addCollector('queries', $queryCollector);
-        $debugBar->addCollector('cache', $cacheCollector);
-        $debugBar->addCollector('views', $viewCollector);
-        $debugBar->addCollector('route', $routeCollector);
-        $debugBar->addCollector('performance', $performanceCollector);
-        $debugBar->addCollector('timeline', $timelineCollector);
-
-        // Add request collector if request is available
-        if ($container->has(ServerRequestInterface::class)) {
-            $requestCollector = new RequestCollector($container->get(ServerRequestInterface::class));
-            $debugBar->addCollector('request', $requestCollector);
+        // Register collectors from config
+        foreach ($collectors as $name => $collectorClass) {
+            $collector = $container->get($collectorClass);
+            $debugBar->addCollector($name, $collector);
+            $collectorInstances[] = $collector;
         }
+        $debugBar->enable();
 
         $container->set(DebugBar::class, $debugBar);
 
-        // Register event listeners using discovery with instances
+        // Register event listeners using discovery
         $listenerProvider = $container->get(ListenerProviderInterface::class);
-        $discovery = new ListenerDiscovery($listenerProvider, [
-            $queryCollector,
-            $cacheCollector,
-            $viewCollector,
-            $routeCollector,
-            $timelineCollector,
-        ]);
+        $discovery = new ListenerDiscovery($listenerProvider, $collectorInstances);
         $discovery->discover();
     }
 }
