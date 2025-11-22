@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM\Decorators;
 
+use Larafony\Framework\Core\Support\Str;
 use Larafony\Framework\Database\ORM\Model;
 
 class EntityManager
@@ -19,7 +20,12 @@ class EntityManager
 
     public function save(): void
     {
-        if ($this->model->observer->is_new) {
+        $reflection = new \ReflectionClass($this->model);
+        $id = $reflection->getProperty('id');
+        if(!$id->isInitialized($this->model) && $this->model->use_uuid) {
+            $this->model->id = Str::uuid();
+            $this->inserter->insert();
+        } else if ($this->model->observer->is_new) {
             $this->model->id = $this->inserter->insert();
         } else {
             $this->updater->update();

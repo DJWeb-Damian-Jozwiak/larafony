@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Larafony\Framework\Storage\Session\Handlers\FileSessionHandler;
 use Larafony\Framework\Web\Application;
 
-$app = Application::getInstance();
+$app = Application::instance();
 
 return [
     /*

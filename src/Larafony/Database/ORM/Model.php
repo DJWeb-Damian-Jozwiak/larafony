@@ -24,6 +24,8 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     public protected(set) ModelQueryBuilder $query_builder;
     public private(set) PropertyObserver $observer;
 
+    public protected(set) bool $use_uuid = false;
+
     public int|string $id {
         get => $this->id;
         set {
@@ -99,6 +101,11 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
         }
 
         return $result;
+    }
+
+    public function delete(): int
+    {
+       return self::query()->where($this->primary_key_name, '=', $this->id)->delete();
     }
 
     /**

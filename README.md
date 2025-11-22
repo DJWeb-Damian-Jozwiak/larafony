@@ -101,7 +101,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - [x] Cache Optimization (PSR-6) — [Chapter 25](docs/Larafony/chapter_25.md)
 - [X] Event System (PSR-14) — [Chapter 26](docs/Larafony/chapter_26.md)
 - [X] Debugbar +  Model Eager Loading— [Chapter 27](docs/Larafony/chapter_27.md)
-- [ ] Jobs and Queues — Chapter 28
+- [x] Jobs and Queues — [Chapter 28](docs/Larafony/chapter_28.md)
 - [ ] Simple WebSockets (almost from scratch) — Chapter 29
 - [ ] Model Context Protocol — A new way of communication — Chapter 30
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Larafony\Framework\Web\Application;
 
-$app = Application::getInstance();
+$app = Application::instance();
 
 return [
     'engines' => [

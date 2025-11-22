@@ -64,4 +64,19 @@ final class Str
     {
         return Pluralizer::pluralize($word, $count);
     }
+
+    /**
+     * Generate a UUID v4.
+     *
+     * @return string The generated UUID
+     */
+    public static function uuid(): string
+    {
+        //https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_
+        $data = random_bytes(16);
+        $data[6] = (ord($data[6]) & 0x0f | 0x40) |> chr(...); // Set version to 4
+        $data[8] = (ord($data[8]) & 0x3f | 0x80) |> chr(...); // Set variant to RFC 4122
+
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
 }

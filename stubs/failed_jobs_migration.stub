@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DummyRootNamespace;
+
+use Larafony\Framework\Database\Base\Migrations\Migration;
+use Larafony\Framework\Database\Schema;
+
+return new class extends Migration
+{
+    /**
+     * run migration.
+     */
+    public function up(): void
+    {
+        Schema::create('failed_jobs', function ($table) {
+            $table->bigIncrements('id');
+            $table->string('uuid', 255)->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->text('payload');
+            $table->text('exception');
+            $table->timestamp('failed_at')->nullable(false);
+
+            // Indexes
+            $table->index('failed_at');
+        }) |> Schema::execute(...);
+    }
+
+    /**
+     * rollback migration.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('failed_jobs') |> Schema::execute(...);
+    }
+};
