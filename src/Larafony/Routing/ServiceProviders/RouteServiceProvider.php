@@ -8,15 +8,15 @@ use Larafony\Framework\Container\ServiceProvider;
 use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
 use Larafony\Framework\Routing\Basic\Factories\StringHandlerFactory;
 use Larafony\Framework\Routing\Basic\Router;
+use Override;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * @var array<int|string, class-string> $providers
-     */
-    public array $providers {
-        get => [
+    #[Override]
+    public function providers(): array
+    {
+        return [
             RequestHandlerInterface::class => Router::class,
             ArrayHandlerFactory::class => ArrayHandlerFactory::class,
             StringHandlerFactory::class => StringHandlerFactory::class,

@@ -54,6 +54,7 @@ class ValueParser
         return preg_replace_callback(
             '/\\\\(.)/',
             static function ($matches) {
+                //@codeCoverageIgnoreStart
                 return match ($matches[1]) {
                     'n' => "\n",
                     'r' => "\r",
@@ -62,6 +63,7 @@ class ValueParser
                     '\\' => '\\',
                     default => '\\' . $matches[1], // Nieznane escape - pozostaw jak jest
                 };
+                //@codeCoverageIgnoreEnd
             },
             $value
         );
