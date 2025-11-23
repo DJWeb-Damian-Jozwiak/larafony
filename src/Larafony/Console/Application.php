@@ -42,7 +42,7 @@ class Application extends Container
         $args ??= $_SERVER['argv'];
         try {
             return $this->kernel->handle($args);
-        } catch (CommandNotFoundError) {
+        } catch (CommandNotFoundError $e) {
             $output = $this->get(Output::class);
             $output->error('Command not found');
             return 1;

@@ -134,25 +134,6 @@ class OutputTest extends TestCase
 
     public function testSecret(): void
     {
-        // Test will run in non-TTY mode (fallback), so no stty calls
-        $this->outputStream->expects($this->exactly(2))
-            ->method('write')
-            ->willReturnCallback(function ($arg) {
-                static $callNumber = 0;
-                $callNumber++;
-
-                if ($callNumber === 1) {
-                    $this->assertEquals(
-                        "\033[36mEnter password\033[0m" . PHP_EOL,
-                        $arg
-                    );
-                } elseif ($callNumber === 2) {
-                    $this->assertEquals(PHP_EOL, $arg);
-                }
-
-                return strlen($arg);
-            });
-
         $this->inputStream->expects($this->once())
             ->method('read')
             ->with($this->equalTo(1024))

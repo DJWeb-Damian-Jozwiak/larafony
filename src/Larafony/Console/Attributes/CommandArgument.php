@@ -23,8 +23,10 @@ class CommandArgument
         if ($this->value !== null) {
             return true;
         }
-        $value = $property->getValue($command);
-        return $value !== null && $property->getName() === $this->name;
+        if (! $property->isInitialized($command)) {
+            return false;
+        }
+        return true;
     }
 
     public function getDefaultValue(\ReflectionProperty $property, Command $command): mixed
