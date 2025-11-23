@@ -1,0 +1,37 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# PHP
+vendor/
+composer.phar
+
+# Testing
+.phpunit.cache/
+coverage/
+.phpunit.result.cache
+
+# Build artifacts
+*.log
+*.cache
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Demo app
+demo-app/
+
+# Other
+logo.png
+.env
+.env.*

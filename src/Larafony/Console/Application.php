@@ -37,6 +37,9 @@ class Application extends Container
         return self::$instance;
     }
 
+    /**
+     * @param array<int, string>|null $args
+     */
     public function handle(?array $args = null): int
     {
         $args ??= $_SERVER['argv'];
