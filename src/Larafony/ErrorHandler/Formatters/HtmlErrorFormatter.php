@@ -6,7 +6,7 @@ namespace Larafony\Framework\ErrorHandler\Formatters;
 
 use Throwable;
 
-final readonly class HtmlErrorFormatter
+readonly class HtmlErrorFormatter
 {
     public function format(Throwable $throwable): string
     {

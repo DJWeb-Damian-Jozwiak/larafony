@@ -30,16 +30,18 @@ final class DetailedErrorHandler implements ErrorHandler
         });
 
         register_shutdown_function(function (): void {
+            // @codeCoverageIgnoreStart
             $error = error_get_last();
-
             if ($error !== null && $this->isFatalError($error['type'])) {
                 $this->handleFatalError($error);
             }
+            // @codeCoverageIgnoreEnd
         });
     }
 
     /**
      * @param array{type: int, message: string, file: string, line: int} $error
+     * @codeCoverageIgnore
      */
     private function handleFatalError(array $error): void
     {
@@ -47,8 +49,11 @@ final class DetailedErrorHandler implements ErrorHandler
         echo $this->formatter->formatFatalError($error);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function isFatalError(int $type): bool
     {
-        return in_array($type, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true);
+        return in_array($type, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true);
     }
 }
