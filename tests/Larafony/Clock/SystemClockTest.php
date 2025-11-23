@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Clock;
 
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\Enums\Timezone;
 use Larafony\Framework\Clock\SystemClock;
@@ -173,6 +174,13 @@ final class SystemClockTest extends TestCase
 
         $clock = new SystemClock();
         $this->assertSame('2024-01-15 12:00:00', $clock->now()->format('Y-m-d H:i:s'));
+    }
+
+    public function testParse()
+    {
+        $clock = ClockFactory::parse('2024-01-15 12:00:00');
+        $this->assertInstanceOf(SystemClock::class, $clock);
+        $this->assertSame('2024-01-15 12:00:00', $clock->format('Y-m-d H:i:s'));
     }
 
     public function testSetTestNowWithNullClearsTestTime(): void
