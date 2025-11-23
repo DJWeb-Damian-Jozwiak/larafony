@@ -7,6 +7,7 @@ use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\Enums\Timezone;
 use Larafony\Framework\Container\Container;
 use Larafony\Framework\ErrorHandler\ServiceProviders\ErrorHandlerServiceProvider;
+use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
 use Uri\Rfc3986\Uri;
 
 require_once __DIR__ . '/../vendor/autoload.php';

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\ErrorHandler;
 
+use ErrorException;
 use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
+use Larafony\Framework\ErrorHandler\Formatters\HtmlErrorFormatter;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 final class DetailedErrorHandlerTest extends TestCase
@@ -21,6 +24,20 @@ final class DetailedErrorHandlerTest extends TestCase
         $this->assertStringContainsString('Test exception message', $output);
         $this->assertStringContainsString('Exception', $output);
         $this->assertStringContainsString('💥', $output);
+    }
+
+    #[RunInSeparateProcess]
+    public function testErrorHandlerConvertsErrorToException()
+    {
+        $formatter = $this->createMock(HtmlErrorFormatter::class);
+        $handler = new DetailedErrorHandler($formatter);
+
+        $handler->register();
+
+        $this->expectException(ErrorException::class);
+
+        // warninga
+        fopen('non-existing-file.txt', 'r');
     }
 
     public function testHandleOutputsBacktrace(): void
