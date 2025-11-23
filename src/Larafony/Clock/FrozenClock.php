@@ -28,7 +28,7 @@ final class FrozenClock implements Clock
     public function format(TimeFormat|string $format): string
     {
         $format = is_string($format) ? $format : $format->value;
-        return $this->now()->format($format);
+        return $this->frozenTime->format($format);
     }
 
     public function now(): \DateTimeImmutable
