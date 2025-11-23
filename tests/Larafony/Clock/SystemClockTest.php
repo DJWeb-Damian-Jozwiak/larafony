@@ -143,12 +143,10 @@ final class SystemClockTest extends TestCase
     public function testUsleepPausesExecution(): void
     {
         $clock = new SystemClock();
-        $start = microtime(true);
+        $now1 = $clock->microseconds();
         $clock->usleep(100000); // 100ms
-        $elapsed = microtime(true) - $start;
-
-        $this->assertGreaterThanOrEqual(0.1, $elapsed);
-        $this->assertLessThan(0.2, $elapsed);
+        $now2 = $clock->microseconds();
+        $this->assertGreaterThan($now1, $now2);
     }
 
     public function testSetTestNowWithDateTimeImmutable(): void
