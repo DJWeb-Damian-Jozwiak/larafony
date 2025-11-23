@@ -12,6 +12,11 @@ use Larafony\Framework\Database\Schema;
 
 class DatabaseServiceProvider extends ServiceProvider
 {
+    public function providers(): array
+    {
+        return [];
+    }
+
     public function boot(ContainerContract $container): void
     {
         $configBase = $container->get(ConfigContract::class);

@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace Larafony\Framework\Tests\Web;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
-use Larafony\Framework\Container\Contracts\ServiceProviderContract;
 use Larafony\Framework\Http\Factories\ResponseFactory;
-use Larafony\Framework\Http\Factories\ServerRequestFactory;
-use Larafony\Framework\Http\Response;
 use Larafony\Framework\Http\ServiceProviders\HttpServiceProvider;
 use Larafony\Framework\Routing\Basic\Router;
 use Larafony\Framework\Tests\TestCase;
 use Larafony\Framework\Web\Application;
-use Larafony\Framework\Web\Kernel;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+
 
 class ApplicationTest extends TestCase
 {
@@ -79,14 +76,16 @@ class ApplicationTest extends TestCase
     public function testRunHandlesRequestAndOutputsResponse(): void
     {
         $app = Application::instance();
+        $app->withServiceProviders([HttpServiceProvider::class]);
 
         // Set up a simple route that returns a response
         $app->withRoutes(function (Router $router): void {
             $router->addRouteByParams(
                 'GET',
                 '/',
-                fn (ServerRequestInterface $request) => (new ResponseFactory())->createResponse(200)
-                    ->withBody((new \Larafony\Framework\Http\Factories\StreamFactory())->createStream('Hello World')),
+                fn (ServerRequestInterface $request) => new ResponseFactory()
+                    ->createResponse(200)
+                    ->withBody(new \Larafony\Framework\Http\Factories\StreamFactory()->createStream('Hello World')),
             );
         });
 

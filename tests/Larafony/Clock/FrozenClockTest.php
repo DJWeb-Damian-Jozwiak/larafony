@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Clock;
 
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\FrozenClock;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,13 @@ final class FrozenClockTest extends TestCase
         $clock = new FrozenClock($time);
 
         $this->assertEquals($time, $clock->now());
+    }
+
+    public function testParse()
+    {
+        $clock = new FrozenClock(null);
+        $clock->parse('2024-01-15 12:00:00');
+        $this->assertInstanceOf(FrozenClock::class, $clock);
     }
 
     public function testConstructorAcceptsDateTime(): void
