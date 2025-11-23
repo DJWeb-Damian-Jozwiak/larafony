@@ -20,7 +20,7 @@ class Container implements ContainerContract
      */
     private array $bindings = [];
 
-    protected function __construct(
+    public function __construct(
         private ?AutowireContract $autowire = null,
         private readonly ArrayContract $entries = new DotContainer(),
     ) {

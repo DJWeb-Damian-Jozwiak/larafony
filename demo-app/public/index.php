@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\DemoController;
 use Larafony\Framework\ErrorHandler\ServiceProviders\ErrorHandlerServiceProvider;
+use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
+use Uri\Rfc3986\Uri;
 use Larafony\Framework\Http\ServiceProviders\HttpServiceProvider;
 use Psr\Http\Message\ServerRequestInterface;
 
