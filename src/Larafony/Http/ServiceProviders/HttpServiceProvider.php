@@ -24,7 +24,7 @@ class HttpServiceProvider extends \Larafony\Framework\Container\ServiceProvider
     /**
      * @return array<string|int, class-string>
      */
-    public function provides(): array
+    public function providers(): array
     {
         return [
             RequestFactoryInterface::class => RequestFactory::class,

@@ -11,7 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 final class Application extends Container
 {
     protected static ?self $instance = null;
-    protected function __construct(public private(set) ?string $base_path = null)
+    protected function __construct(public private(set) readonly ?string $base_path = null)
     {
         parent::__construct();
         if ($this->base_path !== null) {
@@ -31,7 +31,7 @@ final class Application extends Container
     {
         array_walk(
             $serviceProviders,
-            fn (string $provider) => $this->get($provider)->register($this)->boot($this)
+            fn (string $provider) => $this->get($provider)->register($this)->boot($this),
         );
         return $this;
     }
@@ -46,7 +46,7 @@ final class Application extends Container
             'HTTP/%s %d %s',
             $response->getProtocolVersion(),
             $response->getStatusCode(),
-            $response->getReasonPhrase()
+            $response->getReasonPhrase(),
         ), true, $response->getStatusCode());
 
         // Emit headers
@@ -58,5 +58,10 @@ final class Application extends Container
 
         // Emit body
         echo $response->getBody();
+    }
+
+    public static function empty(): void
+    {
+        self::$instance = null;
     }
 }

@@ -19,5 +19,8 @@ abstract class ServiceProvider implements ServiceProviderContract
     }
     public function boot(ContainerContract $container): void
     {
+        if (! $container->has($this::class)) {
+            $container->set($this::class, $this);
+        }
     }
 }
