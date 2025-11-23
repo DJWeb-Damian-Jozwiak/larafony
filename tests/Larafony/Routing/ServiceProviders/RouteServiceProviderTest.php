@@ -17,7 +17,7 @@ class RouteServiceProviderTest extends TestCase
     {
         $provider = new RouteServiceProvider();
 
-        $providers = $provider->providers;
+        $providers = $provider->providers();
 
         $this->assertIsArray($providers);
         $this->assertArrayHasKey(RequestHandlerInterface::class, $providers);
@@ -28,7 +28,7 @@ class RouteServiceProviderTest extends TestCase
     {
         $provider = new RouteServiceProvider();
 
-        $providers = $provider->providers;
+        $providers = $provider->providers();
 
         $this->assertArrayHasKey(ArrayHandlerFactory::class, $providers);
         $this->assertSame(ArrayHandlerFactory::class, $providers[ArrayHandlerFactory::class]);
@@ -38,7 +38,7 @@ class RouteServiceProviderTest extends TestCase
     {
         $provider = new RouteServiceProvider();
 
-        $providers = $provider->providers;
+        $providers = $provider->providers();
 
         $this->assertArrayHasKey(StringHandlerFactory::class, $providers);
         $this->assertSame(StringHandlerFactory::class, $providers[StringHandlerFactory::class]);
