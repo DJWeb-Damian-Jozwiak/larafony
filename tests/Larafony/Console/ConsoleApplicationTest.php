@@ -22,7 +22,9 @@ class ConsoleApplicationTest extends TestCase
             ConsoleServiceProvider::class
         ]);
         $outputStream = $this->createMock(StreamInterface::class);
+        $input = $this->createMock(StreamInterface::class);
         $app->set('output_stream', $outputStream);
+        $app->set('input_stream', $input);
 
         $this->assertTrue($app->has(OutputFormatter::class));
         $output = $app->handle(['bin/larafony', 'test:command']);
