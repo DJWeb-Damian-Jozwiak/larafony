@@ -41,6 +41,7 @@ final class DetailedErrorHandler implements ErrorHandler
 
     /**
      * @param array{type: int, message: string, file: string, line: int} $error
+     *
      * @codeCoverageIgnore
      */
     private function handleFatalError(array $error): void
