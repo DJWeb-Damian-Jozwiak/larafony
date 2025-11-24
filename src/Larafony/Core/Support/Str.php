@@ -48,7 +48,7 @@ final class Str
         }
 
         // Insert underscores before uppercase letters and convert to lowercase
-        $value = preg_replace('/([a-z\d])([A-Z])/', '$1_$2', $value);
+        $value = preg_replace('/([a-z\d])([A-Z])/', '$1_$2', $value) ?? '';
         return preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1_$2', $value) |> strtolower(...);
     }
 

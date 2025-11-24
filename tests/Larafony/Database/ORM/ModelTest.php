@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Database\ORM;
 
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\Base\Query\QueryBuilder;
 use Larafony\Framework\Database\DatabaseManager;
+use Larafony\Framework\Database\ORM\Attributes\CastUsing;
 use Larafony\Framework\Database\ORM\Contracts\Castable;
 use Larafony\Framework\Database\ORM\DB;
 use Larafony\Framework\Database\ORM\Model;
@@ -46,6 +48,7 @@ class ModelTest extends TestCase
                 }
             }
 
+            #[CastUsing(TestEnum::from(...))]
             public ?TestEnum $status {
                 get => $this->status;
                 set {
@@ -54,6 +57,7 @@ class ModelTest extends TestCase
                 }
             }
 
+            #[CastUsing(ClockFactory::parse(...))]
             public ?Clock $created_at {
                 get => $this->created_at;
                 set {
@@ -61,11 +65,6 @@ class ModelTest extends TestCase
                     $this->markPropertyAsChanged('created_at');
                 }
             }
-
-            protected array $casts = [
-                'status' => TestEnum::class,
-                'created_at' => 'datetime',
-            ];
         };
     }
 
@@ -97,7 +96,7 @@ class ModelTest extends TestCase
         $this->assertFalse(property_exists($this->model, 'non_existent'));
     }
 
-    public function testFillCastsAttributesUsingCastsArray(): void
+    public function testFillCastsAttributesUsingCastUsingAttribute(): void
     {
         $this->model->fill([
             'status' => 'active',
