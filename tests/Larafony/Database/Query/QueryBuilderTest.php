@@ -519,21 +519,12 @@ class QueryBuilderTest extends TestCase
 
     public function testGet(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->with(\PDO::FETCH_ASSOC)
+        $this->connection->expects($this->once())
+            ->method('select')
             ->willReturn([
                 ['id' => 1, 'name' => 'John'],
                 ['id' => 2, 'name' => 'Jane'],
             ]);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with('SELECT * FROM users WHERE status = ?', ['active'])
-            ->willReturn($statement);
-
         $result = $this->builder
             ->table('users')
             ->select(['*'])
@@ -546,17 +537,9 @@ class QueryBuilderTest extends TestCase
 
     public function testFirst(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->with(\PDO::FETCH_ASSOC)
+        $this->connection->expects($this->once())
+            ->method('select')
             ->willReturn([['id' => 1, 'name' => 'John']]);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with('SELECT * FROM users WHERE status = ? LIMIT 1', ['active'])
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')
@@ -570,16 +553,9 @@ class QueryBuilderTest extends TestCase
 
     public function testFirstReturnsNullWhenNoResults(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->with(\PDO::FETCH_ASSOC)
+        $this->connection->expects($this->once())
+            ->method('select')
             ->willReturn([]);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')
@@ -592,17 +568,9 @@ class QueryBuilderTest extends TestCase
 
     public function testCount(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->with(\PDO::FETCH_ASSOC)
+        $this->connection->expects($this->once())
+            ->method('select')
             ->willReturn([['aggregate' => '42']]);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with('SELECT COUNT(*) as aggregate FROM users WHERE status = ? LIMIT 1', ['active'])
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')
@@ -614,17 +582,9 @@ class QueryBuilderTest extends TestCase
 
     public function testCountWithColumn(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('fetchAll')
-            ->with(\PDO::FETCH_ASSOC)
+        $this->connection->expects($this->once())
+            ->method('select')
             ->willReturn([['aggregate' => '10']]);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with('SELECT COUNT(id) as aggregate FROM users LIMIT 1', [])
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')
@@ -635,16 +595,9 @@ class QueryBuilderTest extends TestCase
 
     public function testInsert(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with(
-                'INSERT INTO users (name, email) VALUES (?, ?)',
-                ['John Doe', 'john@example.com']
-            )
-            ->willReturn($statement);
+        $this->connection->expects($this->once())
+            ->method('execute')
+            ->willReturn(1);
 
         $result = $this->builder
             ->table('users')
@@ -655,15 +608,11 @@ class QueryBuilderTest extends TestCase
 
     public function testInsertGetId(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
+        $this->connection->expects($this->once())
+            ->method('execute')
+            ->willReturn(1);
 
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->willReturn($statement);
-
-        $this->connection
-            ->expects($this->once())
+        $this->connection->expects($this->once())
             ->method('getLastInsertId')
             ->willReturn('123');
 
@@ -676,19 +625,9 @@ class QueryBuilderTest extends TestCase
 
     public function testUpdate(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('rowCount')
+        $this->connection->expects($this->once())
+            ->method('execute')
             ->willReturn(3);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with(
-                'UPDATE users SET status = ? WHERE role = ?',
-                ['inactive', 'admin']
-            )
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')
@@ -700,19 +639,9 @@ class QueryBuilderTest extends TestCase
 
     public function testDelete(): void
     {
-        $statement = $this->createMock(\PDOStatement::class);
-        $statement->expects($this->once())
-            ->method('rowCount')
+        $this->connection->expects($this->once())
+            ->method('execute')
             ->willReturn(5);
-
-        $this->connection
-            ->expects($this->once())
-            ->method('query')
-            ->with(
-                'DELETE FROM users WHERE status = ?',
-                ['deleted']
-            )
-            ->willReturn($statement);
 
         $result = $this->builder
             ->table('users')

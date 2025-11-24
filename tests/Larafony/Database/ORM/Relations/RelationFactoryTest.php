@@ -43,12 +43,6 @@ class RelationFactoryTest extends TestCase
         $this->parent->id = 1;
     }
 
-    public function testBelongsToCreatesRelationAndAddsConstraints(): void
-    {
-        // Skip - covered by BelongsToTest
-        $this->markTestSkipped('Covered by BelongsToTest');
-    }
-
     public function testHasManyCreatesRelationAndAddsConstraints(): void
     {
         $relatedClass = new class extends Model {
