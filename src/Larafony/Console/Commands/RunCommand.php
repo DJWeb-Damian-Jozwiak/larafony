@@ -26,7 +26,7 @@ class RunCommand
         }
 
         /**
-         * @var array<int, string|null>
+         * @var array<int, string> $arguments
          */
         $arguments = array_filter(['bin/larafony', $command, ...$arguments], fn ($arg) => $arg !== null);
 
