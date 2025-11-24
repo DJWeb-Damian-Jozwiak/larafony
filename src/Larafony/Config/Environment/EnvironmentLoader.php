@@ -34,7 +34,9 @@ class EnvironmentLoader
 
         $content = file_get_contents($path);
         if ($content === false) {
+            //@codeCoverageIgnoreStart
             $content = '';
+            //@codeCoverageIgnoreEnd
         }
         $result = $this->parser->parse($content);
 

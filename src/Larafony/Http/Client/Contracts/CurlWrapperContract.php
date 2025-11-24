@@ -20,10 +20,8 @@ interface CurlWrapperContract
 {
     /**
      * Initialize CURL session.
-     *
-     * @return CurlHandle|false
      */
-    public function init(): CurlHandle|false;
+    public function init(): CurlHandle;
 
     /**
      * Set multiple CURL options.
