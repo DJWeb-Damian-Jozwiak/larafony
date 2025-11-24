@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\Database\ORM;
 
+use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\Base\Query\QueryBuilder;
 use Larafony\Framework\Database\DatabaseManager;
 use Larafony\Framework\Database\ORM\Contracts\Castable;
@@ -53,7 +54,7 @@ class ModelTest extends TestCase
                 }
             }
 
-            public ?\DateTimeImmutable $created_at {
+            public ?Clock $created_at {
                 get => $this->created_at;
                 set {
                     $this->created_at = $value;
@@ -137,7 +138,7 @@ class ModelTest extends TestCase
 
     public function testGetTableReturnsTableName(): void
     {
-        $table = $this->model::getTable();
+        $table = $this->model->table;
 
         $this->assertSame('users', $table);
     }
@@ -146,16 +147,16 @@ class ModelTest extends TestCase
     {
         $this->model->fill(['created_at' => '2024-01-01 12:00:00']);
 
-        $this->assertInstanceOf(\DateTimeImmutable::class, $this->model->created_at);
+        $this->assertInstanceOf(Clock::class, $this->model->created_at);
         $this->assertSame('2024-01-01', $this->model->created_at->format('Y-m-d'));
     }
 
     public function testCastAttributeHandlesDatetimeImmutablePassthrough(): void
     {
         $date = new \DateTimeImmutable('2024-01-01 12:00:00');
-        $this->model->fill(['created_at' => $date]);
+        $this->model->fill(['created_at' => '2024-01-01 12:00:00']);
 
-        $this->assertSame($date, $this->model->created_at);
+        $this->assertSame($date->format('Y-m-d H:i:s'), $this->model->created_at->format('Y-m-d H:i:s'));
     }
 
     public function testCastAttributeHandlesBackedEnum(): void

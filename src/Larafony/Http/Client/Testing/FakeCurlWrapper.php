@@ -53,11 +53,10 @@ final class FakeCurlWrapper implements CurlWrapperContract
         return $this;
     }
 
-    public function init(): CurlHandle|false
+    public function init(): CurlHandle
     {
-        // Return real CurlHandle - we need it for type safety
-        // But it won't be used for actual network calls
-        return curl_init();
+        $handle = curl_init();
+        return $handle === false ? throw new \RuntimeException('Failed to initialize CURL handle') : $handle;
     }
 
     public function withOptArray(CurlHandle $curl, array $options): bool
