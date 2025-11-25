@@ -15,9 +15,10 @@ use Larafony\Framework\Http\Client\Contracts\CurlWrapperContract;
  */
 final class CurlWrapper implements CurlWrapperContract
 {
-    public function init(): CurlHandle|false
+    public function init(): CurlHandle
     {
-        return curl_init();
+        $handle = curl_init();
+        return $handle === false ? throw new \RuntimeException('Failed to initialize CURL handle') : $handle;
     }
 
     public function withOptArray(CurlHandle $curl, array $options): bool

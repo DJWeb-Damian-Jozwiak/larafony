@@ -12,7 +12,7 @@ use Larafony\Framework\Console\Input\ValueCaster;
 class CommandOption
 {
     public bool $isRequired {
-        get => str_starts_with($this->name, '?');
+        get => ! str_starts_with($this->name, '?');
     }
     public function __construct(
         public string $name,
@@ -23,11 +23,10 @@ class CommandOption
 
     public function hasDefaultValue(\ReflectionProperty $property, Command $command): bool
     {
-        if ($this->value !== null) {
-            return true;
+        if (! $property->isInitialized($command)) {
+            return false;
         }
-        $value = $property->getValue($command);
-        return $value !== null && $property->getName() === $this->name;
+        return $this->value !== null;
     }
 
     public function getDefaultValue(\ReflectionProperty $property, Command $command): mixed

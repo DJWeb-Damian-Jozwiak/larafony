@@ -33,6 +33,7 @@ final class FunctionRouteHandler implements RequestHandlerInterface
         $function = $this->function;
         $reflection = new \ReflectionFunction($function);
         $arguments = $this->parameterResolver->resolve($reflection, $request);
+        /** @phpstan-ignore-next-line */
         return $function(...$arguments);
     }
 }

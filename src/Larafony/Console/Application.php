@@ -37,12 +37,15 @@ class Application extends Container
         return self::$instance;
     }
 
+    /**
+     * @param array<int, string>|null $args
+     */
     public function handle(?array $args = null): int
     {
         $args ??= $_SERVER['argv'];
         try {
             return $this->kernel->handle($args);
-        } catch (CommandNotFoundError) {
+        } catch (CommandNotFoundError $e) {
             $output = $this->get(Output::class);
             $output->error('Command not found');
             return 1;
