@@ -22,6 +22,7 @@ abstract class ValidationAttribute implements ValidationRule
      */
     public function withData(array $data): static
     {
+        //mutable for performance!
         $this->data = $data;
         return $this;
     }
@@ -35,6 +36,7 @@ abstract class ValidationAttribute implements ValidationRule
      */
     public function withFieldName(string $fieldName): static
     {
+        //mutable for performance!
         $this->fieldName = $fieldName;
         return $this;
     }
