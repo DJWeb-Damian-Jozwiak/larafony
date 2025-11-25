@@ -108,7 +108,7 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 ### 🧭 Meta
 - [ ] Why Larafony — Comparing with Laravel, Symfony, CodeIgniter — Chapter 31
 
-### 🧩 The Philosophy of the Final Chaptersczy
+### 🧩 The Philosophy of the Final Chapters
 
 **This will be updated while following packages reach FULL php8.5 support.**
 
@@ -160,4 +160,5 @@ Check out my full PHP 8.5 course, where I explain everything from architecture t
 - [Composer Documentation](https://getcomposer.org/doc/)
 
 License
+
 The Larafony framework is open-sourced software licensed under the [MIT license](https://opensource.org/license/MIT).
