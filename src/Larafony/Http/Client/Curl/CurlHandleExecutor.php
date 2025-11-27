@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Http\Client\Curl;
 
-use CurlHandle;
 use Larafony\Framework\Http\Client\Contracts\CurlWrapperContract;
 use Larafony\Framework\Http\Client\Exceptions\ConnectionError;
 use Larafony\Framework\Http\Client\Exceptions\DnsError;
@@ -42,10 +41,6 @@ final class CurlHandleExecutor
     public function execute(RequestInterface $request): ResponseInterface
     {
         $curl = $this->curlWrapper->init();
-
-        if (! $curl instanceof CurlHandle) {
-            throw NetworkError::fromRequest('Failed to initialize CURL', $request);
-        }
 
         try {
             // Configure CURL with request data

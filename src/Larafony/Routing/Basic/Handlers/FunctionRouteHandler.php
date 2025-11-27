@@ -10,6 +10,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 final class FunctionRouteHandler implements RequestHandlerInterface
 {
+    private readonly ParameterResolver $parameterResolver;
+
     private string $function {
         get => $this->function;
         set {
@@ -20,15 +22,18 @@ final class FunctionRouteHandler implements RequestHandlerInterface
         }
     }
 
-    public function __construct(string $function)
+    public function __construct(string $function, ?ParameterResolver $parameterResolver = null)
     {
         $this->function = $function;
+        $this->parameterResolver = $parameterResolver ?? new ParameterResolver();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $function = $this->function;
-        // @phpstan-ignore callable.nonCallable
-        return $function($request);
+        $reflection = new \ReflectionFunction($function);
+        $arguments = $this->parameterResolver->resolve($reflection, $request);
+        /** @phpstan-ignore-next-line */
+        return $function(...$arguments);
     }
 }
