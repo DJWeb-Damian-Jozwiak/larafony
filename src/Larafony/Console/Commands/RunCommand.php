@@ -25,8 +25,13 @@ class RunCommand
             return $app->handle(['bin/larafony', $command, ...$arguments]);
         }
 
+        /**
+         * @var array<int, string> $arguments
+         */
+        $arguments = array_filter(['bin/larafony', $command, ...$arguments], static fn ($arg) => $arg !== null);
+
         // Fallback: use singleton instance (for standalone usage)
         $app = Application::instance();
-        return $app->handle(['bin/larafony', $command, ...$arguments]);
+        return $app->handle($arguments);
     }
 }

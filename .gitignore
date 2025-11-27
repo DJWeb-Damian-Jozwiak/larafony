@@ -2,3 +2,6 @@ vendor
 .phpunit.cache
 coverage
 composer.lock
+
+# Docker
+.env.docker

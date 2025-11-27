@@ -31,7 +31,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
         $debug = EnvReader::read('APP_DEBUG', 'false') === 'true';
 
         // Determine if we're running in console mode
-        $isConsole = php_sapi_name() === 'cli';
+        $isConsole = PHP_SAPI === 'cli';
 
         if ($isConsole) {
             // Register console error handler
@@ -60,6 +60,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
 
     public function boot(ContainerContract $container): void
     {
+        parent::boot($container);
         /**
          * @var BaseHandler $handler
          */

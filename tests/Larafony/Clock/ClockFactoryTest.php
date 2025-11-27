@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Tests\Clock;
 
 use Larafony\Framework\Clock\ClockFactory;
+use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Clock\Enums\TimeFormat;
 use Larafony\Framework\Clock\Enums\Timezone;
 use Larafony\Framework\Clock\FrozenClock;
@@ -253,6 +254,11 @@ final class ClockFactoryTest extends TestCase
             public function isToday(\DateTimeInterface $date): bool
             {
                 return false;
+            }
+
+            public function parse(string $date): \Larafony\Framework\Clock\Contracts\Clock
+            {
+                return new ClockFactory()->parse($date);
             }
         };
 
