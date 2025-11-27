@@ -20,7 +20,7 @@ final class ResponseHeadersParser
         $statusLine = array_first($lines);
 
         // Parse status line: "HTTP/1.1 200 OK"
-        [$protocolVersion, $statusCode, $reasonPhrase] = new StatusLineParser()->parse($statusLine);
+        [$protocolVersion, $statusCode, $reasonPhrase] = new StatusLineParser()->parse($statusLine ?? '');
 
         // Parse headers (skip status line)
         $headerManager = new HeaderManager();

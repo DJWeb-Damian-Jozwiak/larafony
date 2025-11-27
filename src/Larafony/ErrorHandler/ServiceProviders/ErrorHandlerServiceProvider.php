@@ -60,6 +60,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
 
     public function boot(ContainerContract $container): void
     {
+        parent::boot($container);
         /**
          * @var BaseHandler $handler
          */
