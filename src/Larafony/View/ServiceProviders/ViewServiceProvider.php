@@ -15,7 +15,7 @@ class ViewServiceProvider extends ServiceProvider
     public function providers(): array
     {
         return [
-            RendererContract::class => BladeAdapter::buildDefault()
+            RendererContract::class => BladeAdapter::buildDefault(),
         ];
     }
     public function register(ContainerContract $container): self

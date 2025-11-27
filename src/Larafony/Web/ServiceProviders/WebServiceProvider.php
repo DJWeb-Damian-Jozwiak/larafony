@@ -16,7 +16,8 @@ class WebServiceProvider extends ServiceProvider
     /**
      * @return array<int|string, class-string>
      */
-    public function providers(): array {
+    public function providers(): array
+    {
         return [
             Kernel::class => Kernel::class,
         ];
