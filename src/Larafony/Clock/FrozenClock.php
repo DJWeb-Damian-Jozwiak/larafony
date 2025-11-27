@@ -28,7 +28,7 @@ final class FrozenClock implements Clock
     public function format(TimeFormat|string $format): string
     {
         $format = is_string($format) ? $format : $format->value;
-        return $this->now()->format($format);
+        return $this->frozenTime->format($format);
     }
 
     public function now(): \DateTimeImmutable
@@ -129,18 +129,18 @@ final class FrozenClock implements Clock
     }
 
     /**
-     * Get sign prefix for time modification.
-     */
-    private function sign(int $value): string
-    {
-        return $value >= 0 ? '+' : '';
-    }
-
-    /**
      * Parse a date string and return a new Clock instance.
      */
     public function parse(string $date): self
     {
         return new self($date);
+    }
+
+    /**
+     * Get sign prefix for time modification.
+     */
+    private function sign(int $value): string
+    {
+        return $value >= 0 ? '+' : '';
     }
 }

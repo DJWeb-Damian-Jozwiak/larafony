@@ -102,7 +102,6 @@ final class ArgumentResolverTest extends TestCase
 
         $resolver->resolveArguments();
 
-        // Attribute's apply() sets empty string when no value provided
-        $this->assertSame('', $command->optional);
+        $this->assertSame(null, $command->optional);
     }
 }

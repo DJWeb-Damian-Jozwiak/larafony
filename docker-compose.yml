@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # PHP application container for running tests
+  app:
+    build:
+      context: .
+      target: dev
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+      - cache:/app/.phpunit.cache
+    environment:
+      - PHP_VERSION=8.5
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=larafony_test
+      - DB_USERNAME=larafony
+      - DB_PASSWORD=secret
+    depends_on:
+      - mysql
+    networks:
+      - larafony
+    command: php vendor/bin/phpunit --no-coverage
+
+  # Test runner with coverage (using PCOV)
+  test:
+    build:
+      context: .
+      target: test
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+      - cache:/app/.phpunit.cache
+    environment:
+      - PHP_VERSION=8.5
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=larafony_test
+      - DB_USERNAME=larafony
+      - DB_PASSWORD=secret
+    depends_on:
+      - mysql
+    networks:
+      - larafony
+    command: php vendor/bin/phpunit
+
+  # Quality checks runner
+  quality:
+    build:
+      context: .
+      target: quality
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+      - cache:/app/.phpunit.cache
+    environment:
+      - PHP_VERSION=8.5
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=larafony_test
+      - DB_USERNAME=larafony
+      - DB_PASSWORD=secret
+    depends_on:
+      - mysql
+    networks:
+      - larafony
+    command: composer quality
+
+  # MySQL database for testing
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=larafony_test
+      - MYSQL_USER=larafony
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - "33306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - larafony
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  larafony:
+    driver: bridge
+
+volumes:
+  vendor:
+  cache:
+  mysql_data:
