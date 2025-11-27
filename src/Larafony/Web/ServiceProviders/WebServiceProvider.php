@@ -14,10 +14,10 @@ use Larafony\Framework\Web\Middleware\MiddlewareStack;
 class WebServiceProvider extends ServiceProvider
 {
     /**
-     * @var array<int|string, class-string> $providers
+     * @return array<int|string, class-string>
      */
-    public array $providers {
-        get => [
+    public function providers(): array {
+        return [
             Kernel::class => Kernel::class,
         ];
     }

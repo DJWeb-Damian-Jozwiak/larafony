@@ -12,13 +12,16 @@ use Larafony\Framework\View\ViewManager;
 
 class ViewServiceProvider extends ServiceProvider
 {
+    public function providers(): array
+    {
+        return [
+            RendererContract::class => BladeAdapter::buildDefault()
+        ];
+    }
     public function register(ContainerContract $container): self
     {
-        // Register Blade renderer as default
-        $container->set(
-            RendererContract::class,
-            BladeAdapter::buildDefault()
-        );
+        // First register providers (including RendererContract)
+        parent::register($container);
 
         // Register ViewManager with default renderer
         $container->set(
