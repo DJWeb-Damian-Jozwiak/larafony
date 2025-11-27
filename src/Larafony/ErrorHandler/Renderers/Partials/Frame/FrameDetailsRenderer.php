@@ -25,7 +25,8 @@ readonly class FrameDetailsRenderer extends BaseFrameRenderer
     public function render(TraceCollection $trace, int $frameIndex): void
     {
         $frame = $this->getFrame($trace, $frameIndex);
-        if (! $frame) { return;
+        if (! $frame) {
+            return;
         }
 
         $this->renderHeader($frame, $frameIndex);

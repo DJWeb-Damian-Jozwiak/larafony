@@ -31,7 +31,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
         $debug = EnvReader::read('APP_DEBUG', 'false') === 'true';
 
         // Determine if we're running in console mode
-        $isConsole = php_sapi_name() === 'cli';
+        $isConsole = PHP_SAPI === 'cli';
 
         if ($isConsole) {
             // Register console error handler
@@ -40,7 +40,7 @@ class ErrorHandlerServiceProvider extends ServiceProvider
 
             $handler = new ConsoleHandler(
                 $renderer,
-                fn(int $exitCode) => exit($exitCode)
+                static fn (int $exitCode) => exit($exitCode)
             );
 
             $container->set(BaseHandler::class, $handler);
