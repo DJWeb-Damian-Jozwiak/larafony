@@ -41,7 +41,9 @@ class ConfigBase extends DotContainer implements ConfigContract
         $configPath = $this->base_path . DIRECTORY_SEPARATOR . 'config';
 
         if (! is_dir($configPath)) {
+            //@codeCoverageIgnoreStart
             return;
+            //@codeCoverageIgnoreEnd
         }
 
         $files = scandir($configPath);
