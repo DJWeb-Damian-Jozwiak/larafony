@@ -98,6 +98,15 @@ services:
       timeout: 5s
       retries: 10
 
+  # Mailhog - email testing tool
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"   # SMTP server
+      - "8025:8025"   # Web UI
+    networks:
+      - larafony
+
 networks:
   larafony:
     driver: bridge

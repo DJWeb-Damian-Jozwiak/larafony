@@ -109,7 +109,7 @@ final class SmtpTransport implements TransportContract
     {
         NotConnected::assertConnection($this->connection);
 
-        $this->connection->write($data . "\r\n");
+        $this->connection?->write($data . "\r\n");
     }
 
     /**
@@ -123,6 +123,7 @@ final class SmtpTransport implements TransportContract
     {
         NotConnected::assertConnection($this->connection);
 
+        /** @phpstan-ignore-next-line */
         return SmtpResponseFactory::readFromConnection($this->connection);
     }
 }

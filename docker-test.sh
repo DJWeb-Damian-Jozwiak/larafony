@@ -39,8 +39,8 @@ chmod 777 coverage
 echo "🔨 Building Docker images (if needed)..."
 $DOCKER_COMPOSE_CMD build test mysql
 
-echo "🚀 Starting fresh MySQL service..."
-$DOCKER_COMPOSE_CMD up -d mysql
+echo "🚀 Starting fresh MySQL and Mailhog services..."
+$DOCKER_COMPOSE_CMD up -d mysql mailhog
 
 echo "⏳ Waiting for MySQL to be ready..."
 for i in {1..30}; do
@@ -50,6 +50,16 @@ for i in {1..30}; do
     fi
     echo "   Attempt $i/30..."
     sleep 2
+done
+
+echo "⏳ Waiting for Mailhog to be ready..."
+for i in {1..15}; do
+    if curl -s http://localhost:8025/api/v2/messages >/dev/null 2>&1; then
+        echo "✅ Mailhog is ready!"
+        break
+    fi
+    echo "   Attempt $i/15..."
+    sleep 1
 done
 
 echo ""

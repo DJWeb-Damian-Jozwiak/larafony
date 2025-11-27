@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Larafony\Framework\Console\Commands;
 
 use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
-use Larafony\Framework\Console\Command;
 use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 

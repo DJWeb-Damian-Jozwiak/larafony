@@ -17,7 +17,8 @@ class MailerIntegrationTest extends TestCase
     private function isMailHogRunning(): bool
     {
         try {
-            $connection = SmtpConnection::create('localhost', 1025, 1);
+            //connection from docker-compose
+            $connection = SmtpConnection::create('mailhog', 1025, 1);
             $connection->close();
             return true;
         } catch (\Throwable) {
@@ -31,7 +32,7 @@ class MailerIntegrationTest extends TestCase
             $this->markTestSkipped('MailHog is not running on localhost:1025');
         }
 
-        $mailer = MailerFactory::createMailHogMailer();
+        $mailer = MailerFactory::createMailHogMailer(host: 'mailhog');
 
         $mailable = new class extends Mailable {
             public function envelope(): Envelope
