@@ -15,7 +15,7 @@ final class Application extends Container
         get => $this->base_path . '/storage';
     }
     protected static ?self $instance = null;
-    protected function __construct(public private(set) ?string $base_path = null)
+    protected function __construct(public private(set) readonly ?string $base_path = null)
     {
         parent::__construct();
         $this->set(ContainerContract::class, $this);

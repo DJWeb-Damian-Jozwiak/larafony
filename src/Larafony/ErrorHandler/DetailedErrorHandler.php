@@ -39,27 +39,25 @@ class DetailedErrorHandler implements ErrorHandler
         });
 
         register_shutdown_function(function (): void {
+            // @codeCoverageIgnoreStart
             $error = error_get_last();
-
             if ($error !== null && $this->isFatalError($error['type'])) {
                 $this->handleFatalError($error);
             }
+            // @codeCoverageIgnoreEnd
         });
     }
 
     /**
      * @param array{type: int, message: string, file: string, line: int} $error
+     *
+     * @codeCoverageIgnore
      */
     protected function handleFatalError(array $error): void
     {
         http_response_code(500);
         $exception = new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
         echo $this->renderDebugView($exception);
-    }
-
-    protected function isFatalError(int $type): bool
-    {
-        return in_array($type, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true);
     }
 
     protected function renderDebugView(Throwable $exception): string
@@ -114,5 +112,13 @@ class DetailedErrorHandler implements ErrorHandler
             $exception instanceof NotFoundError => 404,
             default => 500
         };
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function isFatalError(int $type): bool
+    {
+        return in_array($type, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true);
     }
 }

@@ -15,20 +15,23 @@ class StartsWith extends ValidationAttribute
     private readonly array $prefixes;
 
     /**
-     * @param array<int, string> $suffixes
+     * @param array<int, string> $prefixes
      * @param string|null $message
      */
     public function __construct(
-        array $suffixes,
+        array $prefixes,
         ?string $message = null
     ) {
-        $this->prefixes = array_filter($suffixes, is_string(...));
-        $this->message = $message ?? 'Invalid suffix';
+        $this->prefixes = array_filter($prefixes, is_string(...));
+        $this->message = $message ?? 'Invalid prefix';
     }
 
     public function validate(mixed $value): bool
     {
         $value ??= '';
-        return array_filter($this->prefixes, static fn ($suffix) => str_starts_with($value, $suffix)) !== [];
+        return array_any(
+            $this->prefixes,
+            static fn (string $prefix) => str_starts_with($value, $prefix)
+        );
     }
 }
