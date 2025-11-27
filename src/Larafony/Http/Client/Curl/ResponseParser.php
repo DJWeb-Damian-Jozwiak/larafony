@@ -39,11 +39,7 @@ final class ResponseParser
             return new Response(statusCode: 500);
         }
 
-        // Get header size to separate headers from body
-        if ($headerSize === null) {
-            /** @var int $headerSize */
-            $headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-        }
+        $headerSize ??= curl_getinfo($curl, CURLINFO_HEADER_SIZE);
 
         $headersRaw = substr($rawResponse, 0, $headerSize);
         $bodyRaw = substr($rawResponse, $headerSize);

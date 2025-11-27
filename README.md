@@ -52,6 +52,14 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 - Composer
 - PSR-compliant HTTP and container packages (installed automatically)
 
+### Docker Alternative
+
+For a containerized development environment:
+- Docker ≥ 20.10
+- Docker Compose ≥ 2.0
+
+See [DOCKER.md](DOCKER.md) for complete Docker setup and usage instructions.
+
 ## 🧭 Roadmap
 
 > Each chapter is developed in a separate branch and includes unit tests using PHPUnit.
@@ -144,7 +152,42 @@ and the beginning of **your own**.
 - [ ] Use Monolog — Chapter 34
 - [ ] Replace Container with Laravel Container — Chapter 35
 
-## 🚀 Learn How It’s Built—From Scratch
+## 🚀 Quick Start
+
+### Using Docker (Recommended)
+
+```bash
+# Quick start - all in one script
+./docker-test.sh              # Run tests without coverage
+./docker-test.sh --coverage   # Run tests with HTML coverage report
+
+# Or step by step
+./docker.sh build             # Build Docker images
+./docker.sh up                # Start MySQL service
+./docker.sh test              # Run tests
+./docker.sh quality           # Run all quality checks
+```
+
+**Coverage reports:**
+- HTML report: Open `coverage/index.html` in your browser
+- Text output: Use `./docker-test.sh --text`
+
+See [DOCKER.md](DOCKER.md) for complete Docker documentation and all available commands.
+
+### Using Local PHP
+
+```bash
+# Install dependencies
+composer install
+
+# Run tests
+composer test
+
+# Run quality checks
+composer quality
+```
+
+## 🚀 Learn How It's Built—From Scratch
 
 Interested in **how Larafony is built step by step?**
 

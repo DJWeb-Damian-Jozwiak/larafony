@@ -15,6 +15,13 @@ use Larafony\Framework\Web\Config;
 
 class SessionServiceProvider extends ServiceProvider
 {
+    /**
+     * @return array<int|string, class-string>
+     */
+    public function providers(): array
+    {
+        return [SessionConfiguration::class => SessionConfiguration::class];
+    }
     public function boot(ContainerContract $container): void
     {
         parent::boot($container);

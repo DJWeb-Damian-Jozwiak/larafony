@@ -20,7 +20,8 @@ final readonly class HeadersParser
                 continue;
             }
 
-            $name = substr($key, 5) |> (static fn (string $item) => str_replace('_', ' ', $item))
+            $name = substr($key, 5) //remove HTTP_ prefix
+                        |> (static fn (string $item) => str_replace('_', ' ', $item))
                         |> strtolower(...)
                         |> ucwords(...)
                         |> (static fn (string $item) => str_replace(' ', '-', $item));
