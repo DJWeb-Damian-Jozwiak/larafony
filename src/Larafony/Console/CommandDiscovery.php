@@ -44,6 +44,7 @@ final class CommandDiscovery
     {
         $files = new Directory($directoryName)->files;
         $files = array_filter($files, static fn (\SplFileInfo $file) => $file->getExtension() === 'php');
+        /** @var array<int, class-string<Command>> $classes */
         $classes = array_map(
             static fn (\SplFileInfo $file) => new FileToClassNameConverter()
                 ->convert($file, $directoryName, $namespace),

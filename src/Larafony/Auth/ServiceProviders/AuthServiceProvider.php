@@ -5,11 +5,22 @@ declare(strict_types=1);
 namespace Larafony\Framework\Auth\ServiceProviders;
 
 use Larafony\Framework\Auth\Auth;
+use Larafony\Framework\Auth\UserManager;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    /**
+     * @return array<string|int, class-string>
+     */
+    public function providers(): array
+    {
+        return [
+            UserManager::class => UserManager::class,
+        ];
+    }
+
     public function boot(ContainerContract $container): void
     {
         parent::boot($container);

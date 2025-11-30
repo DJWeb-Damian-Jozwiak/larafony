@@ -122,5 +122,4 @@ final class Auth
         }
         return self::$permissionManager;
     }
-
 }

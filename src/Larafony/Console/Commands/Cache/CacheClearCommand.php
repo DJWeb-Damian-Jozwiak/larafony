@@ -9,15 +9,19 @@ use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Attributes\CommandArgument;
 use Larafony\Framework\Console\Command;
 
-#[AsCommand(name: 'cache:clear', description: 'Clear all cached data or specific tags')]
+#[AsCommand(name: 'cache:clear')]
 class CacheClearCommand extends Command
 {
-    #[CommandArgument(name: 'tags', value: '', description: 'Optional: Comma-separated tags to clear (e.g., "users,posts")')]
+    #[CommandArgument(
+        name: 'tags',
+        value: '',
+        description: 'Optional: Comma-separated tags to clear (e.g., "users,posts")'
+    )]
     protected string $tags = '';
 
     public function run(): int
     {
-        $cache = Cache::instance();
+        $cache = $this->container->get(Cache::class);
 
         if ($this->tags !== '') {
             // Clear specific tags

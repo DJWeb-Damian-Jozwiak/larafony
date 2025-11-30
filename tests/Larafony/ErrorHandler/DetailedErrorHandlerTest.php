@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Tests\ErrorHandler;
 
+use ErrorException;
 use Larafony\Framework\ErrorHandler\DetailedErrorHandler;
 use Larafony\Framework\View\Contracts\RendererContract;
 use Larafony\Framework\View\ViewManager;

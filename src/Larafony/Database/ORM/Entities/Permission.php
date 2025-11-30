@@ -25,12 +25,9 @@ class Permission extends Model
         }
     }
 
-    /**
-     * @return array<Role>
-     */
+    /** @var list<Role> $roles */
     #[BelongsToMany(Role::class, 'role_permissions', 'permission_id', 'role_id')]
     public array $roles {
         get => $this->relations->getRelation('roles');
     }
-
 }

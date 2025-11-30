@@ -16,7 +16,7 @@ final class EnvFileHandler
         $path = $this->getEnvPath();
         File::ensureFileExists($path);
         $content = file_get_contents($path);
-        $content = trim($content);
+        $content = trim($content === false ? '' : $content);
         $content = preg_replace('/^' . $key . '=.*$/m', '', $content);
         $content .= "\n" . $key . '=' . $value;
         file_put_contents($path, $content);

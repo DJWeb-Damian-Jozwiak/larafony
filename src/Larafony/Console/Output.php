@@ -90,26 +90,11 @@ readonly class Output implements OutputContract
         return trim($inputStream->read(1024));
     }
 
-    private function isTty(): bool
-    {
-        return function_exists('posix_isatty') && posix_isatty(STDIN);
-    }
-
-    private function withStty(string $mode): void
-    {
-        if (PHP_OS_FAMILY === 'Windows') {
-            // Windows doesn't support stty, skip
-            return;
-        }
-
-        // Suppress errors in case stty is not available
-        shell_exec("stty {$mode}");
-    }
-
     /**
      * Display a selection menu and return the chosen option
      *
      * @param array<int, string> $options
+     *
      * @return string The selected option
      */
     public function select(array $options, string $question = 'Please select an option:'): string
@@ -125,15 +110,31 @@ readonly class Output implements OutputContract
         }
 
         $outputStream->write(PHP_EOL);
-        $outputStream->write("<info>Enter your choice: </info>");
+        $outputStream->write('<info>Enter your choice: </info>');
 
         $choice = trim($inputStream->read(1024));
 
-        if (!is_numeric($choice) || !isset($options[(int)$choice])) {
-            $this->error("Invalid choice. Please select a valid option.");
+        if (! is_numeric($choice) || ! isset($options[(int) $choice])) {
+            $this->error('Invalid choice. Please select a valid option.');
             return $this->select($options, $question);
         }
 
-        return $options[(int)$choice];
+        return $options[(int) $choice];
+    }
+
+    private function isTty(): bool
+    {
+        return function_exists('posix_isatty') && posix_isatty(STDIN);
+    }
+
+    private function withStty(string $mode): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            // Windows doesn't support stty, skip
+            return;
+        }
+
+        // Suppress errors in case stty is not available
+        shell_exec("stty {$mode}");
     }
 }

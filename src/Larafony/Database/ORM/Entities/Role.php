@@ -27,7 +27,7 @@ class Role extends Model
     }
 
     /**
-     * @return array<Permission>
+     * @var array<Permission> $permissions
      */
     #[BelongsToMany(Permission::class, 'role_permissions', 'role_id', 'permission_id')]
     public array $permissions {
@@ -35,7 +35,7 @@ class Role extends Model
     }
 
     /**
-     * @return array<User>
+     * @var array<int, User> $users
      */
     #[BelongsToMany(User::class, 'user_roles', 'role_id', 'user_id')]
     public array $users {
@@ -49,7 +49,7 @@ class Role extends Model
         $permissionNames = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            fn() => array_column($this->permissions, 'name')
+            fn () => array_column($this->permissions, 'name')
         );
 
         return in_array($permissionName, $permissionNames, true);
@@ -59,6 +59,7 @@ class Role extends Model
      * Add permission to role
      *
      * @param Permission $permission
+     *
      * @return void
      */
     public function addPermission(Permission $permission): void
@@ -75,6 +76,7 @@ class Role extends Model
      * Remove permission from role
      *
      * @param Permission $permission
+     *
      * @return void
      */
     public function removePermission(Permission $permission): void

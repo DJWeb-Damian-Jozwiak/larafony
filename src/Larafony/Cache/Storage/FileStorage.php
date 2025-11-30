@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Cache\Storage;
 
-use Larafony\Framework\Cache\Contracts\StorageContract;
 use Larafony\Framework\Storage\Directory;
 
 class FileStorage extends BaseStorage
 {
+    /** @var array<string, int> $accessLog */
     private array $accessLog;
     private int $maxItems;
     private string $metaFile = 'meta.json';
@@ -29,6 +29,7 @@ class FileStorage extends BaseStorage
      * Delete cached data by key
      *
      * @param string $key
+     *
      * @return bool
      */
     public function delete(string $key): bool
@@ -44,6 +45,7 @@ class FileStorage extends BaseStorage
      * Set maximum capacity (number of items)
      *
      * @param int $size
+     *
      * @return void
      */
     public function maxCapacity(int $size): void
@@ -55,9 +57,77 @@ class FileStorage extends BaseStorage
     }
 
     /**
+     * @param array<string, mixed> $config
+     */
+    public static function create(array $config = []): FileStorage
+    {
+        $storage = new FileStorage($config['path']);
+        $storage->maxCapacity($config['max_items'] ?? 1000);
+        return $storage;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function getFromBackend(string $key): ?array
+    {
+        $file = $this->getPath($key);
+        if (! file_exists($file)) {
+            return null;
+        }
+
+        $this->accessLog[$key] = time();
+        $this->saveMeta();
+
+        $contents = file_get_contents($file);
+        if ($contents === false) {
+            return null;
+        }
+
+        $unserialized = unserialize($contents);
+        return is_array($unserialized) ? $unserialized : null;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    protected function addToBackend(string $key, array $data): bool
+    {
+        if (count($this->accessLog) >= $this->maxItems) {
+            $this->evictLRU();
+        }
+
+        $this->accessLog[$key] = time();
+        $this->saveMeta();
+
+        return (bool) file_put_contents($this->getPath($key), serialize($data));
+    }
+
+    protected function deleteFromBackend(string $key): bool
+    {
+        $file = $this->getPath($key);
+        return ! file_exists($file) || unlink($file);
+    }
+
+    protected function clearBackend(): bool
+    {
+        $files = glob($this->directory . '/*.cache');
+        if ($files === false) {
+            return false;
+        }
+
+        array_map(unlink(...), $files);
+        $this->accessLog = [];
+        $this->saveMeta();
+
+        return true;
+    }
+
+    /**
      * Get file path for key
      *
      * @param string $key
+     *
      * @return string
      */
     private function getPath(string $key): string
@@ -105,15 +175,13 @@ class FileStorage extends BaseStorage
     private function evictLRU(): void
     {
         $this->loadMeta();
-        if (empty($this->accessLog)) {
+        if ($this->accessLog === []) {
             return;
         }
 
         asort($this->accessLog);
         $key = array_key_first($this->accessLog);
-        if ($key !== null) {
-            $this->delete($key);
-        }
+        $this->delete($key);
     }
 
     /**
@@ -124,66 +192,5 @@ class FileStorage extends BaseStorage
     private function getCurrentItemCount(): int
     {
         return count($this->accessLog);
-    }
-
-    protected function getFromBackend(string $key): ?array
-    {
-        $file = $this->getPath($key);
-        if (!file_exists($file)) {
-            return null;
-        }
-
-        $this->accessLog[$key] = time();
-        $this->saveMeta();
-
-        $contents = file_get_contents($file);
-        if ($contents === false) {
-            return null;
-        }
-
-        $unserialized = unserialize($contents);
-        return is_array($unserialized) ? $unserialized : null;
-    }
-
-    protected function setToBackend(string $key, array $data): bool
-    {
-        if (count($this->accessLog) >= $this->maxItems) {
-            $this->evictLRU();
-        }
-
-        $this->accessLog[$key] = time();
-        $this->saveMeta();
-
-        return (bool)file_put_contents($this->getPath($key), serialize($data));
-    }
-
-    protected function deleteFromBackend(string $key): bool
-    {
-        $file = $this->getPath($key);
-        return !file_exists($file) || unlink($file);
-    }
-
-    protected function clearBackend(): bool
-    {
-        $files = glob($this->directory . '/*.cache');
-        if ($files === false) {
-            return false;
-        }
-
-        array_map(unlink(...), $files);
-        $this->accessLog = [];
-        $this->saveMeta();
-
-        return true;
-    }
-
-    /**
-     *
-     */
-    public static function create (array $config = []): FileStorage
-    {
-        $storage = new FileStorage($config['path']);
-        $storage->maxCapacity($config['max_items'] ?? 1000);
-        return $storage;
     }
 }

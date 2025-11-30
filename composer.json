@@ -42,7 +42,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Larafony\\Framework\\Tests\\": "tests/Larafony/"
+            "Larafony\\Framework\\Tests\\": "tests/Larafony/",
+            "App\\": "tests/public/src/"
+
         }
     },
     "provide": {

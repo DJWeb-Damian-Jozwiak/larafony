@@ -18,15 +18,15 @@ class AuthUserTable extends MakeMigration
         $this->name = ClockFactory::now()->format('Y_m_d_His_') . 'create_users_table.php';
     }
 
+    public function run(): int
+    {
+        return $this->buildFromName($this->name);
+    }
+
     protected function getStub(): string
     {
         $stubPath = dirname(__DIR__, 4) . '/stubs/auth_users_migration.stub';
 
         return file_get_contents($stubPath);
-    }
-
-    public function run(): int
-    {
-        return $this->buildFromName($this->name);
     }
 }

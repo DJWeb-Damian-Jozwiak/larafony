@@ -7,15 +7,13 @@ namespace Larafony\Framework\Cache;
 use DateInterval;
 use DateTimeInterface;
 use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\Clock\Contracts\Clock;
-use Larafony\Framework\Clock\Enums\TimeFormat;
 use Psr\Cache\CacheItemInterface;
 
 class CacheItem implements CacheItemInterface
 {
-    private mixed $value = null;
     public private(set) bool $isHit = false;
     public private(set) ?\DateTimeInterface $expiry = null;
+    private mixed $value = null;
 
     public function __construct(private readonly string $key)
     {
@@ -49,9 +47,7 @@ class CacheItem implements CacheItemInterface
             return $this;
         }
         // Convert to DateTimeImmutable if needed
-        $this->expiry = $expiration instanceof \DateTimeImmutable
-            ? $expiration
-            : \DateTimeImmutable::createFromInterface($expiration);
+        $this->expiry = \DateTimeImmutable::createFromInterface($expiration);
         return $this;
     }
 
@@ -60,7 +56,7 @@ class CacheItem implements CacheItemInterface
         if ($time === null) {
             $this->expiry = null;
         } elseif ($time instanceof DateInterval) {
-              $this->expiry = ClockFactory::now()->add($time);
+            $this->expiry = ClockFactory::now()->add($time);
         } else {
             $this->expiry = ClockFactory::now()->add(new DateInterval("PT{$time}S"));
         }
@@ -71,6 +67,7 @@ class CacheItem implements CacheItemInterface
      * Mark item as hit
      *
      * @param bool $hit
+     *
      * @return static
      */
     public function withIsHit(bool $hit): static
