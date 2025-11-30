@@ -49,7 +49,7 @@ class Role extends Model
         $permissionNames = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            fn() => array_column($this->permissions, 'name')
+            fn () => array_column($this->permissions, 'name')
         );
 
         return in_array($permissionName, $permissionNames, true);
@@ -59,6 +59,7 @@ class Role extends Model
      * Add permission to role
      *
      * @param Permission $permission
+     *
      * @return void
      */
     public function addPermission(Permission $permission): void
@@ -75,6 +76,7 @@ class Role extends Model
      * Remove permission from role
      *
      * @param Permission $permission
+     *
      * @return void
      */
     public function removePermission(Permission $permission): void

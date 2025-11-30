@@ -10,7 +10,38 @@ RUN apk add --no-cache \
     libzip-dev \
     mysql-client \
     sqlite \
+    libmemcached-dev \
+    zlib-dev \
     && docker-php-ext-install pdo pdo_mysql zip
+
+# Install Redis and Memcached extensions from source (PECL may not have PHP 8.5 versions)
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    autoconf \
+    g++ \
+    make \
+    # Install phpredis
+    && cd /tmp \
+    && git clone https://github.com/phpredis/phpredis.git \
+    && cd phpredis \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && docker-php-ext-enable redis \
+    # Install php-memcached
+    && cd /tmp \
+    && git clone https://github.com/php-memcached-dev/php-memcached.git \
+    && cd php-memcached \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && docker-php-ext-enable memcached \
+    # Cleanup
+    && cd / \
+    && rm -rf /tmp/phpredis /tmp/php-memcached \
+    && apk del .build-deps
 
 # Enable PHP extensions required by framework
 RUN docker-php-ext-enable pdo pdo_mysql

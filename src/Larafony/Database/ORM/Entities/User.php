@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM\Entities;
 
-use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Cache\Cache;
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany;
 use Larafony\Framework\Database\ORM\Attributes\CastUsing;
@@ -134,7 +134,7 @@ class User extends Model
         $roleNames = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            fn() => array_map(fn(Role $role) => $role->name, $this->roles)
+            fn () => array_map(static fn (Role $role) => $role->name, $this->roles)
         );
 
         return in_array($roleName, $roleNames, true);
@@ -147,7 +147,7 @@ class User extends Model
         $permissions = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            function() {
+            function () {
                 $allPermissions = [];
                 foreach ($this->roles as $role) {
                     foreach ($role->permissions as $permission) {

@@ -10,7 +10,8 @@ abstract class BaseStorage implements StorageContract
 {
     /**
      * In-memory cache to avoid repeated backend calls within same request
-     * @var array<string, array|null>
+     *
+     * @var array<string, array<string, mixed>|null>
      */
     protected array $inMemoryCache = [];
 
@@ -35,7 +36,8 @@ abstract class BaseStorage implements StorageContract
      * Get cached data by key (with in-memory cache)
      *
      * @param string $key
-     * @return array|null
+     *
+     * @return array<string, mixed>|null
      */
     public function get(string $key): ?array
     {
@@ -54,32 +56,16 @@ abstract class BaseStorage implements StorageContract
     }
 
     /**
-     * Add item to in-memory cache with automatic eviction
-     *
-     * @param string $key
-     * @param array|null $data
-     * @return void
-     */
-    private function addToInMemoryCache(string $key, ?array $data): void
-    {
-        // If cache is full, remove oldest item (LRU)
-        if (count($this->inMemoryCache) >= $this->maxInMemoryCacheSize) {
-            array_shift($this->inMemoryCache);
-        }
-
-        $this->inMemoryCache[$key] = $data;
-    }
-
-    /**
      * Set cached data (invalidates in-memory cache for this key)
      *
      * @param string $key
-     * @param array $data
+     * @param array<string, mixed> $data
+     *
      * @return bool
      */
     public function set(string $key, array $data): bool
     {
-        $result = $this->setToBackend($key, $data);
+        $result = $this->addToBackend($key, $data);
 
         if ($result) {
             // Update in-memory cache
@@ -93,6 +79,7 @@ abstract class BaseStorage implements StorageContract
      * Delete cached data (invalidates in-memory cache)
      *
      * @param string $key
+     *
      * @return bool
      */
     public function delete(string $key): bool
@@ -117,10 +104,37 @@ abstract class BaseStorage implements StorageContract
     }
 
     /**
+     * Enable or disable compression (fluent interface)
+     *
+     * @param bool $enabled
+     *
+     * @return static
+     */
+    public function withCompression(bool $enabled): static
+    {
+        $this->compressionEnabled = $enabled;
+        return $this;
+    }
+
+    /**
+     * Set compression threshold in bytes (fluent interface)
+     *
+     * @param int $bytes
+     *
+     * @return static
+     */
+    public function withCompressionThreshold(int $bytes): static
+    {
+        $this->compressionThreshold = $bytes;
+        return $this;
+    }
+
+    /**
      * Get data from backend storage
      *
      * @param string $key
-     * @return array|null
+     *
+     * @return array<string, mixed>|null
      */
     abstract protected function getFromBackend(string $key): ?array;
 
@@ -128,15 +142,17 @@ abstract class BaseStorage implements StorageContract
      * Set data to backend storage
      *
      * @param string $key
-     * @param array $data
+     * @param array<string, mixed> $data
+     *
      * @return bool
      */
-    abstract protected function setToBackend(string $key, array $data): bool;
+    abstract protected function addToBackend(string $key, array $data): bool;
 
     /**
      * Delete data from backend storage
      *
      * @param string $key
+     *
      * @return bool
      */
     abstract protected function deleteFromBackend(string $key): bool;
@@ -152,11 +168,12 @@ abstract class BaseStorage implements StorageContract
      * Compress data if it exceeds threshold
      *
      * @param string $data
+     *
      * @return string
      */
     protected function maybeCompress(string $data): string
     {
-        if (!$this->compressionEnabled) {
+        if (! $this->compressionEnabled) {
             return $data;
         }
 
@@ -179,11 +196,12 @@ abstract class BaseStorage implements StorageContract
      * Decompress data if it was compressed
      *
      * @param string $data
+     *
      * @return string
      */
     protected function maybeDecompress(string $data): string
     {
-        if (!str_starts_with($data, 'C:')) {
+        if (! str_starts_with($data, 'C:')) {
             return $data;
         }
 
@@ -198,26 +216,20 @@ abstract class BaseStorage implements StorageContract
     }
 
     /**
-     * Enable or disable compression (fluent interface)
+     * Add item to in-memory cache with automatic eviction
      *
-     * @param bool $enabled
-     * @return static
+     * @param string $key
+     * @param array<string, mixed>|null $data
+     *
+     * @return void
      */
-    public function withCompression(bool $enabled): static
+    private function addToInMemoryCache(string $key, ?array $data): void
     {
-        $this->compressionEnabled = $enabled;
-        return $this;
-    }
+        // If cache is full, remove oldest item (LRU)
+        if (count($this->inMemoryCache) >= $this->maxInMemoryCacheSize) {
+            array_shift($this->inMemoryCache);
+        }
 
-    /**
-     * Set compression threshold in bytes (fluent interface)
-     *
-     * @param int $bytes
-     * @return static
-     */
-    public function withCompressionThreshold(int $bytes): static
-    {
-        $this->compressionThreshold = $bytes;
-        return $this;
+        $this->inMemoryCache[$key] = $data;
     }
 }

@@ -30,18 +30,21 @@ class CacheServiceProvider extends ServiceProvider
     {
         parent::boot($container);
 
+        // Set container for static access (used by entities, etc.)
+        Cache::withContainer($container);
+
         $config = $container->get(ConfigContract::class);
         $driver = $config->get('cache.default', 'file');
 
         // Create storage and pool
-        $factory = new StorageFactory();
+        $factory = new StorageFactory($config);
         $pool = $factory->create($driver);
 
         // Register pool instance in container
         $container->set(CacheItemPoolInterface::class, $pool);
 
-        // Initialize Cache singleton
-        $cache = Cache::instance();
+        // Initialize Cache with config
+        $cache = new Cache($config);
         $cache->init($pool);
 
         // Register Cache instance in container

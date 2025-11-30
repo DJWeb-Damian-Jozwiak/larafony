@@ -46,5 +46,8 @@ return [
             'lineLimit' => 120,
             'absoluteLineLimit' => 0,
         ],
+        \NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class => [
+            'maxComplexity' => 3,
+        ],
     ],
 ];

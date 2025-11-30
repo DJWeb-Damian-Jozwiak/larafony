@@ -7,26 +7,21 @@ namespace Larafony\Framework\Cache\Storage;
 use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Log\Log;
 use Memcached;
-use Throwable;
 
 class MemcachedStorage extends BaseStorage
 {
-    /**
-     * @param Memcached $memcached
-     * @param string $prefix
-     */
     public function __construct(
         private Memcached $memcached,
         private string $prefix = 'cache:',
     ) {
     }
 
-
     /**
      * Set maximum memory capacity
      * Note: Memcached memory limits are typically set in server configuration
      *
      * @param int $size Size in bytes (advisory - actual limit set in memcached.ini)
+     *
      * @return void
      */
     public function maxCapacity(int $size): void
@@ -41,72 +36,65 @@ class MemcachedStorage extends BaseStorage
      * Get cached data from Memcached backend
      *
      * @param string $key
-     * @return array|null
+     *
+     * @return array<string, mixed>|null
      */
     protected function getFromBackend(string $key): ?array
     {
-        try {
-            $data = $this->memcached->get($this->prefix . $key);
+        $data = $this->memcached->get($this->prefix . $key);
 
-            // Memcached returns false on miss or error
-            if ($data === false) {
-                // Check if it's an actual error or just a miss
-                $resultCode = $this->memcached->getResultCode();
-                if ($resultCode !== Memcached::RES_SUCCESS && $resultCode !== Memcached::RES_NOTFOUND) {
-                    // Only log real errors, not cache misses
-                    Log::error('Memcached get error: ' . $this->memcached->getResultMessage());
-                }
-                return null;
+        // Memcached returns false on miss or error
+        if ($data === false) {
+            // Check if it's an actual error or just a miss
+            $resultCode = $this->memcached->getResultCode();
+            if ($resultCode !== Memcached::RES_SUCCESS && $resultCode !== Memcached::RES_NOTFOUND) {
+                // Only log real errors, not cache misses
+                Log::error('Memcached get error: ' . $this->memcached->getResultMessage());
             }
-
-            return is_array($data) ? $data : null;
-        } catch (Throwable $e) {
-            Log::error(' Memcached get exception: ' . $e->getMessage());
             return null;
         }
+
+        return is_array($data) ? $data : null;
     }
 
     /**
      * Set cached data to Memcached backend
      *
      * @param string $key
-     * @param array $data
+     * @param array<string, mixed> $data
+     *
      * @return bool
      */
-    protected function setToBackend(string $key, array $data): bool
+    protected function addToBackend(string $key, array $data): bool
     {
-        try {
-            $key = $this->prefix . $key;
+        $key = $this->prefix . $key;
 
-            // Calculate TTL from expiry timestamp
-            $ttl = isset($data['expiry']) ? $data['expiry'] - ClockFactory::now()->getTimestamp() : 0;
+        // Calculate TTL from expiry timestamp
+        $ttl = isset($data['expiry']) ? $data['expiry'] - ClockFactory::now()->getTimestamp() : 0;
 
-            // If TTL is negative, item has already expired
-            if ($ttl < 0) {
-                return false;
-            }
-
-            // Memcached expects TTL as expiration time
-            // 0 means no expiration
-            $expiration = $ttl > 0 ? ClockFactory::now()->getTimestamp() + $ttl : 0;
-
-            $result = $this->memcached->set($key, $data, $expiration);
-
-            if (!$result) {
-                Log::error('Memcached set error: ' . $this->memcached->getResultMessage());
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            Log::error('Memcached set exception: ' . $e->getMessage());
+        // If TTL is negative, item has already expired
+        if ($ttl < 0) {
             return false;
         }
+
+        // Memcached expects TTL as expiration time
+        // 0 means no expiration
+        $expiration = $ttl > 0 ? ClockFactory::now()->getTimestamp() + $ttl : 0;
+
+        $result = $this->memcached->set($key, $data, $expiration);
+
+        if (! $result) {
+            Log::error('Memcached set error: ' . $this->memcached->getResultMessage());
+        }
+
+        return $result;
     }
 
     /**
      * Delete cached data from Memcached backend
      *
      * @param string $key
+     *
      * @return bool
      */
     protected function deleteFromBackend(string $key): bool
@@ -114,7 +102,7 @@ class MemcachedStorage extends BaseStorage
         $result = $this->memcached->delete($this->prefix . $key);
 
         // Memcached returns false if key doesn't exist, but we consider that success
-        if (!$result && $this->memcached->getResultCode() !== Memcached::RES_NOTFOUND) {
+        if (! $result && $this->memcached->getResultCode() !== Memcached::RES_NOTFOUND) {
             Log::error('Memcached delete error: ' . $this->memcached->getResultMessage());
             return false;
         }
@@ -123,36 +111,16 @@ class MemcachedStorage extends BaseStorage
     }
 
     /**
-     * Clear all cached data with prefix from Memcached backend
-     * Note: Memcached doesn't support prefix-based clearing natively
-     * This will attempt to track keys or use flush (which clears ALL data)
+     * Clear all cached data from Memcached backend
+     * Note: Memcached doesn't support prefix-based clearing natively,
+     * so this flushes ALL data from the Memcached instance.
      *
      * @return bool
      */
     protected function clearBackend(): bool
     {
-        // Get all keys - note this requires getAllKeys() which may not work on all Memcached versions
-        $allKeys = $this->memcached->getAllKeys();
-
-        // getAllKeys() often returns false or empty array even when keys exist
-        // This is a known Memcached limitation - flush is the reliable way to clear
-        if ($allKeys === false || empty($allKeys)) {
-            // Fallback to flush (clears ALL data from this Memcached instance)
-            // For testing with prefix, we accept this limitation
-            return $this->memcached->flush();
-        }
-
-        // Filter keys by prefix and delete them (rarely works in practice)
-        $deleted = 0;
-        foreach ($allKeys as $key) {
-            if (str_starts_with($key, $this->prefix)) {
-                // Key already includes prefix, don't add it again
-                if ($this->memcached->delete($key)) {
-                    $deleted++;
-                }
-            }
-        }
-
-        return true;
+        // Memcached's getAllKeys() is unreliable across different versions
+        // and may return stale data. Using flush() is the only reliable way.
+        return $this->memcached->flush();
     }
 }

@@ -23,7 +23,13 @@ class ServiceProviderTest extends TestCase
         $app = Application::instance($basePath);
         $app->withServiceProviders([
             ConfigServiceProvider::class,
-            ViewServiceProvider::class, ErrorHandlerServiceProvider::class]);
+            ViewServiceProvider::class, ErrorHandlerServiceProvider::class,
+            //add more providers as needed
+        ]);
         $this->assertTrue($app->has(DetailedErrorHandler::class));
+        /**
+         * $app->run();
+         * //test views etc
+         */
     }
 }

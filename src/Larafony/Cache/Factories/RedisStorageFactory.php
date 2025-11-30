@@ -28,14 +28,12 @@ class RedisStorageFactory implements StorageFactoryContract
             self::$redis->auth($config['password']);
         }
 
-        if (isset($config['database'])) {
-            self::$redis->select($config['database']);
-        }
+        $db = $config['database'] ?? 0;
+        self::$redis->select($db);
 
         $storage = new RedisStorage(self::$redis, $config['prefix'] ?? 'cache:');
-        if (isset($config['max_memory'])) {
-            $storage->maxCapacity($config['max_memory']);
-        }
+        $max_memory = $config['max_memory'] ?? 1024 ** 3;
+        $storage->maxCapacity($max_memory);
         if (isset($config['eviction_policy'])) {
             $storage->withEvictionPolicy($config['eviction_policy']);
         }

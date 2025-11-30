@@ -20,8 +20,14 @@ services:
       - DB_DATABASE=larafony_test
       - DB_USERNAME=larafony
       - DB_PASSWORD=secret
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MEMCACHED_HOST=memcached
+      - MEMCACHED_PORT=11211
     depends_on:
       - mysql
+      - redis
+      - memcached
     networks:
       - larafony
     command: php vendor/bin/phpunit --no-coverage
@@ -45,8 +51,14 @@ services:
       - DB_DATABASE=larafony_test
       - DB_USERNAME=larafony
       - DB_PASSWORD=secret
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MEMCACHED_HOST=memcached
+      - MEMCACHED_PORT=11211
     depends_on:
       - mysql
+      - redis
+      - memcached
     networks:
       - larafony
     command: php vendor/bin/phpunit
@@ -70,8 +82,14 @@ services:
       - DB_DATABASE=larafony_test
       - DB_USERNAME=larafony
       - DB_PASSWORD=secret
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MEMCACHED_HOST=memcached
+      - MEMCACHED_PORT=11211
     depends_on:
       - mysql
+      - redis
+      - memcached
     networks:
       - larafony
     command: composer quality
@@ -107,6 +125,34 @@ services:
     networks:
       - larafony
 
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "16379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - larafony
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Memcached for caching
+  memcached:
+    image: memcached:1.6-alpine
+    ports:
+      - "21211:11211"
+    networks:
+      - larafony
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "11211"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 networks:
   larafony:
     driver: bridge
@@ -115,3 +161,4 @@ volumes:
   vendor:
   cache:
   mysql_data:
+  redis_data:

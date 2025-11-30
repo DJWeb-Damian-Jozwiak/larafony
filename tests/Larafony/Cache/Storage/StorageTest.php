@@ -75,7 +75,9 @@ class StorageTest extends TestCase
         if (extension_loaded('redis')) {
             try {
                 $redis = new \Redis();
-                $redis->connect('127.0.0.1', 6379);
+                $redisHost = getenv('REDIS_HOST') ?: '127.0.0.1';
+                $redisPort = (int) (getenv('REDIS_PORT') ?: 6379);
+                $redis->connect($redisHost, $redisPort);
                 $redis->select(15); // Use test database
                 $redis->flushDB(); // Clear test database
                 self::$redis = $redis;
@@ -93,7 +95,9 @@ class StorageTest extends TestCase
         if (extension_loaded('memcached')) {
             try {
                 $memcached = new \Memcached();
-                $memcached->addServer('127.0.0.1', 11211);
+                $memcachedHost = getenv('MEMCACHED_HOST') ?: '127.0.0.1';
+                $memcachedPort = (int) (getenv('MEMCACHED_PORT') ?: 11211);
+                $memcached->addServer($memcachedHost, $memcachedPort);
                 $memcached->set('test_connection', true);
                 if ($memcached->getResultCode() === \Memcached::RES_SUCCESS) {
                     self::$memcached = $memcached;
@@ -221,6 +225,11 @@ class StorageTest extends TestCase
 
         $result = $storage->clear();
         $this->assertTrue($result, "[$type] Clear should return true");
+
+        // Memcached flush() is asynchronous - need small delay
+        if ($type === 'memcached') {
+            usleep(100000); // 100ms
+        }
 
         $this->assertNull($storage->get('key1'), "[$type] key1 should not exist after clear");
         $this->assertNull($storage->get('key2'), "[$type] key2 should not exist after clear");
