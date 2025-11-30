@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM\Entities;
 
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany;
+use Larafony\Framework\Database\ORM\Attributes\CastUsing;
 use Larafony\Framework\Database\ORM\Model;
 
 class User extends Model
 {
-    public ?string $email {
+    public string $email {
         get => $this->email;
         set {
             $this->email = $value;
             $this->markPropertyAsChanged('email');
         }
     }
-    public ?string $username {
+    public string $username {
         get => $this->username;
         set {
             $this->username = $value;
@@ -67,6 +69,7 @@ class User extends Model
             $this->markPropertyAsChanged('is_active');
         }
     }
+    #[CastUsing(ClockFactory::parse(...))]
     public ?Clock $last_login_at {
         get => $this->last_login_at;
         set {
@@ -74,6 +77,7 @@ class User extends Model
             $this->markPropertyAsChanged('last_login_at');
         }
     }
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $created_at {
         get => $this->created_at;
         set {
@@ -81,6 +85,8 @@ class User extends Model
             $this->markPropertyAsChanged('created_at');
         }
     }
+
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $updated_at {
         get => $this->updated_at;
         set {
@@ -90,7 +96,7 @@ class User extends Model
     }
 
     /**
-     * @return array<Role>
+     * @var array<int, Role> $roles
      */
     #[BelongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')]
     public array $roles {
@@ -116,12 +122,4 @@ class User extends Model
     {
         return array_any($this->roles, static fn (Role $role) => $role->hasPermission($permissionName));
     }
-
-    protected array $casts = [
-        'password_reset_expires' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
 }

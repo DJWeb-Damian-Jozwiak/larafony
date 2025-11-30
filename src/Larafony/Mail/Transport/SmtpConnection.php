@@ -11,7 +11,6 @@ use Larafony\Framework\Mail\Exceptions\TransportError;
  */
 final class SmtpConnection
 {
-
     public bool $isConnected {
         get => ! $this->closed && is_resource($this->socket) && ! feof($this->socket);
     }

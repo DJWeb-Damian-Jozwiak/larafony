@@ -92,7 +92,10 @@ class UserManager
             $this->cookies->set(
                 self::REMEMBER_TOKEN_COOKIE,
                 $token,
-                new CookieOptions(expires: ClockFactory::now()->modify('+' . self::REMEMBER_COOKIE_EXPIRY . ' days')->getTimestamp())
+                new CookieOptions(
+                    expires: ClockFactory::now()->modify('+' . self::REMEMBER_COOKIE_EXPIRY . ' days')
+                        ->getTimestamp()
+                )
             );
         }
     }
