@@ -27,6 +27,9 @@ readonly class CodeSnippetRenderer
         $this->renderLines($extendedSnippet->lines, $errorLine);
     }
 
+    /**
+     * @param array<int, string> $lines
+     */
     private function renderLines(array $lines, int $errorLine): void
     {
         foreach ($lines as $lineNum => $line) {

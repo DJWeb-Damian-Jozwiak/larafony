@@ -24,8 +24,7 @@ class DotenvParser implements ParserContract
         $lines = str_replace("\r\n", "\n", $content)
                 |> (static fn (string $content) => explode("\n", $content));
 
-        $allParsedLines = array_map(fn (string $line) => $this->lineParser->parse($line), $lines)
-            |> (static fn (array $lines) => array_filter($lines));
+        $allParsedLines = array_map(fn (string $line) => $this->lineParser->parse($line), $lines);
 
         $variables = array_filter($allParsedLines, static fn (ParsedLine $line) => $line->isVariable)
             |> (static fn (array $lines) => array_map(static fn (ParsedLine $line) => $line->variable, $lines))

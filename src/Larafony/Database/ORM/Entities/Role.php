@@ -27,7 +27,7 @@ class Role extends Model
     }
 
     /**
-     * @return array<Permission>
+     * @var array<Permission> $permissions
      */
     #[BelongsToMany(Permission::class, 'role_permissions', 'role_id', 'permission_id')]
     public array $permissions {
@@ -35,7 +35,7 @@ class Role extends Model
     }
 
     /**
-     * @return array<User>
+     * @var array<int, User> $users
      */
     #[BelongsToMany(User::class, 'user_roles', 'role_id', 'user_id')]
     public array $users {

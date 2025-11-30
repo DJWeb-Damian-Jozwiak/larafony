@@ -10,6 +10,18 @@ use Larafony\Framework\Console\Command;
 #[AsCommand('database:init')]
 class BuildInitDatabase extends Command
 {
+    /** @var array<int, string> $commands */
+    private array $commands = [
+        'table:database-log',
+        'table:session',
+        'table:mail-log',
+        'table:auth-permission',
+        'table:auth-role',
+        'table:auth-user',
+        'table:auth-role-permission',
+        'table:auth-user-role',
+        'migrate:fresh',
+    ];
     public function run(): int
     {
         $this->output->info('Initializing database...');
@@ -23,6 +35,15 @@ class BuildInitDatabase extends Command
         }
 
         // Continue with initialization
+        $this->migrationTables();
+        $this->call('migrate:fresh');
+        $this->output->success('Database initialized successfully!');
+
+        return 0;
+    }
+
+    private function migrationTables(): void
+    {
         $this->call('table:database-log');
         $this->call('table:session');
         $this->call('table:mail-log');
@@ -31,10 +52,6 @@ class BuildInitDatabase extends Command
         $this->call('table:auth-user');
         $this->call('table:auth-role-permission');
         $this->call('table:auth-user-role');
-        $this->call('migrate:fresh');
-        $this->output->success('Database initialized successfully!');
-
-        return 0;
     }
 
     private function restartWithNewConfig(): int
@@ -42,19 +59,7 @@ class BuildInitDatabase extends Command
         // Execute the init-tables part in a new process with fresh config
         $this->output->info('Running database initialization...');
 
-        $commands = [
-            'table:database-log',
-            'table:session',
-            'table:mail-log',
-            'table:auth-permission',
-            'table:auth-role',
-            'table:auth-user',
-            'table:auth-role-permission',
-            'table:auth-user-role',
-            'migrate:fresh',
-        ];
-
-        foreach ($commands as $command) {
+        foreach ($this->commands as $command) {
             // Use passthru to show output in real-time
             $commandLine = 'php8.5 bin/larafony ' . escapeshellarg($command);
             passthru($commandLine, $result);

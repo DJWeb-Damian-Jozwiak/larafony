@@ -256,9 +256,9 @@ final class ClockFactoryTest extends TestCase
                 return false;
             }
 
-            public function parse(string $date): Clock
+            public function parse(string $date): \Larafony\Framework\Clock\Contracts\Clock
             {
-                return new self();
+                return new ClockFactory()->parse($date);
             }
         };
 
