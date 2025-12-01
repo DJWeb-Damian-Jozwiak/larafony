@@ -39,11 +39,7 @@ class Route extends BasicRoute
                 return implode('@', $this->handlerDefinition);
             }
 
-            if (is_callable($this->handlerDefinition)) {
-                return 'Closure';
-            }
-
-            return 'Unknown';
+            return 'Closure';
         }
     }
 

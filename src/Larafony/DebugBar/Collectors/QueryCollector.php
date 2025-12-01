@@ -7,12 +7,11 @@ namespace Larafony\Framework\DebugBar\Collectors;
 use Larafony\Framework\DebugBar\Contracts\DataCollectorContract;
 use Larafony\Framework\Events\Attributes\Listen;
 use Larafony\Framework\Events\Database\QueryExecuted;
+use Larafony\Framework\Events\Database\StackFrameDto;
 
 final class QueryCollector implements DataCollectorContract
 {
-    /**
-     * @var array<int, array{sql: string, rawSql: string, time: float, connection: string, backtrace: array<int, array{file?: string, line?: int, class?: string, function?: string, compiled_file?: string, compiled_line?: int}>}>
-     */
+    /** @var array<int, QueryInfoDto> */
     private array $queries = [];
 
     private float $totalTime = 0.0;
@@ -20,17 +19,18 @@ final class QueryCollector implements DataCollectorContract
     #[Listen]
     public function onQueryExecuted(QueryExecuted $event): void
     {
-        $this->queries[] = [
-            'sql' => $event->sql,
-            'rawSql' => $event->rawSql,
-            'time' => $event->time,
-            'connection' => $event->connection,
-            'backtrace' => $event->backtrace
-                |> (static fn (array $backtrace) => array_filter(
-                    $backtrace,
-                    static fn (array $line) => ! str_contains($line['file'], 'Larafony')
-                )),
-        ];
+        $backtrace = array_values(array_filter(
+            $event->backtrace,
+            static fn (StackFrameDto $frame) => ! $frame->containsPath('Larafony'),
+        ));
+
+        $this->queries[] = new QueryInfoDto(
+            sql: $event->sql,
+            rawSql: $event->rawSql,
+            time: $event->time,
+            connection: $event->connection,
+            backtrace: $backtrace,
+        );
 
         $this->totalTime += $event->time;
     }

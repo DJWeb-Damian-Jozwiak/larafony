@@ -6,6 +6,7 @@ namespace Larafony\Framework\Database\Drivers\MySQL;
 
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Events\Database\QueryExecuted;
+use Larafony\Framework\Events\Database\StackFrameDto;
 use Larafony\Framework\View\BladeSourceMapper;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
@@ -42,16 +43,9 @@ final class QueryEventDispatcher
     }
 
     /**
-     * @param mixed $file
-     * @param mixed $line
-     * @param mixed $compiledFile
-     * @param mixed $compiledLine
-     *
-     * @return array<int, string>
-     *
-     * @throws \JsonException
+     * @return array{compiledFile: ?string, compiledLine: ?int, file: ?string, line: ?int}
      */
-    public function handleCached(mixed $file, mixed $line, mixed $compiledFile, mixed $compiledLine): array
+    public function handleCached(?string $file, ?int $line, ?string $compiledFile, ?int $compiledLine): array
     {
         if ($file !== null && $line !== null && str_contains($file, '/cache/blade/')) {
             $compiledFile = $file;
@@ -63,7 +57,12 @@ final class QueryEventDispatcher
                 $line = $resolved['line'];
             }
         }
-        return [$compiledFile, $compiledLine, $file, $line];
+        return [
+            'compiledFile' => $compiledFile,
+            'compiledLine' => $compiledLine,
+            'file' => $file,
+            'line' => $line,
+        ];
     }
 
     private function getEventDispatcher(): ?EventDispatcherInterface
@@ -83,14 +82,14 @@ final class QueryEventDispatcher
         $rawSql = $sql;
         foreach ($params as $param) {
             $value = $quoteCallback($param);
-            $rawSql = preg_replace('/\?/', $value, $rawSql, 1);
+            $rawSql = (string) preg_replace('/\?/', $value, $rawSql, 1);
         }
 
         return $rawSql;
     }
 
     /**
-     * @return array<int, array{file: ?string, line: ?int, class: ?string, function: ?string, compiled_file: ?string, compiled_line: ?int}>
+     * @return array<int, StackFrameDto>
      */
     private function buildBacktrace(): array
     {
@@ -104,29 +103,26 @@ final class QueryEventDispatcher
 
     /**
      * @param array{file?: string, line?: int, class?: string, function?: string} $frame
-     *
-     * @return array{file: ?string, line: ?int, class: ?string, function: ?string, compiled_file: ?string, compiled_line: ?int}
      */
-    private function formatBacktraceFrame(array $frame): array
+    private function formatBacktraceFrame(array $frame): StackFrameDto
     {
         $file = $frame['file'] ?? null;
         $line = $frame['line'] ?? null;
-        $compiledFile = null;
-        $compiledLine = null;
 
-        [$compiledFile, $compiledLine, $file, $line] = $this->handleCached($file, $line, $compiledFile, $compiledLine);
+        $cached = $this->handleCached($file, $line, null, null);
 
+        $file = $cached['file'];
         if ($file !== null && str_starts_with($file, $this->projectRoot)) {
             $file = substr($file, strlen($this->projectRoot));
         }
 
-        return [
-            'file' => $file,
-            'line' => $line,
-            'class' => $frame['class'] ?? null,
-            'function' => $frame['function'] ?? null,
-            'compiled_file' => $compiledFile,
-            'compiled_line' => $compiledLine,
-        ];
+        return new StackFrameDto(
+            file: $file,
+            line: $cached['line'],
+            class: $frame['class'] ?? null,
+            function: $frame['function'] ?? null,
+            compiledFile: $cached['compiledFile'],
+            compiledLine: $cached['compiledLine'],
+        );
     }
 }

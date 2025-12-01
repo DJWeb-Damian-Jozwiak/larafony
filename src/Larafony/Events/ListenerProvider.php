@@ -10,7 +10,7 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 final class ListenerProvider implements ListenerProviderInterface
 {
     /**
-     * @var array<class-string, array<int, array<callable|array{class-string, string}>>>
+     * @var array<class-string, array<int, array<int, callable|array{class-string|object, string}>>>
      */
     private array $listeners = [];
 

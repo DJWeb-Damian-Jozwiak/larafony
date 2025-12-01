@@ -9,6 +9,14 @@ use Larafony\Framework\Container\Contracts\ServiceProviderContract;
 
 abstract class ServiceProvider implements ServiceProviderContract
 {
+    /**
+     * @return array<int|string, class-string>
+     */
+    public function providers(): array
+    {
+        return [];
+    }
+
     public function register(ContainerContract $container): self
     {
         foreach ($this->providers() as $key => $class) {
@@ -17,6 +25,7 @@ abstract class ServiceProvider implements ServiceProviderContract
         }
         return $this;
     }
+
     public function boot(ContainerContract $container): void
     {
         if (! $container->has($this::class)) {

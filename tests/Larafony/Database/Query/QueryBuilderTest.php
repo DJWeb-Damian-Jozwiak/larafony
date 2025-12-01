@@ -17,6 +17,14 @@ class QueryBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(ConnectionContract::class);
+        $this->connection->method('quote')->willReturnCallback(
+            fn (int|float|string|bool|null $value): string => match (true) {
+                is_string($value) => "'" . addslashes($value) . "'",
+                is_bool($value) => $value ? '1' : '0',
+                is_null($value) => 'NULL',
+                default => (string) $value,
+            }
+        );
         $this->builder = new QueryBuilder($this->connection);
     }
 
@@ -207,7 +215,7 @@ class QueryBuilderTest extends TestCase
 
         $expected = 'SELECT users.id, users.name, profiles.bio FROM users ' .
             'LEFT JOIN profiles ON users.id = profiles.user_id ' .
-            'WHERE users.status = \'active\' and (users.age > 10 or users.verified = 1) and users.email_verified_at IS NOT NULL ' .
+            'WHERE users.status = \'active\' and (users.age > 18 or users.verified = 1) and users.email_verified_at IS NOT NULL ' .
             'ORDER BY `users.created_at` DESC LIMIT 10 OFFSET 20';
 
         $this->assertSame($expected, $builder->toRawSql());

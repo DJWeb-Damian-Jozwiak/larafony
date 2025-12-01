@@ -9,7 +9,7 @@ use Larafony\Framework\View\Contracts\DirectiveContract;
 class TemplateCompiler
 {
     /**
-     * @var array<int, string> Map of compiled line number => original content
+     * @var array<int, int> Map of compiled line number => original line number
      */
     public private(set) array $lineMapping = [];
 
@@ -100,23 +100,52 @@ class TemplateCompiler
 
     private function buildFinalMapping(string $original, string $compiled): void
     {
-        $originalLines = explode("\n", $original)
-            |> (static fn ($lines) => array_filter($lines, static fn ($line) => trim($line) !== ''));
-        $compiledLines = explode("\n", $compiled)
-            |> (static fn ($lines) => array_filter($lines, static fn ($line) => str_contains($line, '<?php')));
+        $originalLines = $this->filterNonEmptyLines($original);
+        $compiledLines = $this->filterPhpLines($compiled);
         $this->lineMapping = [];
+
+        if ($originalLines === [] || $compiledLines === []) {
+            return;
+        }
+
         foreach ($compiledLines as $compiledNum => $compiledLine) {
-            $compliedClean = trim($compiledLine);
-            $similarity = [];
-            foreach ($originalLines as $originalNum => $originalLine) {
-                $originalLine = trim($originalLine);
-                $similarity[$originalNum] = similar_text($compliedClean, $originalLine);
-            }
-            $max = max($similarity);
-            $matchingLine = array_search($max, $similarity);
-            if (! in_array($matchingLine, $this->lineMapping, true)) {
-                $this->lineMapping[$compiledNum] = $matchingLine;
-            }
+            $this->mapCompiledLine($compiledNum, $compiledLine, $originalLines);
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function filterNonEmptyLines(string $content): array
+    {
+        return array_filter(explode("\n", $content), static fn ($line) => trim($line) !== '');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function filterPhpLines(string $content): array
+    {
+        return array_filter(explode("\n", $content), static fn ($line) => str_contains($line, '<?php'));
+    }
+
+    /**
+     * @param array<int, string> $originalLines
+     */
+    private function mapCompiledLine(int $compiledNum, string $compiledLine, array $originalLines): void
+    {
+        $compliedClean = trim($compiledLine);
+        $similarity = [];
+        foreach ($originalLines as $originalNum => $originalLine) {
+            $similarity[$originalNum] = similar_text($compliedClean, trim($originalLine));
+        }
+        if ($similarity === []) {
+            return;
+        }
+        $max = max($similarity);
+        $matchingLine = array_search($max, $similarity, true);
+        if ($matchingLine !== false && ! in_array($matchingLine, $this->lineMapping, true)) {
+            $this->lineMapping[$compiledNum] = (int) $matchingLine;
         }
     }
 }

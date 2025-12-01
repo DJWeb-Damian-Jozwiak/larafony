@@ -10,8 +10,10 @@ use Larafony\Framework\Mail\Envelope;
 use Larafony\Framework\Mail\Mailable;
 use Larafony\Framework\Mail\MailerFactory;
 use Larafony\Framework\Mail\Transport\SmtpConnection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('integration')]
 class MailerIntegrationTest extends TestCase
 {
     private function isMailHogRunning(): bool

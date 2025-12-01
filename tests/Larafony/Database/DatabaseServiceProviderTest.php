@@ -9,9 +9,10 @@ use Larafony\Framework\Console\Application;
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\DatabaseManager;
 use Larafony\Framework\Database\ServiceProviders\DatabaseServiceProvider;
-use Larafony\Framework\ErrorHandler\ServiceProviders\ErrorHandlerServiceProvider;
 use Larafony\Framework\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
 class DatabaseServiceProviderTest extends TestCase
 {
     public function testDatabaseServiceProvider(): void
@@ -20,7 +21,6 @@ class DatabaseServiceProviderTest extends TestCase
         $app = Application::instance($basePath);
         $app->withServiceProviders([
             ConfigServiceProvider::class,
-            //ErrorHandlerServiceProvider::class,
             DatabaseServiceProvider::class
         ]);
         $manager = $app->get(DatabaseManager::class);

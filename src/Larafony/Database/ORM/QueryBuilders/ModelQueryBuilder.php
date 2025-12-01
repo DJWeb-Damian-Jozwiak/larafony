@@ -196,7 +196,7 @@ class ModelQueryBuilder
         $result = $this->builder->first();
         $model = $result ? $this->hydrate($result) : null;
 
-        if ($model !== null && ! $this->eagerLoad !== []) {
+        if ($model !== null && $this->eagerLoad !== []) {
             $loader = new EagerRelationsLoader();
             $loader->load([$model], $this->eagerLoad);
         }

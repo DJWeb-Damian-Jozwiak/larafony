@@ -21,7 +21,7 @@ class RelationDecorator
     private array $relations = [];
 
     /**
-     * @var array<string, Model|array<int|string, mixed>>
+     * @var array<string, Model|array<int|string, mixed>|null>
      */
     private array $relationsCache = [];
 
