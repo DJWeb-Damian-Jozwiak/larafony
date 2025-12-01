@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\View;
 
-use Larafony\Framework\Web\Application;
 use Larafony\Framework\Events\View\ViewRendered;
 use Larafony\Framework\Http\Response;
 use Larafony\Framework\View\Contracts\RendererContract;
 use Larafony\Framework\View\Contracts\ViewContract;
+use Larafony\Framework\Web\Application;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 

@@ -42,6 +42,5 @@ final class RouteCollector implements DataCollectorContract
 
     private function formatAction(mixed $action): string
     {
-
     }
 }

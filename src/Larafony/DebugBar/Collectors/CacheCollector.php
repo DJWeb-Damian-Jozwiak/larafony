@@ -87,7 +87,7 @@ final class CacheCollector implements DataCollectorContract
             'total' => count($this->operations),
             'total_size' => $this->totalSize,
             'hit_ratio' => $this->hits + $this->misses > 0
-                ? round(($this->hits / ($this->hits + $this->misses)) * 100, 2)
+                ? round($this->hits / ($this->hits + $this->misses) * 100, 2)
                 : 0,
         ];
     }

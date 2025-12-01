@@ -32,7 +32,7 @@ class TemplateCompiler
 
         array_walk(
             array: $this->directives,
-            callback: function (DirectiveContract $directive) use (&$content): void {
+            callback: static function (DirectiveContract $directive) use (&$content): void {
                 $content = $directive->compile($content);
             }
         );
@@ -81,7 +81,7 @@ class TemplateCompiler
         if (preg_match_all('/^\s*use\s+[^;]+;/m', $content, $matches)) {
             foreach ($matches[0] as $useStatement) {
                 $trimmed = trim($useStatement);
-                if (!in_array($trimmed, $useStatements, true)) {
+                if (! in_array($trimmed, $useStatements, true)) {
                     $useStatements[] = $trimmed;
                 }
                 // Remove the use statement from its current location
@@ -90,7 +90,7 @@ class TemplateCompiler
         }
 
         // If we found any use statements, prepend them to the content
-        if (!empty($useStatements)) {
+        if ($useStatements !== []) {
             $useBlock = "<?php\n" . implode("\n", $useStatements) . "\n?>\n";
             $content = $useBlock . $content;
         }
@@ -105,21 +105,16 @@ class TemplateCompiler
         $compiledLines = explode("\n", $compiled)
             |> (static fn ($lines) => array_filter($lines, static fn ($line) => str_contains($line, '<?php')));
         $this->lineMapping = [];
-        foreach ($compiledLines as $compiledNum => $compiledLine)
-        {
+        foreach ($compiledLines as $compiledNum => $compiledLine) {
             $compliedClean = trim($compiledLine);
             $similarity = [];
-            foreach ($originalLines as $originalNum => $originalLine)
-            {
+            foreach ($originalLines as $originalNum => $originalLine) {
                 $originalLine = trim($originalLine);
-                if ($originalLine === '') {
-                    continue;
-                }
                 $similarity[$originalNum] = similar_text($compliedClean, $originalLine);
             }
             $max = max($similarity);
             $matchingLine = array_search($max, $similarity);
-            if(!in_array($matchingLine, $this->lineMapping, true)) {
+            if (! in_array($matchingLine, $this->lineMapping, true)) {
                 $this->lineMapping[$compiledNum] = $matchingLine;
             }
         }

@@ -16,7 +16,7 @@ class DebugBarServiceProvider extends ServiceProvider
     public function boot(ContainerContract $container): void
     {
         $config = $container->get(ConfigContract::class);
-        if(!$config->get('debugbar.enabled', false)) {
+        if (! $config->get('debugbar.enabled', false)) {
             return;
         }
         $debugBar = new DebugBar();

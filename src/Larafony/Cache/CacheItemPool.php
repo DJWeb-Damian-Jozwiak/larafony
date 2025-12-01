@@ -57,9 +57,7 @@ class CacheItemPool implements CacheItemPoolInterface
         $this->dispatcher?->dispatch(new CacheHit($key, $data['value'], $expiryTime));
 
         // Only set expiry if it exists (lazy creation of DateTimeImmutable)
-        if ($expiry !== null) {
-            $item->expiresAt(new \DateTimeImmutable('@' . $expiry));
-        }
+        $item->expiresAt($expiry);
 
         return $item;
     }

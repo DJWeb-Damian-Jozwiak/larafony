@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\DebugBar\Middleware;
 
-use Larafony\Framework\Log\Log;
-use Larafony\Framework\Web\Application;
 use Larafony\Framework\DebugBar\DebugBar;
 use Larafony\Framework\View\ViewManager;
+use Larafony\Framework\Web\Application;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -25,7 +24,6 @@ final readonly class InjectDebugBar implements MiddlewareInterface
     {
         $response = $handler->handle($request);
 
-
         if (! $this->debugBar->isEnabled()) {
             return $response;
         }
@@ -41,15 +39,7 @@ final readonly class InjectDebugBar implements MiddlewareInterface
     {
         $contentType = $response->getHeaderLine('Content-Type');
 
-        if (! str_contains($contentType, 'text/html')) {
-            return false;
-        }
-
-        if ($response->getStatusCode() >= 400) {
-            return false;
-        }
-
-        return true;
+        return str_contains($contentType, 'html') && $response->getStatusCode() < 400;
     }
 
     private function injectDebugBar(ResponseInterface $response): ResponseInterface

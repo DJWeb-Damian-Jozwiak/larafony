@@ -30,31 +30,6 @@ final class ViewCollector implements DataCollectorContract
         $this->totalTime += $event->renderTime;
     }
 
-    /**
-     * @param mixed $data
-     * @return mixed
-     */
-    private function serializeData(mixed $data): mixed
-    {
-        if (is_object($data)) {
-            return get_class($data) . ' (object)';
-        }
-
-        if (is_array($data)) {
-            $result = [];
-            foreach ($data as $key => $value) {
-                $result[$key] = $this->serializeData($value);
-            }
-            return $result;
-        }
-
-        if (is_string($data) && strlen($data) > 100) {
-            return substr($data, 0, 100) . '...';
-        }
-
-        return $data;
-    }
-
     public function collect(): array
     {
         return [
@@ -67,5 +42,24 @@ final class ViewCollector implements DataCollectorContract
     public function getName(): string
     {
         return 'views';
+    }
+
+    private function serializeData(mixed $data): mixed
+    {
+        if (is_object($data)) {
+            return $data::class . ' (object)';
+        }
+
+        if (is_array($data)) {
+            return array_map(function ($value) {
+                return $this->serializeData($value);
+            }, $data);
+        }
+
+        if (is_string($data) && strlen($data) > 100) {
+            return substr($data, 0, 100) . '...';
+        }
+
+        return $data;
     }
 }

@@ -35,7 +35,7 @@ class EagerRelationsLoader
      */
     protected function loadRelation(array $models, string $relationName, array $nested): void
     {
-        if (empty($models)) {
+        if ($models === []) {
             return;
         }
 
@@ -58,7 +58,7 @@ class EagerRelationsLoader
             $relation instanceof BelongsToMany => new BelongsToManyLoader(),
             $relation instanceof HasManyThrough => new HasManyThroughLoader(),
             $relation instanceof HasMany => new HasManyLoader(),
-            default => throw new \RuntimeException('Unsupported relation type: ' . get_class($relation)),
+            default => throw new \RuntimeException('Unsupported relation type: ' . $relation::class),
         };
     }
 }

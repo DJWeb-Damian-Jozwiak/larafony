@@ -7,90 +7,138 @@ namespace Larafony\Framework\Database\ORM\EagerLoading;
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\DB;
 use Larafony\Framework\Database\ORM\Model;
+use Larafony\Framework\Database\ORM\QueryBuilders\ModelQueryBuilder;
 use Larafony\Framework\Database\ORM\Relations\HasManyThrough;
 
-class HasManyThroughLoader implements RelationLoaderContract
+class HasManyThroughLoader extends BaseRelationLoader
 {
-    public function load(array $models, string $relationName, RelationContract $relation, array $nested): void
+    public function load(
+        array $models,
+        string $relationName,
+        RelationContract|HasManyThrough $relation,
+        array $nested
+    ): void {
+        $this->initReflection($relation);
+
+        $config = $this->extractRelationConfig($relation);
+        $parentIds = $this->collectKeyValues($models, $config['localKey']);
+
+        if ($parentIds === []) {
+            return;
+        }
+
+        $throughModels = $this->loadThroughModels($config, $parentIds);
+
+        if ($throughModels === []) {
+            $this->assignEmptyRelations($models, $relationName);
+
+            return;
+        }
+
+        $throughIds = array_unique(array_column($throughModels, $config['secondLocalKey']));
+        $relatedModels = $this->loadRelatedModels($config, $throughIds, $nested);
+        $relatedDictionary = $this->groupModelsBy($relatedModels, $config['secondKey']);
+        $throughDictionary = $this->buildThroughDictionary($throughModels, $config, $relatedDictionary);
+
+        $this->matchModels($models, $relationName, $throughDictionary, $config['localKey']);
+    }
+
+    /**
+     * @return array{relatedClass: class-string<Model>, throughClass: class-string<Model>, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string}
+     */
+    private function extractRelationConfig(HasManyThrough $relation): array
     {
-        /** @var HasManyThrough $relation */
-        $reflection = new \ReflectionClass($relation);
+        /** @var class-string<Model> $relatedClass */
+        $relatedClass = $this->getPropertyValue($relation, 'related');
+        /** @var class-string<Model> $throughClass */
+        $throughClass = $this->getPropertyValue($relation, 'through');
 
-        $relatedClass = $this->getPropertyValue($reflection, $relation, 'related');
-        $throughClass = $this->getPropertyValue($reflection, $relation, 'through');
-        $firstKey = $this->getPropertyValue($reflection, $relation, 'first_key');
-        $secondKey = $this->getPropertyValue($reflection, $relation, 'second_key');
-        $localKey = $this->getPropertyValue($reflection, $relation, 'local_key');
-        $secondLocalKey = $this->getPropertyValue($reflection, $relation, 'second_local_key');
+        return [
+            'relatedClass' => $relatedClass,
+            'throughClass' => $throughClass,
+            'firstKey' => $this->getPropertyValue($relation, 'first_key'),
+            'secondKey' => $this->getPropertyValue($relation, 'second_key'),
+            'localKey' => $this->getPropertyValue($relation, 'local_key'),
+            'secondLocalKey' => $this->getPropertyValue($relation, 'second_local_key'),
+        ];
+    }
 
-        // Collect parent IDs
-        $parentIds = array_filter(
-            array_map(fn ($model) => $model->$localKey ?? null, $models)
-        );
+    /**
+     * @param array{relatedClass: class-string<Model>, throughClass: class-string<Model>, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string} $config
+     * @param array<mixed> $parentIds
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadThroughModels(array $config, array $parentIds): array
+    {
+        $throughTable = $config['throughClass']::getTable();
 
-        if (empty($parentIds)) {
-            return;
-        }
-
-        // Load through models
-        $throughTable = $throughClass::getTable();
-        $throughModels = DB::table($throughTable)
-            ->whereIn($firstKey, array_unique($parentIds))
+        return DB::table($throughTable)
+            ->whereIn($config['firstKey'], array_unique($parentIds))
             ->get();
+    }
 
-        if (empty($throughModels)) {
-            foreach ($models as $model) {
-                $model->relations->withEagerRelation($relationName, []);
-            }
+    /**
+     * @param array{relatedClass: class-string<Model>, throughClass: class-string<Model>, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string} $config
+     * @param array<mixed> $throughIds
+     * @param array<string> $nested
+     *
+     * @return array<int, Model>
+     */
+    private function loadRelatedModels(array $config, array $throughIds, array $nested): array
+    {
+        /** @var ModelQueryBuilder $query */
+        $query = new $config['relatedClass']()->query_builder->whereIn($config['secondKey'], $throughIds);
+
+        return $this->buildQueryWithNested($query, $nested)->get();
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $throughModels
+     * @param array{relatedClass: class-string<Model>, throughClass: class-string<Model>, firstKey: string, secondKey: string, localKey: string, secondLocalKey: string} $config
+     * @param array<mixed, array<int, Model>> $relatedDictionary
+     *
+     * @return array<mixed, array<int, Model>>
+     */
+    private function buildThroughDictionary(array $throughModels, array $config, array $relatedDictionary): array
+    {
+        $dictionary = [];
+        foreach ($throughModels as $through) {
+            $parentId = $through[$config['firstKey']];
+            $throughId = $through[$config['secondLocalKey']];
+            $dictionary[$parentId] ??= [];
+
+            $this->appendRelatedModels($dictionary, $parentId, $relatedDictionary, $throughId);
+        }
+
+        return $dictionary;
+    }
+
+    /**
+     * @param array<mixed, array<int, Model>> $dictionary
+     * @param array<mixed, array<int, Model>> $relatedDictionary
+     */
+    private function appendRelatedModels(array &$dictionary, mixed $parentId, array $relatedDictionary, mixed $throughId): void
+    {
+        if (! isset($relatedDictionary[$throughId])) {
             return;
         }
 
-        // Collect through IDs
-        $throughIds = array_unique(array_column($throughModels, $secondLocalKey));
-
-        // Load related models
-        $query = (new $relatedClass())->query_builder->whereIn($secondKey, $throughIds);
-
-        // Support nested eager loading
-        if (!empty($nested)) {
-            $query->with($nested);
-        }
-
-        $relatedModels = $query->get();
-
-        // Index related models by second key
-        $relatedDictionary = [];
-        foreach ($relatedModels as $relatedModel) {
-            $key = $relatedModel->$secondKey;
-            $relatedDictionary[$key] = $relatedDictionary[$key] ?? [];
-            $relatedDictionary[$key][] = $relatedModel;
-        }
-
-        // Group through models by first key
-        $throughDictionary = [];
-        foreach ($throughModels as $through) {
-            $parentId = $through[$firstKey];
-            $throughId = $through[$secondLocalKey];
-            $throughDictionary[$parentId] = $throughDictionary[$parentId] ?? [];
-
-            if (isset($relatedDictionary[$throughId])) {
-                foreach ($relatedDictionary[$throughId] as $relatedModel) {
-                    $throughDictionary[$parentId][] = $relatedModel;
-                }
-            }
-        }
-
-        // Match related models to parent models
-        foreach ($models as $model) {
-            $parentId = $model->$localKey ?? null;
-            $related = $parentId !== null ? ($throughDictionary[$parentId] ?? []) : [];
-            $model->relations->withEagerRelation($relationName, $related);
+        foreach ($relatedDictionary[$throughId] as $relatedModel) {
+            $dictionary[$parentId][] = $relatedModel;
         }
     }
 
-    private function getPropertyValue(\ReflectionClass $reflection, object $object, string $propertyName): mixed
+    /**
+     * @param array<int, Model> $models
+     * @param array<mixed, array<int, Model>> $throughDictionary
+     */
+    private function matchModels(array $models, string $relationName, array $throughDictionary, string $localKey): void
     {
-        $property = $reflection->getProperty($propertyName);
-        return $property->getValue($object);
+        foreach ($models as $model) {
+            $parentId = $model->$localKey ?? null;
+            $related = $parentId !== null ? ($throughDictionary[$parentId] ?? []) : [];
+            $this->assignRelationToModel($model, $relationName, $related);
+        }
     }
 }

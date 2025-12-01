@@ -32,8 +32,7 @@ class RedisStorageFactory implements StorageFactoryContract
             }
         }
 
-        $db = $config['database'] ?? 0;
-        self::$redis->select($db);
+        self::$redis->select($config['database'] ?? 0);
 
         $storage = new RedisStorage(self::$redis, $config['prefix'] ?? 'cache:');
         $max_memory = $config['max_memory'] ?? 1024 ** 3;

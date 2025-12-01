@@ -183,7 +183,7 @@ class ModelQueryBuilder
         $results = $this->builder->get();
         $models = $this->hydrateMany($results);
 
-        if (!empty($this->eagerLoad)) {
+        if ($this->eagerLoad !== []) {
             $loader = new EagerRelationsLoader();
             $loader->load($models, $this->eagerLoad);
         }
@@ -196,7 +196,7 @@ class ModelQueryBuilder
         $result = $this->builder->first();
         $model = $result ? $this->hydrate($result) : null;
 
-        if ($model !== null && !empty($this->eagerLoad)) {
+        if ($model !== null && ! $this->eagerLoad !== []) {
             $loader = new EagerRelationsLoader();
             $loader->load([$model], $this->eagerLoad);
         }

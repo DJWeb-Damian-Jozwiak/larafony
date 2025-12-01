@@ -27,19 +27,12 @@ class BladeSourceMapper
             return null;
         }
 
-        $mapping = json_decode($mappingContent, true);
-        if (! is_array($mapping)) {
-            return null;
-        }
+        $mapping = json_decode($mappingContent, true, flags: JSON_THROW_ON_ERROR);
 
         // Get the original line number from mapping
         // $compiledLine is 1-indexed from backtrace, but map keys are 0-indexed
         $lineMapping = $mapping['lines'] ?? [];
-        $originalLineNum = $lineMapping[$compiledLine - 1] ?? null;
-
-        if ($originalLineNum === null) {
-            return null;
-        }
+        $originalLineNum = $lineMapping[$compiledLine - 1];
 
         // Get original file path
         $originalFile = $mapping['original'] ?? null;

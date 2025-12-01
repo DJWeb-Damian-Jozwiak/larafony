@@ -16,6 +16,7 @@ final class ByteFormatter
      *
      * @param int|float $bytes Number of bytes
      * @param int $precision Decimal precision (default: 2)
+     *
      * @return string Formatted string (e.g., "1.5 MB")
      */
     public static function format(int|float $bytes, int $precision = 2): string
@@ -29,6 +30,6 @@ final class ByteFormatter
 
         $value = $bytes / pow(1024, $power);
 
-        return round($value, $precision) . ' ' . self::UNITS[(int)$power];
+        return round($value, $precision) . ' ' . self::UNITS[(int) $power];
     }
 }

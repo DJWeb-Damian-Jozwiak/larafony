@@ -29,7 +29,7 @@ class DatabaseServiceProvider extends ServiceProvider
         $config = $configBase->get('database.connections', []);
         $defaultConnection = $configBase->get('database.default', 'mysql');
 
-        $manager = new DatabaseManager((array) $config)->defaultConnection($defaultConnection);
+        $manager = new DatabaseManager((array) $config, $container)->defaultConnection($defaultConnection);
 
         // Register in container
         $container->set(DatabaseManager::class, $manager);
