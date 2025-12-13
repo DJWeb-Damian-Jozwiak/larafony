@@ -85,46 +85,6 @@ $cache->tags(['users', 'statistics'])
 $cache->tags(['users'])->flush();
 ```
 
-### Cache Warming
-
-```php
-<?php
-
-use Larafony\Framework\Cache\Cache;
-
-// Register cache warmers (e.g., in bootstrap file)
-$cache = Cache::instance();
-$warmer = $cache->warmer();
-
-$warmer
-    ->register(
-        key: 'statistics.total_users',
-        callback: fn() => User::count(),
-        ttl: 3600,
-        tags: ['statistics', 'users']
-    )
-    ->register(
-        key: 'config.active_features',
-        callback: fn() => Config::get('features.enabled', []),
-        ttl: 7200,
-        tags: ['config']
-    )
-    ->register(
-        key: 'top.products',
-        callback: fn() => Product::orderBy('sales', 'desc')->limit(10)->get(),
-        ttl: 1800,
-        tags: ['products', 'statistics']
-    );
-
-// Warm all registered caches
-$result = $warmer->warmAll();
-// Result: ['total' => 3, 'warmed' => 3, 'skipped' => 0, 'failed' => 0]
-
-// Warm in batches (for large numbers of warmers)
-$result = $warmer->warmInBatches(batchSize: 10, force: false);
-// Result: ['total' => 3, 'warmed' => 2, 'skipped' => 1, 'failed' => 0, 'batches' => 1]
-```
-
 ### Cached Authorization
 
 ```php

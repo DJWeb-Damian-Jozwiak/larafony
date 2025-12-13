@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class ValidationResultTest extends TestCase
 {
-    public function test_can_create_empty_validation_result(): void
+    public function testCanCreateEmptyValidationResult(): void
     {
         $result = new ValidationResult();
 
@@ -19,7 +19,7 @@ class ValidationResultTest extends TestCase
         $this->assertEmpty($result->errors);
     }
 
-    public function test_can_add_error(): void
+    public function testCanAddError(): void
     {
         $result = new ValidationResult();
         $result->addError('email', 'Invalid email format');
@@ -34,7 +34,7 @@ class ValidationResultTest extends TestCase
         $this->assertSame('Invalid email format', $error->message);
     }
 
-    public function test_can_add_multiple_errors(): void
+    public function testCanAddMultipleErrors(): void
     {
         $result = new ValidationResult();
         $result->addError('email', 'Invalid email format');
@@ -46,7 +46,7 @@ class ValidationResultTest extends TestCase
         $this->assertCount(3, $result->errors);
     }
 
-    public function test_errors_property_is_readonly(): void
+    public function testErrorsPropertyIsReadonly(): void
     {
         $result = new ValidationResult();
 

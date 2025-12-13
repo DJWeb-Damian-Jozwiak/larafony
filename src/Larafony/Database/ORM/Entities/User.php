@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\ORM\Entities;
 
 use Larafony\Framework\Cache\Cache;
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany;
+use Larafony\Framework\Database\ORM\Attributes\CastUsing;
 use Larafony\Framework\Database\ORM\Model;
 
 class User extends Model
 {
-    public ?string $email {
+    public string $email {
         get => $this->email;
         set {
             $this->email = $value;
             $this->markPropertyAsChanged('email');
         }
     }
-    public ?string $username {
+    public string $username {
         get => $this->username;
         set {
             $this->username = $value;
@@ -68,6 +70,7 @@ class User extends Model
             $this->markPropertyAsChanged('is_active');
         }
     }
+    #[CastUsing(ClockFactory::parse(...))]
     public ?Clock $last_login_at {
         get => $this->last_login_at;
         set {
@@ -75,6 +78,7 @@ class User extends Model
             $this->markPropertyAsChanged('last_login_at');
         }
     }
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $created_at {
         get => $this->created_at;
         set {
@@ -82,6 +86,8 @@ class User extends Model
             $this->markPropertyAsChanged('created_at');
         }
     }
+
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $updated_at {
         get => $this->updated_at;
         set {
@@ -91,11 +97,26 @@ class User extends Model
     }
 
     /**
-     * @return array<Role>
+     * @var array<int, Role> $roles
      */
     #[BelongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')]
     public array $roles {
         get => $this->relations->getRelation('roles');
+        set => $this->syncRoles($value);
+    }
+
+    /**
+     * @param array<int, Role> $roles
+     *
+     * @return array<int, Role>
+     */
+    public function syncRoles(array $roles): array
+    {
+        /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
+        $relation = $this->relations->getRelationInstance('roles');
+        $roleIds = array_map(static fn (Role $role) => $role->id, $roles);
+        $relation->sync($roleIds);
+        return $roles;
     }
 
     public function addRole(Role $role): void
@@ -128,7 +149,7 @@ class User extends Model
         $roleNames = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            fn() => array_map(fn(Role $role) => $role->name, $this->roles)
+            fn () => array_map(static fn (Role $role) => $role->name, $this->roles),
         );
 
         return in_array($roleName, $roleNames, true);
@@ -141,7 +162,7 @@ class User extends Model
         $permissions = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            function() {
+            function () {
                 $allPermissions = [];
                 foreach ($this->roles as $role) {
                     foreach ($role->permissions as $permission) {
@@ -149,7 +170,7 @@ class User extends Model
                     }
                 }
                 return array_unique($allPermissions);
-            }
+            },
         );
 
         return in_array($permissionName, $permissions, true);
@@ -166,12 +187,4 @@ class User extends Model
         $cache->forget("user.{$this->id}.roles");
         $cache->forget("user.{$this->id}.permissions");
     }
-
-    protected array $casts = [
-        'password_reset_expires' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'last_login_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
 }

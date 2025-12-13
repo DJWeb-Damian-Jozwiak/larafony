@@ -8,11 +8,11 @@ class SwitchDirective extends Directive
 {
     public function compile(string $content): string
     {
-        $content = $this->compileSwitch($content);
-        $content = $this->compileCase($content);
-        $content = $this->compileDefault($content);
-        $content = $this->compileBreak($content);
-        return $this->compileEndSwitch($content);
+        return $content |> $this->compileSwitch(...)
+            |> $this->compileCase(...)
+            |> $this->compileDefault(...)
+            |> $this->compileBreak(...)
+            |> $this->compileEndSwitch(...);
     }
 
     public function compileSwitch(string $content): string

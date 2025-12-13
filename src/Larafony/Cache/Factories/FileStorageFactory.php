@@ -9,7 +9,6 @@ use Larafony\Framework\Cache\Storage\FileStorage;
 
 class FileStorageFactory implements StorageFactoryContract
 {
-
     public function create(array $config): FileStorage
     {
         $storage = new FileStorage($config['path']);

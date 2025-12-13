@@ -47,8 +47,12 @@ class CachedAuthorizationTest extends TestCase
         $storage = new FileStorage($this->tempDir);
         $pool = new CacheItemPool($storage);
 
-        $this->cache = new Cache();
+        $this->cache = new Cache($configMock);
         $this->cache->init($pool);
+
+        // Register cache in container for static access
+        $app->set(Cache::class, $this->cache);
+        Cache::withContainer($app);
     }
 
     protected function tearDown(): void

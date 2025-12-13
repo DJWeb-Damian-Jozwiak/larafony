@@ -6,55 +6,60 @@ namespace Larafony\Framework\Database\ORM\EagerLoading;
 
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\Model;
+use Larafony\Framework\Database\ORM\QueryBuilders\ModelQueryBuilder;
 use Larafony\Framework\Database\ORM\Relations\BelongsTo;
 
-class BelongsToLoader implements RelationLoaderContract
+class BelongsToLoader extends BaseRelationLoader
 {
-    public function load(array $models, string $relationName, RelationContract $relation, array $nested): void
-    {
-        /** @var BelongsTo $relation */
-        $reflection = new \ReflectionClass($relation);
+    public function load(
+        array $models,
+        string $relationName,
+        RelationContract|BelongsTo $relation,
+        array $nested
+    ): void {
+        $this->initReflection($relation);
 
-        $foreignKey = $this->getPropertyValue($reflection, $relation, 'foreign_key');
-        $localKey = $this->getPropertyValue($reflection, $relation, 'local_key');
-        $relatedClass = $this->getPropertyValue($reflection, $relation, 'related');
+        $foreignKey = $this->getPropertyValue($relation, 'foreign_key');
+        $localKey = $this->getPropertyValue($relation, 'local_key');
+        $relatedClass = $this->getPropertyValue($relation, 'related');
 
-        // Collect foreign key values
-        $foreignKeyValues = array_filter(
-            array_map(fn ($model) => $model->$foreignKey ?? null, $models)
-        );
+        $foreignKeyValues = $this->collectKeyValues($models, $foreignKey);
 
-        if (empty($foreignKeyValues)) {
+        if ($foreignKeyValues === []) {
             return;
         }
 
-        // Load related models
-        $query = new $relatedClass()->query_builder->whereIn($localKey, array_unique($foreignKeyValues));
+        $relatedModels = $this->loadRelatedModels($relatedClass, $localKey, $foreignKeyValues, $nested);
+        $dictionary = $this->indexModelsBy($relatedModels, $localKey);
 
-        // Support nested eager loading
-        if (!empty($nested)) {
-            $query->with($nested);
-        }
+        $this->matchModels($models, $relationName, $dictionary, $foreignKey);
+    }
 
-        $relatedModels = $query->get();
+    /**
+     * @param class-string<Model> $relatedClass
+     * @param array<mixed> $keyValues
+     * @param array<string> $nested
+     *
+     * @return array<int, Model>
+     */
+    private function loadRelatedModels(string $relatedClass, string $localKey, array $keyValues, array $nested): array
+    {
+        /** @var ModelQueryBuilder $query */
+        $query = new $relatedClass()->query_builder->whereIn($localKey, array_unique($keyValues));
 
-        // Index by local key
-        $dictionary = [];
-        foreach ($relatedModels as $relatedModel) {
-            $dictionary[$relatedModel->$localKey] = $relatedModel;
-        }
+        return $this->buildQueryWithNested($query, $nested)->get();
+    }
 
-        // Match related models to parent models
+    /**
+     * @param array<int, Model> $models
+     * @param array<mixed, Model> $dictionary
+     */
+    private function matchModels(array $models, string $relationName, array $dictionary, string $foreignKey): void
+    {
         foreach ($models as $model) {
             $fkValue = $model->$foreignKey ?? null;
             $relatedModel = $fkValue !== null ? ($dictionary[$fkValue] ?? null) : null;
-            $model->relations->withEagerRelation($relationName, $relatedModel);
+            $this->assignRelationToModel($model, $relationName, $relatedModel);
         }
-    }
-
-    private function getPropertyValue(\ReflectionClass $reflection, object $object, string $propertyName): mixed
-    {
-        $property = $reflection->getProperty($propertyName);
-        return $property->getValue($object);
     }
 }

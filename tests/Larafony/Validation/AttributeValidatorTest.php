@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 class AttributeValidatorTest extends TestCase
 {
-    public function test_validates_object_with_no_errors(): void
+    public function testValidatesObjectWithNoErrors(): void
     {
         $request = new class {
             #[Required, Email]
@@ -35,7 +35,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertEmpty($result->errors);
     }
 
-    public function test_collects_validation_errors(): void
+    public function testCollectsValidationErrors(): void
     {
         $request = new class {
             #[Required, Email]
@@ -57,7 +57,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertContains('password', $fields);
     }
 
-    public function test_validates_multiple_rules_per_field(): void
+    public function testValidatesMultipleRulesPerField(): void
     {
         $request = new class {
             #[Required, Email, MinLength(5)]
@@ -73,7 +73,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertGreaterThanOrEqual(1, count($result->errors));
     }
 
-    public function test_validates_with_conditional_rules(): void
+    public function testValidatesWithConditionalRules(): void
     {
         $request = new ConditionalRequest();
         $request->account_type = 'business';
@@ -87,7 +87,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertSame('company_name', $result->errors[0]->field);
     }
 
-    public function test_validates_with_custom_closures(): void
+    public function testValidatesWithCustomClosures(): void
     {
         $request = new PasswordConfirmationRequest();
         $request->password = 'secret123';
@@ -102,7 +102,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertSame('Passwords must match', $result->errors[0]->message);
     }
 
-    public function test_passes_field_name_to_validation_rules(): void
+    public function testPassesFieldNameToValidationRules(): void
     {
         $request = new class {
             public string $password = 'secret123';
@@ -117,7 +117,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertTrue($result->isValid());
     }
 
-    public function test_ignores_properties_without_validation_attributes(): void
+    public function testIgnoresPropertiesWithoutValidationAttributes(): void
     {
         $request = new class {
             #[Required]
@@ -135,7 +135,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertSame('validated_field', $result->errors[0]->field);
     }
 
-    public function test_validates_only_public_properties(): void
+    public function testValidatesOnlyPublicProperties(): void
     {
         $request = new class {
             #[Required]
@@ -156,7 +156,7 @@ class AttributeValidatorTest extends TestCase
         $this->assertSame('public_field', $result->errors[0]->field);
     }
 
-    public function test_extracts_data_from_object_properties(): void
+    public function testExtractsDataFromObjectProperties(): void
     {
         $request = new DataExtractionRequest();
         $request->field1 = 'value1';

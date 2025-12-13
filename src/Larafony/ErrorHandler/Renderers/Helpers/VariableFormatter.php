@@ -18,6 +18,9 @@ readonly class VariableFormatter
         };
     }
 
+    /**
+     * @param array<int|string, mixed> $args
+     */
     public function formatArgs(array $args): string
     {
         return implode(', ', array_map(

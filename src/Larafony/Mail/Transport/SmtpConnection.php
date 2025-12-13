@@ -4,22 +4,24 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Mail\Transport;
 
-use Larafony\Framework\Http\Helpers\Stream\StreamWrapper;
-use Larafony\Framework\Http\Stream;
 use Larafony\Framework\Mail\Exceptions\TransportError;
 
 /**
- * SMTP socket connection wrapper using Stream.
+ * SMTP socket connection wrapper.
  */
 final class SmtpConnection
 {
     public bool $isConnected {
-        get => ! $this->stream->eof();
+        get => ! $this->closed && is_resource($this->socket) && ! feof($this->socket);
     }
+    /** @var resource */
+    private mixed $socket;
 
-    private function __construct(
-        private Stream $stream
-    ) {
+    private bool $closed = false;
+
+    private function __construct(mixed $socket)
+    {
+        $this->socket = $socket;
     }
 
     public static function create(string $host, int $port, int $timeout = 30): self
@@ -37,32 +39,46 @@ final class SmtpConnection
 
         stream_set_timeout($resource, $timeout);
 
-        $stream = new Stream(new StreamWrapper($resource));
-
-        return new self($stream);
+        return new self($resource);
     }
 
     public function write(string $data): void
     {
-        $this->stream->write($data);
+        if (! $this->isConnected) {
+            throw new TransportError('Cannot write to closed connection');
+        }
+
+        fwrite($this->socket, $data);
     }
 
-    public function readLine(int $length = 515): string
+    /**
+     * @param int<0, max>|null $length
+     */
+    public function readLine(?int $length = 515): string
     {
-        // Read until newline or max length
-        $line = '';
-        while (! $this->stream->eof() && strlen($line) < $length) {
-            $char = $this->stream->read(1);
-            $line .= $char;
-            if ($char === "\n") {
-                break;
-            }
+        if (! $this->isConnected) {
+            return '';
         }
+
+        $line = fgets($this->socket, $length);
+
+        if ($line === false) {
+            return '';
+        }
+
         return $line;
     }
 
     public function close(): void
     {
-        $this->stream->close();
+        if ($this->closed) {
+            return;
+        }
+
+        $this->closed = true;
+
+        if (is_resource($this->socket)) {
+            fclose($this->socket);
+        }
     }
 }

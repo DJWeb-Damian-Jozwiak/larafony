@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM;
 
-use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Core\Support\Str;
+use Larafony\Framework\Database\ORM\Casters\AttributeCaster;
+use Larafony\Framework\Database\ORM\Contracts\AttributeCasterContract;
 use Larafony\Framework\Database\ORM\Contracts\PropertyChangesContract;
 use Larafony\Framework\Database\ORM\Decorators\EntityManager;
 use Larafony\Framework\Database\ORM\QueryBuilders\ModelQueryBuilder;
@@ -15,7 +16,6 @@ use LogicException;
 
 abstract class Model implements PropertyChangesContract, \JsonSerializable
 {
-    protected ?string $_table = null;
     public string $table {
         get => $this->_table ?? ($this::class |> Str::classBasename(...) |> Str::snake(...) |> Str::pluralize(...));
     }
@@ -39,14 +39,13 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     }
 
     public private(set) RelationDecorator $relations;
+    protected ?string $_table = null;
 
-    /**
-     * @var array<string, string>
-     */
-    protected array $casts = [];
     private RelationFactory $relation_factory;
 
     private EntityManager $entity_manager;
+
+    private AttributeCasterContract $attribute_caster;
 
     final public function __construct()
     {
@@ -55,6 +54,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
         $this->entity_manager = new EntityManager($this);
         $this->relation_factory = new RelationFactory();
         $this->relations = new RelationDecorator($this);
+        $this->attribute_caster = new AttributeCaster();
     }
 
     /**
@@ -67,6 +67,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
         $this->entity_manager = new EntityManager($this);
         $this->relation_factory = new RelationFactory();
         $this->relations = new RelationDecorator($this);
+        $this->attribute_caster = new AttributeCaster();
     }
 
     /**
@@ -84,7 +85,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
      *
      * @throws LogicException Always thrown to prevent direct serialization
      */
-    public function jsonSerialize(): array
+    final public function jsonSerialize(): array
     {
         $msg = 'Direct serialization of models is not allowed. Use a Data Transfer Object (DTO) for serialization';
         throw new LogicException($msg);
@@ -119,9 +120,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
             if (! property_exists($this, $key)) {
                 continue;
             }
-            if (isset($this->casts[$key]) && $value !== null) {
-                $value = $this->castAttribute($value, $this->casts[$key]);
-            }
+            $value = $this->attribute_caster->cast($value, $key, $this);
             $this->$key = $value;
         }
         return $this;
@@ -138,7 +137,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     /**
      * @return array<string, mixed>
      */
-    public function toArray (): array
+    public function toArray(): array
     {
         return $this->observer->changedProperties;
     }
@@ -156,15 +155,5 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
     public static function getTable(): string
     {
         return new static()->table;
-    }
-
-    protected function castAttribute(mixed $value, string $type): mixed
-    {
-        return match (true) {
-            $type === 'datetime' => ClockFactory::parse($value),
-            is_subclass_of($type, \BackedEnum::class) => $type::from($value),
-            is_subclass_of($type, Contracts\Castable::class) => $type::from($value),
-            default => $value,
-        };
     }
 }

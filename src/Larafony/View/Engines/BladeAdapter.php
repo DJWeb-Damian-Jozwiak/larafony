@@ -199,7 +199,10 @@ class BladeAdapter extends BaseAdapter implements RendererContract
         ];
 
         $mapping_file = $cached_file . '.map.json';
-        File::create($mapping_file, json_encode($mapping, JSON_PRETTY_PRINT));
+        $json = json_encode($mapping, JSON_PRETTY_PRINT);
+        if ($json !== false) {
+            File::create($mapping_file, $json);
+        }
     }
 
     /**

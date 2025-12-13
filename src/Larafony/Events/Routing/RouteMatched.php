@@ -9,6 +9,9 @@ use Larafony\Framework\Routing\Advanced\Route;
 
 final readonly class RouteMatched
 {
+    /**
+     * @var array<string, mixed> $parameters
+     */
     public array $parameters;
     /**
      * @param array<string, mixed> $parameters
@@ -19,7 +22,7 @@ final readonly class RouteMatched
     ) {
         $result = [];
         foreach ($parameters as $key => $value) {
-            if($value instanceof Model) {
+            if ($value instanceof Model) {
                 $result[$key] = $value->toArray();
             } else {
                 $result[$key] = $value;

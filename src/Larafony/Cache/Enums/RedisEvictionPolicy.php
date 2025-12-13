@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Larafony\Framework\Cache\Enums;
 
 enum RedisEvictionPolicy: string

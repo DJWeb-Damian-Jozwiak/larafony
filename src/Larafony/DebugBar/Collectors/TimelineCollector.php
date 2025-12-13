@@ -30,7 +30,7 @@ final class TimelineCollector implements DataCollectorContract
 
     public function __construct()
     {
-        if(defined('APPLICATION_START')) {
+        if (defined('APPLICATION_START')) {
             $this->startTime = APPLICATION_START;
         } else {
             $this->startTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true);
@@ -82,9 +82,26 @@ final class TimelineCollector implements DataCollectorContract
     public function onViewRendered(ViewRendered $event): void
     {
         $now = microtime(true);
-        $start = $this->pendingMeasures['view_' . $event->view] ?? ($now - ($event->renderTime / 1000));
+        $start = $this->pendingMeasures['view_' . $event->view] ?? $now - ($event->renderTime / 1000);
         unset($this->pendingMeasures['view_' . $event->view]);
         $this->addEvent("View Rendered: {$event->view}", $start, $now, 'view');
+    }
+
+    public function collect(): array
+    {
+        // Sort events by start time
+        usort($this->events, static fn ($a, $b) => $a['start'] <=> $b['start']);
+
+        return [
+            'events' => $this->events,
+            'total_time' => round((microtime(true) - $this->startTime) * 1000, 2),
+            'start_time' => $this->startTime,
+        ];
+    }
+
+    public function getName(): string
+    {
+        return 'timeline';
     }
 
     private function addEvent(string $label, float $start, float $end, string $type): void
@@ -97,22 +114,5 @@ final class TimelineCollector implements DataCollectorContract
             'memory' => memory_get_usage(),
             'type' => $type,
         ];
-    }
-
-    public function collect(): array
-    {
-        // Sort events by start time
-        usort($this->events, fn($a, $b) => $a['start'] <=> $b['start']);
-
-        return [
-            'events' => $this->events,
-            'total_time' => round((microtime(true) - $this->startTime) * 1000, 2),
-            'start_time' => $this->startTime,
-        ];
-    }
-
-    public function getName(): string
-    {
-        return 'timeline';
     }
 }

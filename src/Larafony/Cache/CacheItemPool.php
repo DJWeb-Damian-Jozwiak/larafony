@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Cache;
 
-use DateTimeImmutable;
 use Larafony\Framework\Cache\Contracts\StorageContract;
 use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Events\Cache\CacheHit;
 use Larafony\Framework\Events\Cache\CacheMissed;
+use Larafony\Framework\Events\Cache\KeyForgotten;
 use Larafony\Framework\Events\Cache\KeyWritten;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -27,44 +27,9 @@ class CacheItemPool implements CacheItemPoolInterface
     ) {
     }
 
-    /**
-     * Validate cache key according to PSR-6 specification
-     *
-     * @param string $key
-     * @return void
-     * @throws \Psr\Cache\InvalidArgumentException
-     */
-    private function validateKey(string $key): void
-    {
-        // PSR-6: Key MUST NOT contain: {}()/\@:
-        if (preg_match('/[{}()\\/\\\\@:]/', $key)) {
-            throw new \InvalidArgumentException(
-                "Cache key \"$key\" contains invalid characters. " .
-                "Reserved characters are: {}()/\\@:"
-            );
-        }
-
-        // Reasonable length limit
-        if (strlen($key) > 64) {
-            throw new \InvalidArgumentException(
-                "Cache key \"$key\" is too long (max 64 characters)"
-            );
-        }
-
-        // Must not be empty
-        if ($key === '') {
-            throw new \InvalidArgumentException(
-                "Cache key cannot be empty"
-            );
-        }
-    }
-
     public function getItem(string $key): CacheItemInterface
     {
-        $this->validateKey($key);
-        if (isset($this->deferred[$key])) {
-            return $this->deferred[$key];
-        }
+        new CacheItemKeyValidator()->validate($key);
         $item = new CacheItem($key);
         $data = $this->storage->get($key);
 
@@ -88,23 +53,26 @@ class CacheItemPool implements CacheItemPoolInterface
         $item->set($data['value'])->withIsHit(true);
 
         // Get expiry as DateTimeImmutable for the event
-        $expiryTime = $expiry !== null ? new DateTimeImmutable('@' . $expiry) : null;
+        $expiryTime = $expiry !== null ? new \DateTimeImmutable('@' . $expiry) : null;
 
         $this->dispatcher?->dispatch(new CacheHit($key, $data['value'], $expiryTime));
 
-        // Only set expiry if it exists (lazy creation of DateTimeImmutable)
-        if ($expiry !== null) {
-            $item->expiresAt(new DateTimeImmutable('@' . $expiry));
-        }
+        // Only set expiry if it exists
+        $item->expiresAt($expiryTime);
 
         return $item;
     }
 
+    /**
+     * @param array<int, string> $keys
+     *
+     * @return iterable<string, CacheItemInterface>
+     */
     public function getItems(array $keys = []): iterable
     {
         $items = [];
         foreach ($keys as $key) {
-            $this->validateKey($key);
+            new CacheItemKeyValidator()->validate($key);
             $items[$key] = $this->getItem($key);
         }
         return $items;
@@ -112,7 +80,7 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function hasItem(string $key): bool
     {
-        $this->validateKey($key);
+        new CacheItemKeyValidator()->validate($key);
         return $this->getItem($key)->isHit();
     }
 
@@ -124,29 +92,31 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function deleteItem(string $key): bool
     {
-        $this->validateKey($key);
+        new CacheItemKeyValidator()->validate($key);
         unset($this->deferred[$key]);
-        return $this->storage->delete($key);
+        $result = $this->storage->delete($key);
+
+        if ($result) {
+            $this->dispatcher?->dispatch(new KeyForgotten($key));
+        }
+
+        return $result;
     }
 
+    /**
+     * @param array<int, string> $keys
+     */
     public function deleteItems(array $keys): bool
     {
-        $success = true;
-        foreach ($keys as $key) {
-            $this->validateKey($key);
-            if (!$this->deleteItem($key)) {
-                $success = false;
-            }
-        }
-        return $success;
+        array_walk($keys, static fn ($key) => new CacheItemKeyValidator()->validate($key));
+        return array_all($keys, fn ($key) => $this->deleteItem($key));
     }
 
     public function save(CacheItemInterface $item): bool
     {
         $expiry = null;
-        if (property_exists($item, 'expiry')) {
-            $expiryObj = $item->expiry;
-            $expiry = $expiryObj?->getTimestamp();
+        if ($item instanceof CacheItem) {
+            $expiry = $item->expiry?->getTimestamp();
         }
 
         $data = [
@@ -176,7 +146,7 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function commit(): bool
     {
-        if (array_any($this->deferred, fn($item) => !$this->save($item))) {
+        if (array_any($this->deferred, fn ($item) => ! $this->save($item))) {
             return false;
         }
         $this->deferred = [];

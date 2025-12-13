@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database;
 
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\Base\Query\QueryBuilder as BaseQueryBuilder;
 use Larafony\Framework\Database\Base\Schema\SchemaBuilder;
 use Larafony\Framework\Database\Drivers\MySQL\Connection;
 use Larafony\Framework\Database\Drivers\MySQL\QueryBuilder as MySQLQueryBuilder;
+use Larafony\Framework\Database\Drivers\MySQL\QueryEventDispatcher;
 use Larafony\Framework\Database\Drivers\MySQL\SchemaBuilder as MySQLSchemaBuilder;
 
 class DatabaseManager
@@ -23,8 +25,10 @@ class DatabaseManager
     /**
      * @param array<string, array<string, mixed>> $config
      */
-    public function __construct(protected array $config = [])
-    {
+    public function __construct(
+        protected array $config = [],
+        protected ?ContainerContract $container = null,
+    ) {
     }
 
     /**
@@ -107,7 +111,7 @@ class DatabaseManager
      *
      * @param array<string, mixed> $config
      */
-    protected static function createMySQLConnection(array $config): ConnectionContract
+    protected function createMySQLConnection(array $config): ConnectionContract
     {
         $connection = new Connection(
             host: $config['host'] ?? 'localhost',
@@ -119,6 +123,12 @@ class DatabaseManager
         );
 
         $connection->connect();
+
+        if ($this->container !== null) {
+            $projectRoot = $this->container->getBinding('base_path') . '/';
+            $dispatcher = new QueryEventDispatcher($this->container, $projectRoot);
+            $connection->withQueryEventDispatcher($dispatcher);
+        }
 
         return $connection;
     }

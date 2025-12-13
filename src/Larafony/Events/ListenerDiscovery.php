@@ -21,85 +21,46 @@ final class ListenerDiscovery
 
     public function discover(): void
     {
-        foreach ($this->listenerClasses as $classOrInstance) {
-            if (is_object($classOrInstance)) {
-                $this->registerListenersFromInstance($classOrInstance);
-            } else {
-                $this->registerListenersFromClass($classOrInstance);
-            }
-        }
+        array_map($this->registerListeners(...), $this->listenerClasses);
     }
 
     /**
-     * Register listeners from an object instance
+     * @param class-string|object $classOrInstance
      */
-    private function registerListenersFromInstance(object $instance): void
+    private function registerListeners(object|string $classOrInstance): void
     {
-        $reflection = new ReflectionClass($instance);
+        $reflection = new ReflectionClass($classOrInstance);
+        $callableTarget = is_object($classOrInstance) ? $classOrInstance : $reflection->getName();
 
-        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $attributes = $method->getAttributes(Listen::class);
-
-            foreach ($attributes as $attribute) {
-                /** @var Listen $listen */
-                $listen = $attribute->newInstance();
-
-                $eventClass = $listen->event ?? $this->inferEventClass($method);
-
-                if ($eventClass === null) {
-                    throw new \RuntimeException(
-                        sprintf(
-                            'Cannot infer event class for %s::%s(). ' .
-                            'Either specify it in #[Listen] attribute or add a typed parameter.',
-                            $reflection->getName(),
-                            $method->getName()
-                        )
-                    );
-                }
-
-                // Use actual instance
-                $this->provider->listen(
-                    $eventClass,
-                    [$instance, $method->getName()],
-                    $listen->priority
-                );
-            }
-        }
+        $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+        array_walk(
+            $methods,
+            fn (ReflectionMethod $method) => $this->registerMethodListeners($reflection, $method, $callableTarget)
+        );
     }
 
     /**
-     * @param class-string $className
+     * @param ReflectionClass<object> $reflection
+     * @param class-string|object $callableTarget
      */
-    private function registerListenersFromClass(string $className): void
-    {
-        $reflection = new ReflectionClass($className);
+    private function registerMethodListeners(
+        ReflectionClass $reflection,
+        ReflectionMethod $method,
+        object|string $callableTarget,
+    ): void {
+        $attributes = $method->getAttributes(Listen::class);
 
-        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            $attributes = $method->getAttributes(Listen::class);
+        foreach ($attributes as $attribute) {
+            /** @var Listen $listen */
+            $listen = $attribute->newInstance();
+            $eventClass = $listen->event ?? $this->inferEventClass($method);
 
-            foreach ($attributes as $attribute) {
-                /** @var Listen $listen */
-                $listen = $attribute->newInstance();
-
-                $eventClass = $listen->event ?? $this->inferEventClass($method);
-
-                if ($eventClass === null) {
-                    throw new \RuntimeException(
-                        sprintf(
-                            'Cannot infer event class for %s::%s(). ' .
-                            'Either specify it in #[Listen] attribute or add a typed parameter.',
-                            $className,
-                            $method->getName()
-                        )
-                    );
-                }
-
-                $this->provider->listen(
-                    $eventClass,
-                    [$className, $method->getName()],
-                    $listen->priority
-                );
+            if ($eventClass === null) {
+                $msg = 'Cannot infer event class for %s::%s(). Specify it in #[Listen] attribute.';
+                throw new \RuntimeException(sprintf($msg, $reflection->getName(), $method->getName()));
             }
+
+            $this->provider->listen($eventClass, [$callableTarget, $method->getName()], $listen->priority);
         }
     }
 
@@ -115,19 +76,6 @@ final class ListenerDiscovery
         }
 
         $type = $parameters[0]->getType();
-
-        if ($type === null || $type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
-            return null;
-        }
-
-        /** @var \ReflectionNamedType $type */
-        $typeName = $type->getName();
-
-        if ($type->isBuiltin()) {
-            return null;
-        }
-
-        /** @var class-string $typeName */
-        return $typeName;
+        return $type instanceof \ReflectionNamedType && ! $type->isBuiltin() ? $type->getName() : null;
     }
 }

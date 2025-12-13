@@ -38,5 +38,4 @@ final readonly class PermissionManager
 
         return array_all($permissions, fn (string $permission) => $this->hasPermission($permission));
     }
-
 }

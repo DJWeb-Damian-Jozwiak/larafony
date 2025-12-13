@@ -44,7 +44,7 @@ final class DebugBar
             return [];
         }
 
-        $data = array_map(function ($collector) {
+        $data = array_map(static function ($collector) {
             return $collector->collect();
         }, $this->collectors);
 

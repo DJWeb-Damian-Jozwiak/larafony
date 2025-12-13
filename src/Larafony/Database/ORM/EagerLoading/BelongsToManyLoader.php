@@ -7,83 +7,114 @@ namespace Larafony\Framework\Database\ORM\EagerLoading;
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\DB;
 use Larafony\Framework\Database\ORM\Model;
+use Larafony\Framework\Database\ORM\QueryBuilders\ModelQueryBuilder;
 use Larafony\Framework\Database\ORM\Relations\BelongsToMany;
 
-class BelongsToManyLoader implements RelationLoaderContract
+class BelongsToManyLoader extends BaseRelationLoader
 {
     public function load(array $models, string $relationName, RelationContract $relation, array $nested): void
     {
-        /** @var BelongsToMany $relation */
-        $reflection = new \ReflectionClass($relation);
+        assert($relation instanceof BelongsToMany);
+        $this->initReflection($relation);
 
-        $relatedClass = $this->getPropertyValue($reflection, $relation, 'related');
-        $pivotTable = $this->getPropertyValue($reflection, $relation, 'pivot_table');
-        $foreignPivotKey = $this->getPropertyValue($reflection, $relation, 'foreign_pivot_key');
-        $relatedPivotKey = $this->getPropertyValue($reflection, $relation, 'related_pivot_key');
+        $parentIds = $this->collectKeyValues($models, 'id');
 
-        // Collect parent IDs
-        $parentIds = array_filter(
-            array_map(fn ($model) => $model->id ?? null, $models)
+        if ($parentIds === []) {
+            return;
+        }
+
+        $config = $this->extractRelationConfig($relation);
+        $pivotData = $this->loadPivotData($config, $parentIds);
+        $relatedIds = array_unique(array_column($pivotData, $config->relatedPivotKey));
+
+        if ($relatedIds === []) {
+            $this->assignEmptyRelations($models, $relationName);
+
+            return;
+        }
+
+        $relatedModels = $this->loadRelatedModels($config->relatedClass, $relatedIds, $nested);
+        $relatedDictionary = $this->indexModelsBy($relatedModels, 'id');
+        $pivotDictionary = $this->buildPivotDictionary($pivotData, $config, $relatedDictionary);
+
+        $this->matchModels($models, $relationName, $pivotDictionary);
+    }
+
+    private function extractRelationConfig(BelongsToMany $relation): BelongsToManyConfigDto
+    {
+        /** @var class-string<Model> $relatedClass */
+        $relatedClass = $this->getPropertyValue($relation, 'related');
+
+        return new BelongsToManyConfigDto(
+            relatedClass: $relatedClass,
+            pivotTable: $this->getPropertyValue($relation, 'pivot_table'),
+            foreignPivotKey: $this->getPropertyValue($relation, 'foreign_pivot_key'),
+            relatedPivotKey: $this->getPropertyValue($relation, 'related_pivot_key'),
         );
+    }
 
-        if (empty($parentIds)) {
-            return;
-        }
-
-        // Load pivot data
-        $pivotData = DB::table($pivotTable)
-            ->whereIn($foreignPivotKey, array_unique($parentIds))
+    /**
+     * @param array<mixed> $parentIds
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadPivotData(BelongsToManyConfigDto $config, array $parentIds): array
+    {
+        return DB::table($config->pivotTable)
+            ->whereIn($config->foreignPivotKey, array_unique($parentIds))
             ->get();
+    }
 
-        // Collect related IDs
-        $relatedIds = array_unique(array_column($pivotData, $relatedPivotKey));
-
-        if (empty($relatedIds)) {
-            // No related models found
-            foreach ($models as $model) {
-                $model->relations->withEagerRelation($relationName, []);
-            }
-            return;
-        }
-
-        // Load related models
+    /**
+     * @param class-string<Model> $relatedClass
+     * @param array<mixed> $relatedIds
+     * @param array<string> $nested
+     *
+     * @return array<int, Model>
+     */
+    private function loadRelatedModels(string $relatedClass, array $relatedIds, array $nested): array
+    {
+        /** @var ModelQueryBuilder $query */
         $query = (new $relatedClass())->query_builder->whereIn('id', $relatedIds);
 
-        // Support nested eager loading
-        if (!empty($nested)) {
-            $query->with($nested);
-        }
+        return $this->buildQueryWithNested($query, $nested)->get();
+    }
 
-        $relatedModels = $query->get();
-
-        // Index related models by ID
-        $relatedDictionary = [];
-        foreach ($relatedModels as $relatedModel) {
-            $relatedDictionary[$relatedModel->id] = $relatedModel;
-        }
-
-        // Group pivot data by parent ID
-        $pivotDictionary = [];
+    /**
+     * @param array<int, array<string, mixed>> $pivotData
+     * @param array<mixed, Model> $relatedDictionary
+     *
+     * @return array<mixed, array<int, Model>>
+     */
+    private function buildPivotDictionary(
+        array $pivotData,
+        BelongsToManyConfigDto $config,
+        array $relatedDictionary
+    ): array {
+        $dictionary = [];
         foreach ($pivotData as $pivot) {
-            $parentId = $pivot[$foreignPivotKey];
-            $relatedId = $pivot[$relatedPivotKey];
-            $pivotDictionary[$parentId] = $pivotDictionary[$parentId] ?? [];
+            $parentId = $pivot[$config->foreignPivotKey];
+            $relatedId = $pivot[$config->relatedPivotKey];
+            $dictionary[$parentId] ??= [];
+
             if (isset($relatedDictionary[$relatedId])) {
-                $pivotDictionary[$parentId][] = $relatedDictionary[$relatedId];
+                $dictionary[$parentId][] = $relatedDictionary[$relatedId];
             }
         }
 
-        // Match related models to parent models
+        return $dictionary;
+    }
+
+    /**
+     * @param array<int, Model> $models
+     * @param array<mixed, array<int, Model>> $pivotDictionary
+     */
+    private function matchModels(array $models, string $relationName, array $pivotDictionary): void
+    {
         foreach ($models as $model) {
             $parentId = $model->id ?? null;
             $related = $parentId !== null ? ($pivotDictionary[$parentId] ?? []) : [];
-            $model->relations->withEagerRelation($relationName, $related);
+            $this->assignRelationToModel($model, $relationName, $related);
         }
-    }
-
-    private function getPropertyValue(\ReflectionClass $reflection, object $object, string $propertyName): mixed
-    {
-        $property = $reflection->getProperty($propertyName);
-        return $property->getValue($object);
     }
 }

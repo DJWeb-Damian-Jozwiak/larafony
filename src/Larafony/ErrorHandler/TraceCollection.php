@@ -31,6 +31,6 @@ class TraceCollection
             'args' => [],
         ]);
 
-        return new self(array_map(static fn (array $frame) => TraceFrame::fromArray($frame), $trace));
+        return new self(array_map(TraceFrame::fromArray(...), $trace));
     }
 }

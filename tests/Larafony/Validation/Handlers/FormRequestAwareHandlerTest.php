@@ -174,9 +174,12 @@ class TestController
 
 class TestValidatedRequest extends FormRequest
 {
-    #[IsValidated, Required, Email]
+    #[Email]
+    #[Required]
+    #[IsValidated]
     public ?string $email = null;
 
-    #[IsValidated, Required]
+    #[Required]
+    #[IsValidated]
     public ?string $name = null;
 }
