@@ -29,12 +29,12 @@ class QueueForget extends Command
     {
         $result = $this->repository->forget($this->uuid);
 
-        if (!$result) {
+        if (! $result) {
             $this->output->error("Failed job with UUID '{$this->uuid}' not found");
             return 1;
         }
 
-        $this->output->success("Failed job forgotten successfully");
+        $this->output->success('Failed job forgotten successfully');
 
         return 0;
     }

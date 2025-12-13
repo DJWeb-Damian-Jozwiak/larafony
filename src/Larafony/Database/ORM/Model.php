@@ -26,8 +26,12 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
 
     public protected(set) bool $use_uuid = false;
 
-    public int|string $id {
-        get => $this->id;
+    public int|string|null $id {
+        // isset outside a class with property hooks is a known bug in PHP
+        // it's not going to be fixed anytime soon
+        // see https://github.com/php/php-src/issues/20703
+        // see https://github.com/php/php-src/issues/18318
+        get => $this->id ?? null;
         set {
             $this->id = $value;
             $this->markPropertyAsChanged('id');
@@ -106,7 +110,7 @@ abstract class Model implements PropertyChangesContract, \JsonSerializable
 
     public function delete(): int
     {
-       return self::query()->where($this->primary_key_name, '=', $this->id)->delete();
+        return self::query()->where($this->primary_key_name, '=', $this->id)->delete();
     }
 
     /**

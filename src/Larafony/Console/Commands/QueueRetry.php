@@ -55,14 +55,14 @@ class QueueRetry extends Command
     {
         $failedJobs = $this->repository->all();
 
-        if (empty($failedJobs)) {
+        if ($failedJobs === []) {
             $this->output->info('No failed jobs to retry');
             return 0;
         }
 
         $count = 0;
         foreach ($failedJobs as $failedJob) {
-            $job = $this->repository->retry($failedJob['uuid']);
+            $job = $this->repository->retry($failedJob->uuid);
             if ($job !== null) {
                 $this->dispatcher->dispatch($job);
                 $count++;

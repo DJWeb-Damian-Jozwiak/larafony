@@ -7,8 +7,6 @@ namespace Larafony\Framework\Console\Commands;
 use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Attributes\CommandOption;
 use Larafony\Framework\Console\Command;
-use Larafony\Framework\Console\Contracts\OutputContract;
-use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Scheduler\QueueFactory;
 use Larafony\Framework\Scheduler\Workers\QueueWorker;
 
@@ -26,13 +24,6 @@ class QueueWork extends Command
 
     #[CommandOption(name: 'stop-when-empty', description: 'Stop when the queue is empty')]
     protected bool $stopWhenEmpty = false;
-
-    public function __construct(
-        OutputContract $output,
-        ContainerContract $container
-    ) {
-        parent::__construct($output, $container);
-    }
 
     public function run(): int
     {

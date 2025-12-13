@@ -42,9 +42,8 @@ class FailedJobRepository
      */
     public function find(string $uuid): ?FailedJob
     {
-        /** @var ?FailedJob $model */
-        $model = FailedJob::query()->where('uuid', '=', $uuid)->first();
-        return $model;
+        /** @phpstan-ignore-next-line */
+        return FailedJob::query()->where('uuid', '=', $uuid)->first();
     }
 
     /**
@@ -52,7 +51,7 @@ class FailedJobRepository
      */
     public function forget(string $uuid): bool
     {
-        return (bool)$this->find($uuid)?->delete();
+        return (bool) $this->find($uuid)?->delete();
     }
 
     /**
@@ -76,7 +75,7 @@ class FailedJobRepository
 
         $job = unserialize($failedJob->payload);
 
-        if (!$job instanceof JobContract) {
+        if (! $job instanceof JobContract) {
             return null;
         }
 
@@ -95,7 +94,9 @@ class FailedJobRepository
         $failedJobs = FailedJob::query()->where('failed_at', '<', $date)->get();
 
         $count = count($failedJobs);
-        array_walk($failedJobs, fn (FailedJob $failedJob) => $failedJob->delete());
+        foreach ($failedJobs as $failedJob) {
+            $failedJob->delete();
+        }
         return $count;
     }
 
@@ -106,7 +107,7 @@ class FailedJobRepository
     {
         return sprintf(
             "%s: %s in %s:%d\nStack trace:\n%s",
-            get_class($exception),
+            $exception::class,
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),

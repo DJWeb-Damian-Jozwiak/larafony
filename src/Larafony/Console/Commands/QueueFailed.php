@@ -25,7 +25,7 @@ class QueueFailed extends Command
     {
         $failedJobs = $this->repository->all();
 
-        if (empty($failedJobs)) {
+        if ($failedJobs === []) {
             $this->output->info('No failed jobs found');
             return 0;
         }
@@ -33,9 +33,9 @@ class QueueFailed extends Command
         $this->output->info(sprintf('Found %d failed job(s):', count($failedJobs)));
 
         foreach ($failedJobs as $job) {
-            $msg = sprintf('UUID: %s | Queue: %s | Connection: %s', $job['uuid'], $job['queue'], $job['connection']);
+            $msg = sprintf('UUID: %s | Queue: %s | Connection: %s', $job->uuid, $job->queue, $job->connection);
             $this->output->warning($msg);
-            $this->output->error(substr($job['exception'], 0, 100) . '...');
+            $this->output->error(substr($job->exception, 0, 100) . '...');
         }
 
         return 0;

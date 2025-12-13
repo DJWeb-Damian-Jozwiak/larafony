@@ -58,7 +58,7 @@ class PropertyObserverTest extends TestCase
 
     public function testIsNewReturnsFalseWhenPrimaryKeySet(): void
     {
-        $this->observer->markPropertyAsChanged('id', 1);
+        $this->model->id = 1;
 
         $this->assertFalse($this->observer->is_new);
     }

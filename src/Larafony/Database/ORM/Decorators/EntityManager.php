@@ -22,10 +22,10 @@ class EntityManager
     {
         $reflection = new \ReflectionClass($this->model);
         $id = $reflection->getProperty('id');
-        if(!$id->isInitialized($this->model) && $this->model->use_uuid) {
+        if (! $id->isInitialized($this->model) && $this->model->use_uuid) {
             $this->model->id = Str::uuid();
             $this->inserter->insert();
-        } else if ($this->model->observer->is_new) {
+        } elseif ($this->model->observer->is_new) {
             $this->model->id = $this->inserter->insert();
         } else {
             $this->updater->update();

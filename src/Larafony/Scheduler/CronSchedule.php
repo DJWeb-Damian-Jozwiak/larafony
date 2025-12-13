@@ -32,8 +32,8 @@ enum CronSchedule: string
         }
 
         $cronParts = explode(' ', $this->value);
-        $cronParts[0] = (string)$minute;
-        $cronParts[1] = (string)$hour;
+        $cronParts[0] = (string) $minute;
+        $cronParts[1] = (string) $hour;
         return implode(' ', $cronParts);
     }
 
@@ -45,5 +45,4 @@ enum CronSchedule: string
 
         return sprintf('*/%d * * * *', $minutes);
     }
-
 }

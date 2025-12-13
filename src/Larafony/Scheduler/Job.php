@@ -67,12 +67,15 @@ abstract class Job implements JobContract
         return $attribute !== null;
     }
 
+    /**
+     * @param array<int, \ReflectionParameter|ReflectionProperty> $properties
+     */
     private function parseSerializable(array $properties): void
     {
-        array_walk($properties, function (\ReflectionParameter|ReflectionProperty $property): void {
+        foreach ($properties as $property) {
             $attribute = $property->getAttributes(Serialize::class)[0] ?? null;
-            $name = $attribute->newInstance()->name ?? $property->getName();
+            $name = $attribute?->newInstance()->name ?? $property->getName();
             $this->serializableProperties[$name] = $property->getName();
-        });
+        }
     }
 }

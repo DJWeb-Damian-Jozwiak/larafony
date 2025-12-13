@@ -44,7 +44,6 @@ class Dispatcher
     /**
      * Dispatch multiple jobs
      *
-     * @param array<JobContract> $jobs
      * @return array<string>
      */
     public function dispatchBatch(JobContract ...$jobs): array

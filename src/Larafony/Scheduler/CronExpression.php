@@ -43,6 +43,9 @@ class CronExpression
         return $this->matchesAnyPart($value, $parts);
     }
 
+    /**
+     * @param array<int, string> $parts
+     */
     private function matchesAnyPart(string $value, array $parts): bool
     {
         return array_any($parts, fn ($part) => $this->matchesSinglePart($value, $part));

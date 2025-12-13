@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Database\ORM\Entities;
 
-use DateTimeImmutable;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Model;
 
@@ -12,6 +11,14 @@ class FailedJob extends Model
 {
     public protected(set) bool $use_uuid = true;
     //table name generated automatically by ORM
+
+    public string $uuid {
+        get => $this->uuid;
+        set {
+            $this->uuid = $value;
+            $this->markPropertyAsChanged('uuid');
+        }
+    }
 
     public string $connection {
         get => $this->connection;

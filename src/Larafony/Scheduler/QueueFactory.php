@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Larafony\Framework\Scheduler;
 
 use Larafony\Framework\Config\Contracts\ConfigContract;
-use Larafony\Framework\Web\Application;
 use Larafony\Framework\Scheduler\Contracts\QueueContract;
 use Larafony\Framework\Scheduler\Queue\DatabaseQueue;
 use Larafony\Framework\Scheduler\Queue\RedisQueue;
+use Larafony\Framework\Web\Application;
 use RuntimeException;
 
 class QueueFactory

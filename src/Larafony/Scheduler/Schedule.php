@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Scheduler;
 
-use Larafony\Framework\Web\Application;
 use Larafony\Framework\Scheduler\Contracts\JobContract;
 use Larafony\Framework\Scheduler\Contracts\ScheduleContract;
+use Larafony\Framework\Web\Application;
 
 class Schedule implements ScheduleContract
 {
@@ -14,15 +14,14 @@ class Schedule implements ScheduleContract
      * @var array<int, ScheduledEvent>
      */
     private array $events = [];
-public function cron(CronSchedule|string $expression, JobContract $job): void
+    public function cron(CronSchedule|string $expression, JobContract $job): void
     {
-        $cronExpression = match(true) {
+        $cronExpression = match (true) {
             $expression instanceof CronSchedule => $expression->value,
             is_string($expression) => $expression,
-
         };
-$this->events[] = new ScheduledEvent($cronExpression, $job);
-}
+        $this->events[] = new ScheduledEvent($cronExpression, $job);
+    }
 
     /**
      * @param array<string, string> $config
@@ -32,18 +31,15 @@ $this->events[] = new ScheduledEvent($cronExpression, $job);
         foreach ($config as $jobClass => $schedule) {
             if (! class_exists($jobClass)) {
                 throw new \InvalidArgumentException("Job class {$jobClass} does not exist");
-
             }
 
             if (! is_subclass_of($jobClass, JobContract::class)) {
                 throw new \InvalidArgumentException("Job class {$jobClass} must implement JobContract");
-
             }
 
             //auto bind default job constructor params
             $job = Application::instance()->get($jobClass);
-$this->cron($schedule, $job);
-
+            $this->cron($schedule, $job);
         }
     }
 
@@ -59,5 +55,4 @@ $this->cron($schedule, $job);
     {
         $this->cron(CronSchedule::everyNMinutes($minutes), $job);
     }
-
 }

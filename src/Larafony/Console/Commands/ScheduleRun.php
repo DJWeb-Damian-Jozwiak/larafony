@@ -11,7 +11,6 @@ use Larafony\Framework\Console\Contracts\OutputContract;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Scheduler\QueueFactory;
 use Larafony\Framework\Scheduler\Schedule;
-use Larafony\Framework\Scheduler\Workers\ScheduleWorker;
 
 #[AsCommand(name: 'schedule:run')]
 class ScheduleRun extends Command
@@ -33,16 +32,9 @@ class ScheduleRun extends Command
         // Load schedule configuration
         $scheduleConfig = $this->config->get('schedule', []);
 
-        if (!empty($scheduleConfig)) {
-            $schedule->addFromConfig($scheduleConfig);
-        }
+        $schedule->addFromConfig($scheduleConfig);
 
         $dueEvents = $schedule->dueEvents();
-
-        if (empty($dueEvents)) {
-            $this->output->info('No scheduled tasks are due');
-            return 0;
-        }
 
         $this->output->info(sprintf('Found %d scheduled task(s) to run', count($dueEvents)));
 
@@ -54,7 +46,7 @@ class ScheduleRun extends Command
                 $jobClass = get_class($event->getJob());
                 $this->output->success("Queued: {$jobClass} (ID: {$jobId})");
             } catch (\Throwable $e) {
-                $this->output->error("Failed to queue job: " . $e->getMessage());
+                $this->output->error('Failed to queue job: ' . $e->getMessage());
             }
         }
 

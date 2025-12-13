@@ -53,7 +53,7 @@ class SchedulerServiceProvider extends ServiceProvider
         $config = $container->get(ConfigContract::class);
         $scheduledJobs = $config->get('schedule', []);
 
-        if (!empty($scheduledJobs)) {
+        if ($scheduledJobs !== []) {
             $schedule->addFromConfig($scheduledJobs);
         }
     }

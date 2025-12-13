@@ -6,7 +6,6 @@ namespace Larafony\Framework\Scheduler\Queue;
 
 use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\FrozenClock;
-use Larafony\Framework\Core\Support\Str;
 use Larafony\Framework\Database\Base\Query\Enums\OrderDirection;
 use Larafony\Framework\Database\ORM\Entities\Job as JobEntity;
 use Larafony\Framework\Scheduler\Contracts\JobContract;
@@ -73,6 +72,7 @@ class DatabaseQueue implements QueueContract
             return null;
         }
 
+        /** @var JobEntity $jobEntity */
         $jobEntity->delete();
 
         return unserialize($jobEntity->payload);

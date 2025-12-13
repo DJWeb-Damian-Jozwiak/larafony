@@ -22,7 +22,7 @@ readonly class QueueWorker
         while (true) {
             $job = $this->queue->pop();
 
-            if(! $this->shouldContinue($iterations)) {
+            if (! $this->shouldContinue($iterations)) {
                 break;
             }
             $iterations++;
@@ -44,23 +44,17 @@ readonly class QueueWorker
         return $this->iterations === 0 || $this->iterations > $iterations;
     }
 
-    private function handleFailedJob($job, \Throwable $e): void
+    private function handleFailedJob(\Larafony\Framework\Scheduler\Contracts\JobContract $job, \Throwable $e): void
     {
         // First, let the job handle its own exception
-        try {
-            $job->handleException($e);
-        } catch (\Throwable $handlerException) {
-            // If the exception handler itself throws, we ignore it
-        }
+        $job->handleException($e);
 
         // Then log to failed_jobs table if repository is available
-        if ($this->failedJobRepository !== null) {
-            $this->failedJobRepository->log(
-                connection: 'default',
-                queue: 'default',
-                job: $job,
-                exception: $e
-            );
-        }
+        $this->failedJobRepository?->log(
+            connection: 'default',
+            queue: 'default',
+            job: $job,
+            exception: $e
+        );
     }
 }

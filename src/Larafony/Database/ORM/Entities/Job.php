@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larafony\Framework\Database\ORM\Entities;
 
 use DateTimeImmutable;
+use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Clock\Contracts\Clock;
+use Larafony\Framework\Database\ORM\Attributes\CastUsing;
 use Larafony\Framework\Database\ORM\Model;
 
 class Job extends Model
@@ -43,6 +45,7 @@ class Job extends Model
         }
     }
 
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $available_at {
         get => $this->available_at;
         set {
@@ -51,6 +54,7 @@ class Job extends Model
         }
     }
 
+    #[CastUsing(ClockFactory::parse(...))]
     public Clock $created_at {
         get => $this->created_at;
         set {

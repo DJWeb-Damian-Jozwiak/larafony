@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Larafony\Framework\Scheduler\Queue;
 
 use Larafony\Framework\Config\Contracts\ConfigContract;
-use Larafony\Framework\Web\Application;
 use Larafony\Framework\Scheduler\Contracts\JobContract;
 use Larafony\Framework\Scheduler\Contracts\QueueContract;
+use Larafony\Framework\Web\Application;
 use Redis;
 
 class RedisQueue implements QueueContract
