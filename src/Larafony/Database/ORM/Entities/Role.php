@@ -64,6 +64,9 @@ class Role extends Model
      */
     public function addPermission(Permission $permission): void
     {
+        if ($permission->id === null) {
+            return;
+        }
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
         $relation = $this->relations->getRelationInstance('permissions');
         $relation->attach([$permission->id]);
@@ -81,6 +84,9 @@ class Role extends Model
      */
     public function removePermission(Permission $permission): void
     {
+        if ($permission->id === null) {
+            return;
+        }
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
         $relation = $this->relations->getRelationInstance('permissions');
         $relation->detach([$permission->id]);

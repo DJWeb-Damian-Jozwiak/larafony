@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Larafony\Framework\Scheduler\CronSchedule;
-
 return [
     // Example scheduled jobs (uncomment to use):
     // App\Jobs\SendNewsletterJob::class => CronSchedule::DAILY_AT_NOON,

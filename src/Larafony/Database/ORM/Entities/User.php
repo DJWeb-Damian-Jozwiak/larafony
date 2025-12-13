@@ -114,14 +114,14 @@ class User extends Model
     {
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
         $relation = $this->relations->getRelationInstance('roles');
-        $roleIds = array_map(static fn (Role $role) => $role->id, $roles);
+        $roleIds = array_filter(array_map(static fn (Role $role) => $role->id, $roles));
         $relation->sync($roleIds);
         return $roles;
     }
 
     public function addRole(Role $role): void
     {
-        if ($this->hasRole($role->name)) {
+        if ($this->hasRole($role->name) || $role->id === null) {
             return;
         }
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
@@ -134,6 +134,9 @@ class User extends Model
 
     public function removeRole(Role $role): void
     {
+        if ($role->id === null) {
+            return;
+        }
         /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
         $relation = $this->relations->getRelationInstance('roles');
         $relation->detach([$role->id]);
