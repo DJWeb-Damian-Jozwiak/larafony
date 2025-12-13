@@ -102,6 +102,21 @@ class User extends Model
     #[BelongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')]
     public array $roles {
         get => $this->relations->getRelation('roles');
+        set => $this->syncRoles($value);
+    }
+
+    /**
+     * @param array<int, Role> $roles
+     *
+     * @return array<int, Role>
+     */
+    public function syncRoles(array $roles): array
+    {
+        /** @var \Larafony\Framework\Database\ORM\Relations\BelongsToMany $relation */
+        $relation = $this->relations->getRelationInstance('roles');
+        $roleIds = array_map(static fn (Role $role) => $role->id, $roles);
+        $relation->sync($roleIds);
+        return $roles;
     }
 
     public function addRole(Role $role): void
@@ -134,7 +149,7 @@ class User extends Model
         $roleNames = Cache::instance()->remember(
             $cacheKey,
             3600, // 1 hour
-            fn () => array_map(static fn (Role $role) => $role->name, $this->roles)
+            fn () => array_map(static fn (Role $role) => $role->name, $this->roles),
         );
 
         return in_array($roleName, $roleNames, true);
@@ -155,7 +170,7 @@ class User extends Model
                     }
                 }
                 return array_unique($allPermissions);
-            }
+            },
         );
 
         return in_array($permissionName, $permissions, true);

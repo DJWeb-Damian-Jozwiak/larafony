@@ -7,7 +7,10 @@ namespace Larafony\Framework\Web;
 use Larafony\Framework\Container\Container;
 use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Container\Contracts\ServiceProviderContract;
+use Larafony\Framework\Events\Framework\ApplicationBooted;
+use Larafony\Framework\Events\Framework\ApplicationBooting;
 use Larafony\Framework\Http\Factories\ServerRequestFactory;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class Application extends Container
 {
@@ -45,10 +48,20 @@ final class Application extends Container
      */
     public function withServiceProviders(array $serviceProviders): self
     {
+        $startTime = microtime(true);
+
+        // Dispatch ApplicationBooting event
+        $this->dispatchEvent(new ApplicationBooting($startTime));
+
         array_walk(
             $serviceProviders,
             fn (string $provider) => $this->get($provider)->register($this)->boot($this),
         );
+
+        // Dispatch ApplicationBooted event
+        $bootTime = (microtime(true) - $startTime) * 1000; // Convert to ms
+        $this->dispatchEvent(new ApplicationBooted($bootTime));
+
         return $this;
     }
 
@@ -58,5 +71,12 @@ final class Application extends Container
         $request = $this->get(ServerRequestFactory::class)->createServerRequestFromGlobals();
         $response = $kernel->handle($request, $exitCallback);
         echo $response->getBody()->getContents();
+    }
+
+    private function dispatchEvent(object $event): void
+    {
+        if ($this->has(EventDispatcherInterface::class)) {
+            $this->get(EventDispatcherInterface::class)->dispatch($event);
+        }
     }
 }

@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Larafony\Framework\Cache\Storage;
 
 use Larafony\Framework\Clock\ClockFactory;
-use Larafony\Framework\Log\Log;
 use Memcached;
+use Psr\Log\LoggerInterface;
 
 class MemcachedStorage extends BaseStorage
 {
     public function __construct(
         private Memcached $memcached,
         private string $prefix = 'cache:',
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -29,7 +30,7 @@ class MemcachedStorage extends BaseStorage
         // Memcached memory limits are set at server level
         // This is here for interface compliance
         // Log a warning that this should be configured at server level
-        Log::error('Memcached memory limits should be configured in memcached server settings');
+        $this->logger?->error('Memcached memory limits should be configured in memcached server settings');
     }
 
     /**
@@ -49,7 +50,7 @@ class MemcachedStorage extends BaseStorage
             $resultCode = $this->memcached->getResultCode();
             if ($resultCode !== Memcached::RES_SUCCESS && $resultCode !== Memcached::RES_NOTFOUND) {
                 // Only log real errors, not cache misses
-                Log::error('Memcached get error: ' . $this->memcached->getResultMessage());
+                $this->logger?->error('Memcached get error: ' . $this->memcached->getResultMessage());
             }
             return null;
         }
@@ -84,7 +85,7 @@ class MemcachedStorage extends BaseStorage
         $result = $this->memcached->set($key, $data, $expiration);
 
         if (! $result) {
-            Log::error('Memcached set error: ' . $this->memcached->getResultMessage());
+            $this->logger?->error('Memcached set error: ' . $this->memcached->getResultMessage());
         }
 
         return $result;
@@ -103,7 +104,7 @@ class MemcachedStorage extends BaseStorage
 
         // Memcached returns false if key doesn't exist, but we consider that success
         if (! $result && $this->memcached->getResultCode() !== Memcached::RES_NOTFOUND) {
-            Log::error('Memcached delete error: ' . $this->memcached->getResultMessage());
+            $this->logger?->error('Memcached delete error: ' . $this->memcached->getResultMessage());
             return false;
         }
 

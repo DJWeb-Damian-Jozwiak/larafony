@@ -8,10 +8,11 @@ class IfDirective extends Directive
 {
     public function compile(string $content): string
     {
-        $content = $this->compileIf($content);
-        $content = $this->compileElseIf($content);
-        $content = $this->compileElse($content);
-        return $this->compileEndIf($content);
+        return $content
+                |> $this->compileIf(...)
+                |> $this->compileElseIf(...)
+                |> $this->compileElse(...)
+                |> $this->compileEndIf(...);
     }
 
     public function compileIf(string $content): string

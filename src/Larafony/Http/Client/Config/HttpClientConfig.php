@@ -7,7 +7,7 @@ namespace Larafony\Framework\Http\Client\Config;
 /**
  * HTTP Client configuration DTO.
  *
- * Because who the fuck remembers CURL constants?
+ * Because who remembers CURL constants?
  */
 final readonly class HttpClientConfig
 {

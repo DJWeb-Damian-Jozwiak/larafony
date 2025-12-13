@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class ValidationErrorTest extends TestCase
 {
-    public function test_can_create_validation_error(): void
+    public function testCanCreateValidationError(): void
     {
         $error = new ValidationError('email', 'Invalid email format');
 
@@ -17,7 +17,7 @@ class ValidationErrorTest extends TestCase
         $this->assertSame('Invalid email format', $error->message);
     }
 
-    public function test_validation_error_is_readonly(): void
+    public function testValidationErrorIsReadonly(): void
     {
         $error = new ValidationError('email', 'Invalid email format');
 

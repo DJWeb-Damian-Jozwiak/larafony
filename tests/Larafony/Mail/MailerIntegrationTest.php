@@ -10,6 +10,7 @@ use Larafony\Framework\Mail\Envelope;
 use Larafony\Framework\Mail\Mailable;
 use Larafony\Framework\Mail\MailerFactory;
 use Larafony\Framework\Mail\Transport\SmtpConnection;
+use Larafony\Framework\View\ViewManager;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -30,11 +31,12 @@ class MailerIntegrationTest extends TestCase
 
     public function testSendEmailThroughMailHog(): void
     {
-        if (!$this->isMailHogRunning()) {
+        if (! $this->isMailHogRunning()) {
             $this->markTestSkipped('MailHog is not running on localhost:1025');
         }
 
-        $mailer = MailerFactory::createMailHogMailer(host: 'mailhog');
+        $viewManager = $this->createMock(ViewManager::class);
+        $mailer = MailerFactory::createMailHogMailer($viewManager, host: 'mailhog');
 
         $mailable = new class extends Mailable {
             public function envelope(): Envelope
@@ -54,10 +56,10 @@ class MailerIntegrationTest extends TestCase
                 return new class extends Content {
                     public function __construct()
                     {
-                        // Don't call parent constructor to avoid ViewManager dependency
+                        parent::__construct('dummy');
                     }
 
-                    public function render(): string
+                    public function render(ViewManager $viewManager): string
                     {
                         return '<html><body><h1>Test Email</h1><p>This is a test email from Larafony Framework!</p></body></html>';
                     }

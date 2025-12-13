@@ -27,4 +27,24 @@ class AttributeCaster implements AttributeCasterContract
 
         return $value;
     }
+
+    public function castBack(mixed $value, string $property_name, object $model): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $reflection = new ReflectionProperty($model, $property_name);
+
+        $cast_using = $reflection->getAttributes(CastUsing::class)[0] ?? null;
+        if ($cast_using !== null) {
+            /** @var CastUsing $cast_attribute */
+            $cast_attribute = $cast_using->newInstance();
+            if ($cast_attribute->castBack !== null) {
+                return ($cast_attribute->castBack)($value);
+            }
+        }
+
+        return $value;
+    }
 }

@@ -4,22 +4,15 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Log;
 
-use Larafony\Framework\Web\Application;
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Psr\Log\LoggerInterface;
 
 final class Log
 {
-    private static ?LoggerInterface $logger = null;
-
-    /**
-     * @param string $message
-     * @param array<int|string, mixed> $context
-     *
-     * @return void
-     */
-    public static function emergency(string $message, array $context = []): void
+    private readonly LoggerInterface $logger;
+    public function __construct(private readonly ContainerContract $container)
     {
-        self::logger()->emergency($message, $context);
+        $this->logger = $this->container->get(LoggerInterface::class);
     }
 
     /**
@@ -28,9 +21,9 @@ final class Log
      *
      * @return void
      */
-    public static function alert(string $message, array $context = []): void
+    public function emergency(string $message, array $context = []): void
     {
-        self::logger()->alert($message, $context);
+        $this->logger->emergency($message, $context);
     }
 
     /**
@@ -39,9 +32,9 @@ final class Log
      *
      * @return void
      */
-    public static function critical(string $message, array $context = []): void
+    public function alert(string $message, array $context = []): void
     {
-        self::logger()->critical($message, $context);
+        $this->logger->alert($message, $context);
     }
 
     /**
@@ -50,9 +43,9 @@ final class Log
      *
      * @return void
      */
-    public static function error(string $message, array $context = []): void
+    public function critical(string $message, array $context = []): void
     {
-        self::logger()->error($message, $context);
+        $this->logger->critical($message, $context);
     }
 
     /**
@@ -61,9 +54,9 @@ final class Log
      *
      * @return void
      */
-    public static function warning(string $message, array $context = []): void
+    public function error(string $message, array $context = []): void
     {
-        self::logger()->warning($message, $context);
+        $this->logger->error($message, $context);
     }
 
     /**
@@ -72,9 +65,9 @@ final class Log
      *
      * @return void
      */
-    public static function notice(string $message, array $context = []): void
+    public function warning(string $message, array $context = []): void
     {
-        self::logger()->notice($message, $context);
+        $this->logger->warning($message, $context);
     }
 
     /**
@@ -83,9 +76,9 @@ final class Log
      *
      * @return void
      */
-    public static function info(string $message, array $context = []): void
+    public function notice(string $message, array $context = []): void
     {
-        self::logger()->info($message, $context);
+        $this->logger->notice($message, $context);
     }
 
     /**
@@ -94,13 +87,19 @@ final class Log
      *
      * @return void
      */
-    public static function debug(string $message, array $context = []): void
+    public function info(string $message, array $context = []): void
     {
-        self::logger()->debug($message, $context);
+        $this->logger->info($message, $context);
     }
 
-    private static function logger(): LoggerInterface
+    /**
+     * @param string $message
+     * @param array<int|string, mixed> $context
+     *
+     * @return void
+     */
+    public function debug(string $message, array $context = []): void
     {
-        return self::$logger ??= Application::instance()->get(LoggerInterface::class);
+        $this->logger->debug($message, $context);
     }
 }

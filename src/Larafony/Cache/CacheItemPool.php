@@ -8,6 +8,7 @@ use Larafony\Framework\Cache\Contracts\StorageContract;
 use Larafony\Framework\Clock\ClockFactory;
 use Larafony\Framework\Events\Cache\CacheHit;
 use Larafony\Framework\Events\Cache\CacheMissed;
+use Larafony\Framework\Events\Cache\KeyForgotten;
 use Larafony\Framework\Events\Cache\KeyWritten;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -93,7 +94,13 @@ class CacheItemPool implements CacheItemPoolInterface
     {
         new CacheItemKeyValidator()->validate($key);
         unset($this->deferred[$key]);
-        return $this->storage->delete($key);
+        $result = $this->storage->delete($key);
+
+        if ($result) {
+            $this->dispatcher?->dispatch(new KeyForgotten($key));
+        }
+
+        return $result;
     }
 
     /**
