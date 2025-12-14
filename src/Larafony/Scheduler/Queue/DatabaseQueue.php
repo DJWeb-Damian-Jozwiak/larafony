@@ -62,6 +62,7 @@ class DatabaseQueue implements QueueContract
 
     public function pop(): ?JobContract
     {
+        /** @var ?JobEntity $jobEntity */
         $jobEntity = JobEntity::query()
             ->where('available_at', '<=', ClockFactory::now())
             ->where('reserved_at', '=', null)
@@ -72,7 +73,7 @@ class DatabaseQueue implements QueueContract
             return null;
         }
 
-        /** @var JobEntity $jobEntity */
+
         $jobEntity->delete();
 
         return unserialize($jobEntity->payload);

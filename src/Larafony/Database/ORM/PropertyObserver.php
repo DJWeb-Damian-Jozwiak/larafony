@@ -7,12 +7,7 @@ namespace Larafony\Framework\Database\ORM;
 use Larafony\Framework\Clock\Contracts\Clock;
 use Larafony\Framework\Database\ORM\Contracts\NotifyPropertyChangesContract;
 use Stringable;
-class User {
-    public string $id {
-        get => $this->id ?? '';
-        set => $this->id = $value;
-    }
-}
+
 class PropertyObserver implements NotifyPropertyChangesContract
 {
     public bool $is_new {

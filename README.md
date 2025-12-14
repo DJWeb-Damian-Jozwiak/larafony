@@ -110,7 +110,7 @@ See [DOCKER.md](DOCKER.md) for complete Docker setup and usage instructions.
 - [X] Event System (PSR-14) — [Chapter 26](docs/Larafony/chapter_26.md)
 - [X] Debugbar +  Model Eager Loading— [Chapter 27](docs/Larafony/chapter_27.md)
 - [x] Jobs and Queues — [Chapter 28](docs/Larafony/chapter_28.md)
-- [ ] Simple WebSockets (almost from scratch) — Chapter 29
+- [ ] Simple WebSockets (almost from scratch) — [Chapter 29](docs/Larafony/chapter_29.md)
 - [ ] Model Context Protocol — A new way of communication — Chapter 30
 
 ### 🧭 Meta
