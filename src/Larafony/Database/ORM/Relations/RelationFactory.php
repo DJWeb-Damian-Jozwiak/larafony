@@ -76,6 +76,21 @@ class RelationFactory
         return $relation;
     }
 
+    public static function hasOne(
+        Model $parent,
+        HasManyAttribute $attribute,
+    ): RelationContract {
+        $relation = new self()->create(
+            RelationType::hasOne,
+            $parent,
+            $attribute->related,
+            $attribute->foreign_key,
+            $attribute->local_key
+        );
+        $relation->addConstraints();
+        return $relation;
+    }
+
     /**
      * Create basic relation types (belongsTo, hasMany).
      *
@@ -98,6 +113,7 @@ class RelationFactory
         string $localKey
     ): RelationContract {
         return match ($type->value) {
+            'hasOne' => new HasOne($parent, $related, $foreignKey, $localKey),
             'hasMany' => new HasMany($parent, $related, $foreignKey, $localKey),
             'belongsTo' => new BelongsTo(
                 $parent,

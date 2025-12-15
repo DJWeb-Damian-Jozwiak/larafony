@@ -8,6 +8,7 @@ enum RelationType: string
 {
     case belongsTo = 'belongsTo';
     case hasMany = 'hasMany';
+    case hasOne = 'hasOne';
     case belongsToMany = 'belongsToMany';
     case hasManyThrough = 'hasManyThrough';
 }
