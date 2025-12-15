@@ -25,9 +25,10 @@ class HasOneLoader extends BaseRelationLoader
             return;
         }
 
-        $relatedModel = $this->loadRelatedModel($relatedClass, $foreignKey, $localKeyValues, $nested);
+        $relatedModels = $this->loadRelatedModels($relatedClass, $foreignKey, $localKeyValues, $nested);
+        $dictionary = $this->groupModelsBy($relatedModels, $foreignKey);
 
-        $this->matchModels($models, $relationName, $relatedModel);
+        $this->matchModels($models, $relationName, $dictionary, $localKey);
     }
 
     /**
@@ -35,21 +36,29 @@ class HasOneLoader extends BaseRelationLoader
      * @param array<mixed> $keyValues
      * @param array<string> $nested
      *
-     * @return Model|null
+     * @return array<int, Model>
      */
-    private function loadRelatedModel(string $relatedClass, string $foreignKey, array $keyValues, array $nested): ?Model
+    private function loadRelatedModels(string $relatedClass, string $foreignKey, array $keyValues, array $nested): array
     {
         /** @var ModelQueryBuilder $query */
         $query = (new $relatedClass())->query_builder->whereIn($foreignKey, array_unique($keyValues));
 
-        return $this->buildQueryWithNested($query, $nested)->first();
+        return $this->buildQueryWithNested($query, $nested)->get();
     }
 
     /**
      * @param array<int, Model> $models
+     * @param array<mixed, array<int, Model>> $dictionary
      */
-    private function matchModels(array $models, string $relationName, ?Model $relatedModel): void
+    private function matchModels(array $models, string $relationName, array $dictionary, string $localKey): void
     {
-        $this->assignRelationToModel(array_first($models), $relationName, $relatedModel);
+        foreach ($models as $model) {
+            $lkValue = $model->$localKey ?? null;
+            $related = $lkValue !== null
+                ? array_first($dictionary[$lkValue] ?? [])
+                : null;
+
+            $this->assignRelationToModel($model, $relationName, $related);
+        }
     }
 }
