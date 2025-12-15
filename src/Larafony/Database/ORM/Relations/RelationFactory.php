@@ -8,6 +8,7 @@ use Larafony\Framework\Database\ORM\Attributes\BelongsTo as BelongsToAttribute;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany as BelongsToManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasMany as HasManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasManyThrough as HasManyThroughAttribute;
+use Larafony\Framework\Database\ORM\Attributes\HasOne as HasOneAttribute;
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\Enums\RelationType;
 use Larafony\Framework\Database\ORM\Model;
@@ -78,7 +79,7 @@ class RelationFactory
 
     public static function hasOne(
         Model $parent,
-        HasManyAttribute $attribute,
+        HasOneAttribute $attribute,
     ): RelationContract {
         $relation = new self()->create(
             RelationType::hasOne,
@@ -92,7 +93,7 @@ class RelationFactory
     }
 
     /**
-     * Create basic relation types (belongsTo, hasMany).
+     * Create basic relation types (belongsTo, hasMany, hasOne).
      *
      * Note: belongsToMany and hasManyThrough are created directly in their
      * respective factory methods as they require different constructor parameters.
