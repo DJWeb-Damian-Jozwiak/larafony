@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larafony\Framework\Cache\ServiceProviders;
 
 use Larafony\Framework\Cache\Cache;
-use Larafony\Framework\Cache\CacheItemPool;
 use Larafony\Framework\Cache\Factories\StorageFactory;
 use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Container\Contracts\ContainerContract;
@@ -21,9 +20,8 @@ class CacheServiceProvider extends ServiceProvider
      */
     public function providers(): array
     {
-        return [
-            CacheItemPoolInterface::class => CacheItemPool::class,
-        ];
+        // CacheItemPool is created manually in boot() with proper storage
+        return [];
     }
 
     public function boot(ContainerContract $container): void

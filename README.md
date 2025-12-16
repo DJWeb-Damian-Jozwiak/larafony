@@ -147,10 +147,12 @@ Welcome to the end of the framework —
 and the beginning of **your own**.
 
 ### ⚙️ Extending with mature Libraries
-- [ ] View Bridges (Twig & Smarty) — Chapter 32
-- [ ] Use Carbon instead of ClockFactory — Chapter 33
-- [ ] Use Monolog — Chapter 34
-- [ ] Replace Container with Laravel Container — Chapter 35
+- [ ] Larafony bridges - Chapter 32
+  - [ ] View Bridges (Twig & Smarty)
+  - [ ] Use Carbon instead of ClockFactory
+  - [ ] Use Monolog
+  - [ ] Use Symfony Mailer
+  - [ ] Use Guzzle Http
 
 ## 🚀 Quick Start
 

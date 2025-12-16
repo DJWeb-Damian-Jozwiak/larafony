@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Http\Helpers\Request;
 
+use Larafony\Framework\Container\Contracts\ContainerContract;
 use Larafony\Framework\Http\Factories\StreamFactory;
 use Larafony\Framework\Http\Factories\UploadedFileFactory;
 use Psr\Http\Message\UploadedFileInterface;
@@ -39,6 +40,7 @@ final readonly class UploadedFilesParser
      */
     public static function parseFromGlobals(): array
     {
+        [,$_FILES] = request_parse_body();
         return self::parse($_FILES);
     }
 }

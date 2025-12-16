@@ -73,7 +73,6 @@ class DatabaseQueue implements QueueContract
             return null;
         }
 
-
         $jobEntity->delete();
 
         return unserialize($jobEntity->payload);
