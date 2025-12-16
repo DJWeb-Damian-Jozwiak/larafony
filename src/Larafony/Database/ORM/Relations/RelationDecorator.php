@@ -8,6 +8,7 @@ use Larafony\Framework\Database\ORM\Attributes\BelongsTo as BelongsToAttribute;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany as BelongsToManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasMany as HasManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasManyThrough as HasManyThroughAttribute;
+use Larafony\Framework\Database\ORM\Attributes\HasOne as HasOneAttribute;
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\Model;
 use ReflectionAttribute;
@@ -99,6 +100,11 @@ class RelationDecorator
             HasManyThroughAttribute::class,
             $this->initializeHasManyThrough(...)
         );
+        $this->initializeAllRelations(
+            $property,
+            HasOneAttribute::class,
+            $this->initializeHasOne(...)
+        );
     }
 
     private function initializeAllRelations(
@@ -149,6 +155,14 @@ class RelationDecorator
         HasManyAttribute $attribute
     ): void {
         $value = RelationFactory::hasMany($this->model, $attribute);
+        $this->relations[$property->getName()] = $value;
+    }
+
+    private function initializeHasOne(
+        ReflectionProperty $property,
+        HasOneAttribute $attribute
+    ): void {
+        $value = RelationFactory::hasOne($this->model, $attribute);
         $this->relations[$property->getName()] = $value;
     }
 }

@@ -8,6 +8,7 @@ use Larafony\Framework\Database\ORM\Attributes\BelongsTo as BelongsToAttribute;
 use Larafony\Framework\Database\ORM\Attributes\BelongsToMany as BelongsToManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasMany as HasManyAttribute;
 use Larafony\Framework\Database\ORM\Attributes\HasManyThrough as HasManyThroughAttribute;
+use Larafony\Framework\Database\ORM\Attributes\HasOne as HasOneAttribute;
 use Larafony\Framework\Database\ORM\Contracts\RelationContract;
 use Larafony\Framework\Database\ORM\Enums\RelationType;
 use Larafony\Framework\Database\ORM\Model;
@@ -76,8 +77,23 @@ class RelationFactory
         return $relation;
     }
 
+    public static function hasOne(
+        Model $parent,
+        HasOneAttribute $attribute,
+    ): RelationContract {
+        $relation = new self()->create(
+            RelationType::hasOne,
+            $parent,
+            $attribute->related,
+            $attribute->foreign_key,
+            $attribute->local_key
+        );
+        $relation->addConstraints();
+        return $relation;
+    }
+
     /**
-     * Create basic relation types (belongsTo, hasMany).
+     * Create basic relation types (belongsTo, hasMany, hasOne).
      *
      * Note: belongsToMany and hasManyThrough are created directly in their
      * respective factory methods as they require different constructor parameters.
@@ -98,6 +114,7 @@ class RelationFactory
         string $localKey
     ): RelationContract {
         return match ($type->value) {
+            'hasOne' => new HasOne($parent, $related, $foreignKey, $localKey),
             'hasMany' => new HasMany($parent, $related, $foreignKey, $localKey),
             'belongsTo' => new BelongsTo(
                 $parent,
