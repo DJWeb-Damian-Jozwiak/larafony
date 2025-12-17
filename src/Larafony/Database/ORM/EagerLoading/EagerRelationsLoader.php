@@ -10,6 +10,7 @@ use Larafony\Framework\Database\ORM\Relations\BelongsTo;
 use Larafony\Framework\Database\ORM\Relations\BelongsToMany;
 use Larafony\Framework\Database\ORM\Relations\HasMany;
 use Larafony\Framework\Database\ORM\Relations\HasManyThrough;
+use Larafony\Framework\Database\ORM\Relations\HasOne;
 
 class EagerRelationsLoader
 {
@@ -58,6 +59,7 @@ class EagerRelationsLoader
             $relation instanceof BelongsToMany => new BelongsToManyLoader(),
             $relation instanceof HasManyThrough => new HasManyThroughLoader(),
             $relation instanceof HasMany => new HasManyLoader(),
+            $relation instanceof HasOne => new HasOneLoader(),
             default => throw new \RuntimeException('Unsupported relation type: ' . $relation::class),
         };
     }
