@@ -49,8 +49,19 @@ It’s designed for **production-grade applications**, not tutorials or demos.
 ## 🧰 Requirements
 
 - PHP ≥ 8.5
-- Composer
+- Composer 2.9+
 - PSR-compliant HTTP and container packages (installed automatically)
+- OpenSSL enabled
+- extensions enabled: `curl`, `mbstring`,`pdo`, `uri`, `xml`
+
+⚠️ If you see deprecation warnings during `composer create-project`,
+run:
+
+```bash
+composer self-update
+```
+❗Running Larafony on older PHP / Composer versions is **not supported**
+and issues caused by outdated environments will be closed without investigation.
 
 ### Docker Alternative
 

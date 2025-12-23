@@ -40,7 +40,20 @@ final readonly class UploadedFilesParser
      */
     public static function parseFromGlobals(): array
     {
-        [,$_FILES] = request_parse_body();
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if (!in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            return [];
+        }
+
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+        $contentType = strtolower(trim(explode(';', $contentType)[0]));
+
+        // request_parse_body() only supports multipart/form-data and application/x-www-form-urlencoded
+        if (!in_array($contentType, ['multipart/form-data', 'application/x-www-form-urlencoded', ''], true)) {
+            return [];
+        }
+
+        [, $_FILES ] = request_parse_body();
         return self::parse($_FILES);
     }
 }
