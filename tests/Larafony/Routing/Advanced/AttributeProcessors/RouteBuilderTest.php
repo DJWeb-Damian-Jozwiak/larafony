@@ -43,7 +43,18 @@ class RouteBuilderTest extends TestCase
         $this->assertInstanceOf(Route::class, $route);
         $this->assertSame('/users', $route->path);
         $this->assertSame(HttpMethod::GET, $route->method);
-        $this->assertSame('index', $route->name);
+        $this->assertNull($route->name); // Name is null when not specified in attribute
+    }
+
+    public function testBuildRouteWithExplicitName(): void
+    {
+        $controller = new ReflectionClass(TestControllerForBuilder::class);
+        $method = new ReflectionMethod(TestControllerForBuilder::class, 'index');
+        $routeAttr = new RouteAttribute('/users', 'GET', name: 'users.index');
+
+        $route = $this->builder->build($controller, $method, 'GET', $routeAttr);
+
+        $this->assertSame('users.index', $route->name);
     }
 
     public function testBuildRouteWithGroupPrefix(): void

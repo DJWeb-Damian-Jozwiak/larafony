@@ -49,7 +49,8 @@ Attribute scanning and performance optimization:
 
 ### URL Generation
 
-- **UrlGenerator** - Generates URLs from named routes with parameter substitution (src/Larafony/Routing/Advanced/UrlGenerator.php)
+- **UrlGenerator** - Generates URLs from named routes with parameter substitution, supports absolute URLs and query string generation (src/Larafony/Routing/Advanced/UrlGenerator.php)
+- **Router::generate()** - Convenience method delegating to UrlGenerator for quick URL generation (src/Larafony/Routing/Advanced/Router.php)
 
 ## PSR Standards Implemented
 
@@ -258,6 +259,144 @@ if (config('app.cache_routes')) {
 
 // Routes are now compiled with pre-built regex patterns
 // Matching is 10-100x faster than runtime compilation
+```
+
+**Console Commands for Route Caching:**
+
+```bash
+# Cache routes for production
+php bin/larafony route:cache
+
+# Clear route cache
+php bin/larafony route:clear
+
+# List all registered routes
+php bin/larafony route:list
+```
+
+**RouteCache API:**
+
+```php
+<?php
+
+use Larafony\Framework\Routing\Advanced\Cache\RouteCache;
+
+$cache = new RouteCache(storage_path('cache/routes'));
+
+// Check if cache exists and is valid
+if ($cache->exists()) {
+    $routes = $cache->load();
+}
+
+// Check if cache is fresh (not stale)
+if ($cache->isFresh()) {
+    // Use cached routes
+}
+
+// Save compiled routes
+$cache->save($router->routes->all());
+
+// Clear cache
+$cache->clear();
+
+// Get cache file path
+$path = $cache->getPath(); // storage/cache/routes/compiled.php
+```
+
+### URL Generation
+
+Generate URLs from named routes using the `UrlGenerator` or `Router::generate()` method:
+
+```php
+<?php
+
+use Larafony\Framework\Routing\Advanced\UrlGenerator;
+use Larafony\Framework\Routing\Advanced\Router;
+use Larafony\Framework\Routing\Advanced\Attributes\Route;
+
+// Define named routes
+class UserController
+{
+    #[Route(path: '/users', methods: ['GET'], name: 'users.index')]
+    public function index(): ResponseInterface { /* ... */ }
+
+    #[Route(path: '/users/<id:\d+>', methods: ['GET'], name: 'users.show')]
+    public function show(int $id): ResponseInterface { /* ... */ }
+
+    #[Route(path: '/users/<id:\d+>/posts/<postId:\d+>', methods: ['GET'], name: 'users.posts.show')]
+    public function showPost(int $id, int $postId): ResponseInterface { /* ... */ }
+}
+
+// Generate URLs via UrlGenerator (inject via DI)
+class EmailService
+{
+    public function __construct(
+        private readonly UrlGenerator $urlGenerator,
+    ) {}
+
+    public function sendWelcomeEmail(User $user): void
+    {
+        // Basic URL generation
+        $profileUrl = $this->urlGenerator->route('users.show', ['id' => $user->id]);
+        // Result: /users/123
+
+        // Absolute URL (includes base URL from config)
+        $absoluteUrl = $this->urlGenerator->route('users.show', ['id' => $user->id], absolute: true);
+        // Result: https://example.com/users/123
+
+        // Or use the shorthand method
+        $absoluteUrl = $this->urlGenerator->routeAbsolute('users.show', ['id' => $user->id]);
+
+        // Multiple parameters
+        $postUrl = $this->urlGenerator->route('users.posts.show', [
+            'id' => $user->id,
+            'postId' => 42,
+        ]);
+        // Result: /users/123/posts/42
+
+        // Extra parameters become query string
+        $filteredUrl = $this->urlGenerator->route('users.index', [
+            'page' => 2,
+            'sort' => 'name',
+        ]);
+        // Result: /users?page=2&sort=name
+    }
+}
+
+// Alternative: Use Router::generate() directly
+class NotificationController
+{
+    public function __construct(
+        private readonly Router $router,
+    ) {}
+
+    #[Route(path: '/notify/<userId:\d+>', methods: ['POST'])]
+    public function notify(int $userId): ResponseInterface
+    {
+        $user = User::find($userId);
+
+        // Generate URL via router
+        $dashboardUrl = $this->router->generate('dashboard', absolute: true);
+
+        // Send notification with link...
+
+        return new JsonResponse(['sent' => true]);
+    }
+}
+```
+
+**Configuration:**
+
+The base URL for absolute URLs is read from `config/app.php`:
+
+```php
+<?php
+// config/app.php
+
+return [
+    'url' => env('APP_URL', 'https://example.com'),
+    // ...
+];
 ```
 
 ### Advanced: Programmatic Route Groups

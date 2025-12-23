@@ -71,23 +71,44 @@ class TemplateCompiler
     }
 
     /**
-     * Extract all use statements from PHP blocks and move them to the top of the file
+     * Extract all use statements from PHP blocks and move them to the top of the file.
+     * Only extracts use statements that are inside <?php ... ?> blocks,
+     * ignoring use statements in plain text (like code examples in documentation).
      */
     private function extractUseStatements(string $content): string
     {
         $useStatements = [];
 
-        // Find all use statements
-        if (preg_match_all('/^\s*use\s+[^;]+;/m', $content, $matches)) {
-            foreach ($matches[0] as $useStatement) {
-                $trimmed = trim($useStatement);
-                if (! in_array($trimmed, $useStatements, true)) {
-                    $useStatements[] = $trimmed;
+        // Process each PHP block and extract use statements only from within them
+        $content = preg_replace_callback(
+            '/<\?php(.*?)(?:\?>|$)/s',
+            function (array $matches) use (&$useStatements): string {
+                $phpCode = $matches[1];
+
+                // Find use statements within this PHP block
+                $phpCode = preg_replace_callback(
+                    '/^\s*use\s+[^;]+;/m',
+                    function (array $useMatch) use (&$useStatements): string {
+                        $trimmed = trim($useMatch[0]);
+                        if (! in_array($trimmed, $useStatements, true)) {
+                            $useStatements[] = $trimmed;
+                        }
+                        // Remove the use statement from its current location
+                        return '';
+                    },
+                    $phpCode
+                ) ?? $phpCode;
+
+                // Return the PHP block without the use statements
+                // If the block is now empty (only whitespace), remove it entirely
+                if (trim($phpCode) === '') {
+                    return '';
                 }
-                // Remove the use statement from its current location
-                $content = str_replace($useStatement, '', $content);
-            }
-        }
+
+                return '<?php' . $phpCode . (str_ends_with($matches[0], '?>') ? '?>' : '');
+            },
+            $content
+        ) ?? $content;
 
         // If we found any use statements, prepend them to the content
         if ($useStatements !== []) {

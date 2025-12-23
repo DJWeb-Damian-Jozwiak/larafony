@@ -23,7 +23,7 @@ class RouteBuilder
      * @param ReflectionClass<object> $controller
      * @param ReflectionMethod $method
      * @param string $httpMethod
-     * @param RouteAttribute $route
+     * @param RouteAttribute $routeAttribute
      *
      * @return Route
      */
@@ -31,18 +31,18 @@ class RouteBuilder
         ReflectionClass $controller,
         ReflectionMethod $method,
         string $httpMethod,
-        RouteAttribute $route,
+        RouteAttribute $routeAttribute,
     ): Route {
         $classAttributesProcessor = new ClassAttributesProcessor($controller);
         $groupPrefix = $classAttributesProcessor->routeGroup->name ?? '';
-        $path = $groupPrefix . $route->path;
+        $path = $groupPrefix . $routeAttribute->path;
         $handler = [$controller->getName(), $method->getName()];
         $route = new Route(
             $path,
             HttpMethod::from(strtoupper($httpMethod)),
             $handler,
             $this->handlerFactory,
-            $method->getName(),
+            $routeAttribute->name,
         );
         $classMiddleware = $classAttributesProcessor->middleware;
         $classMiddleware?->addToRoute($route);

@@ -21,14 +21,38 @@ class Router extends BaseRouter
     public private(set) array $groups = [];
 
     private ModelBinder $modelBinder;
+    private ?UrlGenerator $urlGenerator = null;
 
     public function __construct(
         RouteCollection $routes,
         ContainerContract $container,
         private readonly ?EventDispatcherInterface $eventDispatcher = null,
+        private readonly string $baseUrl = '',
     ) {
         parent::__construct($routes, $container);
         $this->modelBinder = new ModelBinder($container);
+    }
+
+    /**
+     * Generate URL for a named route.
+     *
+     * @param string $name Route name
+     * @param array<string, mixed> $params Route parameters
+     * @param bool $absolute Generate absolute URL
+     *
+     * @return string Generated URL
+     */
+    public function generate(string $name, array $params = [], bool $absolute = false): string
+    {
+        return $this->getUrlGenerator()->route($name, $params, $absolute);
+    }
+
+    /**
+     * Get the URL generator instance.
+     */
+    public function getUrlGenerator(): UrlGenerator
+    {
+        return $this->urlGenerator ??= new UrlGenerator($this->routes, $this->baseUrl);
     }
     /**
      * Handle the request by finding and executing the matched route

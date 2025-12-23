@@ -17,10 +17,12 @@ readonly class Route
     /**
      * @param string $path
      * @param string|array<int, string> $methods
+     * @param string|null $name Named route for URL generation
      */
     public function __construct(
         public string $path,
         string|array $methods = ['GET'],
+        public ?string $name = null,
     ) {
         $this->methods = is_string($methods) ? [$methods] : $methods;
     }

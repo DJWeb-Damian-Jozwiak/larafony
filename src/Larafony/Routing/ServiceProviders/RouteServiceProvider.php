@@ -10,9 +10,11 @@ use Larafony\Framework\Routing\Advanced\AttributeRouteScanner;
 use Larafony\Framework\Routing\Advanced\Cache\RouteCache;
 use Larafony\Framework\Routing\Advanced\RouteMatcher;
 use Larafony\Framework\Routing\Advanced\Router;
+use Larafony\Framework\Routing\Advanced\UrlGenerator;
 use Larafony\Framework\Routing\Basic\Factories\ArrayHandlerFactory;
 use Larafony\Framework\Routing\Basic\Factories\StringHandlerFactory;
 use Larafony\Framework\Routing\Basic\RouteCollection;
+use Larafony\Framework\Web\Config;
 use Override;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -25,6 +27,7 @@ class RouteServiceProvider extends ServiceProvider
         return [
             RequestHandlerInterface::class => Router::class,
             Router::class => Router::class,
+            UrlGenerator::class => UrlGenerator::class,
             ArrayHandlerFactory::class => ArrayHandlerFactory::class,
             StringHandlerFactory::class => StringHandlerFactory::class,
             AttributeRouteScanner::class => AttributeRouteScanner::class,
@@ -48,6 +51,9 @@ class RouteServiceProvider extends ServiceProvider
         $routeCache = new RouteCache($cacheDir);
         $container->set(RouteCache::class, $routeCache);
 
+        // Get base URL from config
+        $baseUrl = Config::get('app.url', '');
+
         // Register Router with EventDispatcher
         $eventDispatcher = $container->has(EventDispatcherInterface::class)
             ? $container->get(EventDispatcherInterface::class)
@@ -56,10 +62,15 @@ class RouteServiceProvider extends ServiceProvider
         $router = new Router(
             $collection,
             $container,
-            $eventDispatcher
+            $eventDispatcher,
+            $baseUrl
         );
 
         $container->set(Router::class, $router);
         $container->set(RequestHandlerInterface::class, $router);
+
+        // Register UrlGenerator
+        $urlGenerator = $router->getUrlGenerator();
+        $container->set(UrlGenerator::class, $urlGenerator);
     }
 }
