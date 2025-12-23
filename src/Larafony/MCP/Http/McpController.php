@@ -31,6 +31,7 @@ class McpController extends Controller
         $version = $config->get('mcp.version', '1.0.0');
         $instructions = $config->get('mcp.instructions');
         $discoveryPath = $config->get('mcp.discovery.path');
+        $discoveryDirs = (array) $config->get('mcp.discovery.dirs', ['src', '.']);
 
         $factory = $this->container->get(McpServerFactoryContract::class);
 
@@ -39,6 +40,7 @@ class McpController extends Controller
             version: $version,
             instructions: $instructions,
             discoveryPath: $discoveryPath,
+            discoveryDirs: $discoveryDirs,
         );
 
         $transport = new StreamableHttpTransport(

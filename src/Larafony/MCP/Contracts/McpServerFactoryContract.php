@@ -21,11 +21,13 @@ interface McpServerFactoryContract
      * @param string $version Server version
      * @param string|null $instructions Optional instructions for AI model
      * @param string|null $discoveryPath Path for automatic tool/resource discovery
+     * @param string[] $discoveryDirs Directories to scan relative to discoveryPath
      */
     public function create(
         string $name,
         string $version,
         ?string $instructions = null,
         ?string $discoveryPath = null,
+        array $discoveryDirs = ['src', '.'],
     ): Server;
 }

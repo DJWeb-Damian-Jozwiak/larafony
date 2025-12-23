@@ -32,11 +32,15 @@ final class McpServerFactory implements McpServerFactoryContract
     ) {
     }
 
+    /**
+     * @param string[] $discoveryDirs
+     */
     public function create(
         string $name,
         string $version,
         ?string $instructions = null,
         ?string $discoveryPath = null,
+        array $discoveryDirs = ['src', '.'],
     ): Server {
         $builder = Server::builder()
             ->setServerInfo($name, $version)
@@ -54,7 +58,7 @@ final class McpServerFactory implements McpServerFactoryContract
         if ($discoveryPath !== null) {
             $builder->setDiscovery(
                 basePath: $discoveryPath,
-                scanDirs: ['src', '.'],
+                scanDirs: $discoveryDirs,
                 cache: $this->resolveDiscoveryCache(),
             );
         }
