@@ -49,7 +49,7 @@ class ServerRequestFactoryTest extends TestCase
 
     public function testCreateServerRequestAcceptsUriInterface(): void
     {
-        $uri = $this->createMock(UriInterface::class);
+        $uri = $this->createStub(UriInterface::class);
         $request = $this->factory->createServerRequest('POST', $uri);
         $this->assertTrue($request->isPost());
 
@@ -128,6 +128,7 @@ class ServerRequestFactoryTest extends TestCase
 
     public function testCreateFromGlobalsHandlesUploadedFiles(): void
     {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
         touch('/tmp/phpXXXXXX');
         $_FILES = [
             'file' => [
@@ -162,7 +163,7 @@ class ServerRequestFactoryTest extends TestCase
     public function testWithUploadedFilesReturnsNewInstance(): void
     {
         $originalRequest = $this->request;
-        $file = $this->createMock(UploadedFileInterface::class);
+        $file = $this->createStub(UploadedFileInterface::class);
         $files = ['avatar' => $file];
 
         $newRequest = $originalRequest->withUploadedFiles($files);

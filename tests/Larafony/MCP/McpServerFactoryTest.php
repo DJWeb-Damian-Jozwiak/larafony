@@ -17,7 +17,7 @@ final class McpServerFactoryTest extends TestCase
 {
     public function testImplementsContract(): void
     {
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $factory = new McpServerFactory($container);
 
         $this->assertInstanceOf(McpServerFactoryContract::class, $factory);
@@ -25,7 +25,7 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateReturnsServer(): void
     {
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $factory = new McpServerFactory($container);
 
         $server = $factory->create('Test Server', '1.0.0');
@@ -35,8 +35,8 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateWithLogger(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $container = $this->createStub(ContainerContract::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $factory = new McpServerFactory(
             container: $container,
@@ -50,8 +50,8 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateWithEventDispatcher(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $container = $this->createStub(ContainerContract::class);
+        $eventDispatcher = $this->createStub(EventDispatcherInterface::class);
 
         $factory = new McpServerFactory(
             container: $container,
@@ -65,7 +65,7 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateWithInstructions(): void
     {
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $factory = new McpServerFactory($container);
 
         $server = $factory->create(
@@ -79,7 +79,7 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateWithDiscoveryPath(): void
     {
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $container->method('has')->willReturn(false);
 
         $factory = new McpServerFactory($container);
@@ -95,8 +95,8 @@ final class McpServerFactoryTest extends TestCase
 
     public function testCreateWithDiscoveryCacheFallsBackToContainer(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $cache = $this->createMock(CacheInterface::class);
+        $container = $this->createStub(ContainerContract::class);
+        $cache = $this->createStub(CacheInterface::class);
 
         $factory = new McpServerFactory(
             container: $container,

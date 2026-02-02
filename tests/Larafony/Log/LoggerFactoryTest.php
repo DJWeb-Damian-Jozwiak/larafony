@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 final class LoggerFactoryTest extends TestCase
 {
     private string $tempDir;
-    private ConfigContract $configMock;
+    private ConfigContract&\PHPUnit\Framework\MockObject\Stub $configMock;
 
     protected function setUp(): void
     {
@@ -27,7 +27,7 @@ final class LoggerFactoryTest extends TestCase
         mkdir($this->tempDir, 0755, true);
 
         // Create mock config and bind it to Application
-        $this->configMock = $this->createMock(ConfigContract::class);
+        $this->configMock = $this->createStub(ConfigContract::class);
         Application::instance(base_path: '/tmp/test')->set(ConfigContract::class, $this->configMock);
     }
 

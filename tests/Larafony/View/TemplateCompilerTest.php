@@ -72,7 +72,7 @@ class TemplateCompilerTest extends TestCase
 
     public function testAddDirectiveRegistersDirective(): void
     {
-        $directive = $this->createMock(DirectiveContract::class);
+        $directive = $this->createStub(DirectiveContract::class);
         $directive->method('compile')->willReturnArgument(0);
 
         $result = $this->compiler->addDirective($directive);
@@ -97,10 +97,10 @@ class TemplateCompilerTest extends TestCase
 
     public function testCompileCallsMultipleDirectivesInOrder(): void
     {
-        $directive1 = $this->createMock(DirectiveContract::class);
+        $directive1 = $this->createStub(DirectiveContract::class);
         $directive1->method('compile')->willReturnCallback(fn($c) => $c . ' [D1]');
 
-        $directive2 = $this->createMock(DirectiveContract::class);
+        $directive2 = $this->createStub(DirectiveContract::class);
         $directive2->method('compile')->willReturnCallback(fn($c) => $c . ' [D2]');
 
         $this->compiler
@@ -160,10 +160,10 @@ class TemplateCompilerTest extends TestCase
 
     public function testAddDirectiveCanBeChained(): void
     {
-        $directive1 = $this->createMock(DirectiveContract::class);
+        $directive1 = $this->createStub(DirectiveContract::class);
         $directive1->method('compile')->willReturnArgument(0);
 
-        $directive2 = $this->createMock(DirectiveContract::class);
+        $directive2 = $this->createStub(DirectiveContract::class);
         $directive2->method('compile')->willReturnArgument(0);
 
         $result = $this->compiler

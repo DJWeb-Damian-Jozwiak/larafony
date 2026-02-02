@@ -10,7 +10,7 @@ use Larafony\Framework\Storage\Session\SessionConfiguration;
 use Larafony\Framework\Storage\Session\SessionManager;
 use Larafony\Framework\Web\Application;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use SessionHandlerInterface;
 use Larafony\Framework\Tests\TestCase;
 
@@ -18,7 +18,7 @@ class SessionManagerTest extends TestCase
 {
     private SessionManager $manager;
     private SessionConfiguration $configuration;
-    private MockObject $config;
+    private ConfigContract&Stub $config;
     private SessionHandlerInterface $handler;
     private Application $app;
     private string $tempDir;
@@ -28,12 +28,11 @@ class SessionManagerTest extends TestCase
         parent::setUp();
         Application::empty();
         $this->app = Application::instance();
-        $this->config = $this->createMock(ConfigContract::class);
+        $this->config = $this->createStub(ConfigContract::class);
         $this->configuration = new SessionConfiguration();
-        $this->handler = $this->createMock(SessionHandlerInterface::class);
+        $this->handler = $this->createStub(SessionHandlerInterface::class);
         $this->tempDir = sys_get_temp_dir() . '/sessions_' . uniqid();
         $this->config
-            ->expects($this->any())
             ->method('get')
             ->willReturnCallback(fn(string $key) => match ($key) {
                 'session.cookie_params' => [

@@ -16,10 +16,10 @@ class EntityManagerTest extends TestCase
     public function testSaveCallsInserterWhenModelIsNew(): void
     {
         // Mock QueryBuilder
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('insertGetId')->willReturn('99');
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -46,11 +46,11 @@ class EntityManagerTest extends TestCase
     public function testSaveCallsUpdaterWhenModelExists(): void
     {
         // Mock QueryBuilder with where and update
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('update')->willReturn(1);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

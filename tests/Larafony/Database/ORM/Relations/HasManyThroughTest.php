@@ -27,8 +27,8 @@ class HasManyThroughTest extends TestCase
         $this->parent->id = 1;
 
         // Setup DB facade
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
     }
@@ -52,7 +52,7 @@ class HasManyThroughTest extends TestCase
             ->method('where')
             ->with('users.country_id', '=', 1);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

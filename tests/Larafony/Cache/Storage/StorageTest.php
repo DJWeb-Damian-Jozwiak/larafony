@@ -107,7 +107,7 @@ class StorageTest extends TestCase
                         'factory' => function() {
                             // Mock ConfigContract for MemcachedStorage
                             $test = new self('test');
-                            $configMock = $test->createMock(ConfigContract::class);
+                            $configMock = $test->createStub(ConfigContract::class);
                             $configMock->method('get')
                                 ->willReturn('test:');
 

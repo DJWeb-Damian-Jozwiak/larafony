@@ -101,10 +101,9 @@ class CookieManagerIntegrationTest extends TestCase
         parent::setUp();
         Application::empty();
         $this->app = Application::instance();
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $encryptionKey = new KeyGenerator()->generateKey();
         $config
-            ->expects($this->any())
             ->method('get')
             ->willReturnCallback(fn(string $key) => match ($key) {
                 'app.key' => $encryptionKey,

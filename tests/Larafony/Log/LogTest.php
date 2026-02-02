@@ -23,7 +23,7 @@ final class LogTest extends TestCase
 
         $this->mockLogger = $this->createMock(LoggerInterface::class);
 
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $container->method('get')
             ->with(LoggerInterface::class)
             ->willReturn($this->mockLogger);

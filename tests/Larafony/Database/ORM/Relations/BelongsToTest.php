@@ -41,8 +41,8 @@ class BelongsToTest extends TestCase
         };
 
         // Setup DB facade
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -61,7 +61,7 @@ class BelongsToTest extends TestCase
             ->method('where')
             ->with('id', '=', 5);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -71,13 +71,13 @@ class BelongsToTest extends TestCase
 
     public function testGetRelatedReturnsHydratedModel(): void
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
             ['id' => 5, 'name' => 'John Doe'],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

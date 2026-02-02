@@ -33,7 +33,7 @@ final class EventDispatcherTest extends TestCase
         $called = false;
         $receivedData = null;
 
-        $connection = $this->createMock(ConnectionContract::class);
+        $connection = $this->createStub(ConnectionContract::class);
 
         $dispatcher->addListener('test', function ($data) use (&$called, &$receivedData): void {
             $called = true;
@@ -51,7 +51,7 @@ final class EventDispatcherTest extends TestCase
         $dispatcher = new EventDispatcher();
         $callCount = 0;
 
-        $connection = $this->createMock(ConnectionContract::class);
+        $connection = $this->createStub(ConnectionContract::class);
 
         $dispatcher->addListener('test', function () use (&$callCount): void {
             $callCount++;
@@ -71,7 +71,7 @@ final class EventDispatcherTest extends TestCase
         $dispatcher = new EventDispatcher();
         $called = false;
 
-        $connection = $this->createMock(ConnectionContract::class);
+        $connection = $this->createStub(ConnectionContract::class);
 
         $dispatcher->addListener('other', function () use (&$called): void {
             $called = true;
@@ -108,7 +108,7 @@ final class EventDispatcherTest extends TestCase
         $dispatcher = new EventDispatcher();
         $receivedConnection = null;
 
-        $connection = $this->createMock(ConnectionContract::class);
+        $connection = $this->createStub(ConnectionContract::class);
         $connection->method('getId')->willReturn('test-id');
 
         $dispatcher->addListener('test', function ($data, $conn) use (&$receivedConnection): void {
@@ -125,7 +125,7 @@ final class EventDispatcherTest extends TestCase
         $dispatcher = new EventDispatcher();
         $receivedDispatcher = null;
 
-        $connection = $this->createMock(ConnectionContract::class);
+        $connection = $this->createStub(ConnectionContract::class);
 
         $dispatcher->addListener('test', function ($data, $conn, $disp) use (&$receivedDispatcher): void {
             $receivedDispatcher = $disp;

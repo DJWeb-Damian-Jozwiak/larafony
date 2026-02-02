@@ -19,8 +19,8 @@ class EntityUpdaterTest extends TestCase
     protected function setUp(): void
     {
         // Setup DB facade before creating model
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

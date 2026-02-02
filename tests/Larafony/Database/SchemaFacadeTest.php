@@ -8,29 +8,29 @@ use Larafony\Framework\Database\DatabaseManager;
 use Larafony\Framework\Database\Drivers\MySQL\SchemaBuilder;
 use Larafony\Framework\Database\Schema;
 use Larafony\Framework\Tests\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class SchemaFacadeTest extends TestCase
 {
-    private DatabaseManager $manager;
-    private SchemaBuilder $schemaBuilder;
-
-    protected function setUp(): void
+    private function setUpSchemaWithMock(): SchemaBuilder&MockObject
     {
-        parent::setUp();
+        $manager = $this->createStub(DatabaseManager::class);
+        $schemaBuilder = $this->createMock(SchemaBuilder::class);
 
-        $this->manager = $this->createMock(DatabaseManager::class);
-        $this->schemaBuilder = $this->createMock(SchemaBuilder::class);
-
-        $this->manager
+        $manager
             ->method('schema')
-            ->willReturn($this->schemaBuilder);
+            ->willReturn($schemaBuilder);
 
-        Schema::withManager($this->manager);
+        Schema::withManager($manager);
+
+        return $schemaBuilder;
     }
 
     public function testCreateDelegatesToSchemaBuilder(): void
     {
-        $this->schemaBuilder
+        $schemaBuilder = $this->setUpSchemaWithMock();
+
+        $schemaBuilder
             ->expects($this->once())
             ->method('create')
             ->with('users', $this->isInstanceOf(\Closure::class));
@@ -43,7 +43,9 @@ class SchemaFacadeTest extends TestCase
 
     public function testTableDelegatesToSchemaBuilder(): void
     {
-        $this->schemaBuilder
+        $schemaBuilder = $this->setUpSchemaWithMock();
+
+        $schemaBuilder
             ->expects($this->once())
             ->method('table')
             ->with('users', $this->isInstanceOf(\Closure::class));
@@ -57,7 +59,9 @@ class SchemaFacadeTest extends TestCase
 
     public function testDropDelegatesToSchemaBuilder(): void
     {
-        $this->schemaBuilder
+        $schemaBuilder = $this->setUpSchemaWithMock();
+
+        $schemaBuilder
             ->expects($this->once())
             ->method('drop')
             ->with('users');
@@ -69,7 +73,9 @@ class SchemaFacadeTest extends TestCase
 
     public function testDropIfExistsDelegatesToSchemaBuilder(): void
     {
-        $this->schemaBuilder
+        $schemaBuilder = $this->setUpSchemaWithMock();
+
+        $schemaBuilder
             ->expects($this->once())
             ->method('dropIfExists')
             ->with('users');
@@ -81,7 +87,9 @@ class SchemaFacadeTest extends TestCase
 
     public function testGetColumnListingDelegatesToSchemaBuilder(): void
     {
-        $this->schemaBuilder
+        $schemaBuilder = $this->setUpSchemaWithMock();
+
+        $schemaBuilder
             ->expects($this->once())
             ->method('getColumnListing')
             ->with('users')
@@ -96,6 +104,12 @@ class SchemaFacadeTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Database manager not set');
+
+        // Use stub for this test since we don't need expects()
+        $manager = $this->createStub(DatabaseManager::class);
+        $schemaBuilder = $this->createStub(SchemaBuilder::class);
+        $manager->method('schema')->willReturn($schemaBuilder);
+        Schema::withManager($manager);
 
         // Create new Schema instance without manager
         $reflection = new \ReflectionClass(Schema::class);

@@ -19,48 +19,43 @@ use RuntimeException;
 
 class ConsoleRendererTest extends TestCase
 {
-    private OutputContract $output;
-    private ConsoleRenderer $renderer;
-
-    private array $commands = [];
-    private int $currentCommand = 0;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->output = $this->createMock(OutputContract::class);
-        $this->output
-            ->method('question')
-            ->willReturnCallback(function () {
-                if ($this->currentCommand >= count($this->commands)) {
-                    throw new TestSequenceCompletedException();
-                }
-                return $this->commands[$this->currentCommand++];
-            });
-
-        $app = Application::instance();
-        $app->set(OutputContract::class, $this->output);
-        $this->renderer = new ConsoleRendererFactory($app)->create();
     }
 
     public function testRenderHelp()
     {
-        $this->commands = ['help'];
+        $commands = ['help'];
+        $currentCommand = 0;
+        $expectedOutput = [];
 
-        $this->output->expects($this->once())
+        $output = $this->createMock(OutputContract::class);
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+
+        $output->expects($this->once())
             ->method('info')
             ->with('Available commands:');
 
-        $expectedOutput = [];
-        $this->output
+        $output
             ->expects($this->exactly(10))
             ->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
+
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
         $this->assertEquals([
@@ -79,19 +74,28 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderTrace()
     {
-        $this->commands = ['trace'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['trace'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
         $this->assertTrue(in_array('#0 (__construct)', $expectedOutput));
@@ -99,19 +103,28 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderFrame()
     {
-        $this->commands = ['frame 0'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['frame 0'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
 
@@ -120,39 +133,60 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderInvalidFrame()
     {
-        $this->commands = ['frame 1000'];
+        $commands = ['frame 1000'];
+        $currentCommand = 0;
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
+
+        $output = $this->createMock(OutputContract::class);
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+
+        $output
             ->expects($this->exactly(3))
             ->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
-
     }
 
 
     public function testRenderSource()
     {
-        $this->commands = ['source 0'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['source 0'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
         $this->assertCount(44, $expectedOutput);
@@ -160,19 +194,28 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderVars()
     {
-        $this->commands = ['vars 0'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['vars 0'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
 
@@ -181,19 +224,28 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderEnv()
     {
-        $this->commands = ['env'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['env'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
 
@@ -202,19 +254,28 @@ class ConsoleRendererTest extends TestCase
 
     public function testRenderInvalidCommand()
     {
-        $this->commands = ['missing'];
         $expectedOutput = [];
-        $any = $this->any();
-        $this->output
-            ->expects($any)
-            ->method('writeln')
+        $output = $this->createStub(OutputContract::class);
+        $commands = ['missing'];
+        $currentCommand = 0;
+        $output->method('question')
+            ->willReturnCallback(function () use ($commands, &$currentCommand) {
+                if ($currentCommand >= count($commands)) {
+                    throw new TestSequenceCompletedException();
+                }
+                return $commands[$currentCommand++];
+            });
+        $output->method('writeln')
             ->willReturnCallback(function($message) use (&$expectedOutput) {
                 $expectedOutput[] = $message;
             });
 
+        $app = Application::instance();
+        $app->set(OutputContract::class, $output);
+        $renderer = new ConsoleRendererFactory($app)->create();
 
-        $this->executeWithExceptionCatch(function () {
-            $this->renderer->render(new RuntimeException('Test exception'));
+        $this->executeWithExceptionCatch(function () use ($renderer) {
+            $renderer->render(new RuntimeException('Test exception'));
         });
 
         $this->assertCount(3, $expectedOutput);
@@ -225,7 +286,7 @@ class ConsoleRendererTest extends TestCase
         $commands = ['help', 'frame 0', 'exit'];
         $currentCommand = 0;
 
-        $output = $this->createMock(OutputContract::class);
+        $output = $this->createStub(OutputContract::class);
         $output->method('question')
             ->willReturnCallback(function() use ($commands, &$currentCommand) {
                 return $commands[$currentCommand++];
@@ -233,8 +294,8 @@ class ConsoleRendererTest extends TestCase
 
         $session = new DebugSession(
             $output,
-            $this->createMock(ConsoleCommandProcessor::class),
-            $this->createMock(TraceCollection::class)
+            $this->createStub(ConsoleCommandProcessor::class),
+            $this->createStub(TraceCollection::class)
         );
 
         // Act

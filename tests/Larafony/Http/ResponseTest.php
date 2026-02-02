@@ -122,7 +122,7 @@ class ResponseTest extends TestCase
 
     public function testWithBody(): void
     {
-        $newBody = $this->createMock(StreamInterface::class);
+        $newBody = $this->createStub(StreamInterface::class);
         $new = $this->response->withBody($newBody);
         $this->assertNotSame($this->response, $new);
     }

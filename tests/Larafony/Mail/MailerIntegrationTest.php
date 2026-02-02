@@ -35,7 +35,7 @@ class MailerIntegrationTest extends TestCase
             $this->markTestSkipped('MailHog is not running on localhost:1025');
         }
 
-        $viewManager = $this->createMock(ViewManager::class);
+        $viewManager = $this->createStub(ViewManager::class);
         $mailer = MailerFactory::createMailHogMailer($viewManager, host: 'mailhog');
 
         $mailable = new class extends Mailable {

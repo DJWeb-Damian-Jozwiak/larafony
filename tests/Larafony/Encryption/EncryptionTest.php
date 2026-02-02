@@ -41,8 +41,8 @@ class EncryptionTest extends TestCase
     {
         $app = Application::instance(dirname(__DIR__));
         $data = 'test';
-        $config = $this->createMock(ConfigContract::class);
-        $config->expects($this->any())->method('get')
+        $config = $this->createStub(ConfigContract::class);
+        $config->method('get')
             ->willReturn(new KeyGenerator()->generateKey());
         $app->set(ConfigContract::class, $config);
         $encrypted = new EncryptionService()->encrypt($data);
@@ -56,8 +56,8 @@ class EncryptionTest extends TestCase
     public function testThrowsExceptionOnInvalidBase64(): void
     {
         $app = Application::instance(dirname(__DIR__));
-        $config = $this->createMock(ConfigContract::class);
-        $config->expects($this->any())->method('get')
+        $config = $this->createStub(ConfigContract::class);
+        $config->method('get')
             ->willReturn(new KeyGenerator()->generateKey());
         $app->set(ConfigContract::class, $config);
         $this->expectException(InvalidArgumentException::class);
@@ -68,8 +68,8 @@ class EncryptionTest extends TestCase
     public function testThrowsExceptionOnDataTooShort(): void
     {
         $app = Application::instance(dirname(__DIR__));
-        $config = $this->createMock(ConfigContract::class);
-        $config->expects($this->any())->method('get')
+        $config = $this->createStub(ConfigContract::class);
+        $config->method('get')
             ->willReturn(new KeyGenerator()->generateKey());
         $app->set(ConfigContract::class, $config);
         $this->expectException(InvalidArgumentException::class);
@@ -81,8 +81,8 @@ class EncryptionTest extends TestCase
     public function testThrowsExceptionOnDecryptionFailure(): void
     {
         $app = Application::instance(dirname(__DIR__));
-        $config = $this->createMock(ConfigContract::class);
-        $config->expects($this->any())->method('get')
+        $config = $this->createStub(ConfigContract::class);
+        $config->method('get')
             ->willReturn(new KeyGenerator()->generateKey());
         $app->set(ConfigContract::class, $config);
         $this->expectException(InvalidArgumentException::class);

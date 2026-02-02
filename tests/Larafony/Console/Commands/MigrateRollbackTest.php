@@ -56,7 +56,7 @@ final class MigrateRollbackTest extends TestCase
             ->method('info')
             ->with('Nothing to rollback');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);
@@ -107,7 +107,7 @@ PHP);
             ->method('info')
             ->with("Rolled back: {$migrationName}");
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);
@@ -166,7 +166,7 @@ PHP);
         $output = $this->createMock(Output::class);
         $output->expects($this->exactly(2))->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);

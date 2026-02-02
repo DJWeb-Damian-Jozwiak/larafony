@@ -7,17 +7,17 @@ namespace Larafony\ErrorHandler;
 use Larafony\Framework\ErrorHandler\Handlers\ConsoleHandler;
 use Larafony\Framework\ErrorHandler\Renderers\ConsoleRenderer;
 use Larafony\Framework\Tests\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 
 class ConsoleHandlerTest extends TestCase
 {
-    private ConsoleRenderer|MockObject $renderer;
+    private ConsoleRenderer&Stub $renderer;
     private array $output;
     private ConsoleHandler $handler;
 
     protected function setUp(): void
     {
-        $this->renderer = $this->createMock(ConsoleRenderer::class);
+        $this->renderer = $this->createStub(ConsoleRenderer::class);
         $this->output = [];
         $this->handler = new ConsoleHandler(
             $this->renderer,

@@ -35,7 +35,7 @@ class CachedAuthorizationTest extends TestCase
 
         // Get application instance and mock config
         $app = Application::instance();
-        $configMock = $this->createMock(ConfigContract::class);
+        $configMock = $this->createStub(ConfigContract::class);
         $configMock->method('get')
             ->willReturnMap([
                 ['cache.default', null, 'file'],

@@ -19,7 +19,7 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_can_be_created_with_handlers(): void
     {
-        $handler = $this->createMock(HandlerContract::class);
+        $handler = $this->createStub(HandlerContract::class);
         $logger = new Logger([$handler]);
 
         $this->assertCount(1, $logger->handlers);
@@ -28,7 +28,7 @@ final class LoggerTest extends TestCase
     #[Test]
     public function it_filters_out_non_handler_objects(): void
     {
-        $handler = $this->createMock(HandlerContract::class);
+        $handler = $this->createStub(HandlerContract::class);
         $invalid = new \stdClass();
 
         $logger = new Logger([$handler, $invalid]);

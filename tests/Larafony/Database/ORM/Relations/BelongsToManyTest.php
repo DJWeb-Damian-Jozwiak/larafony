@@ -19,8 +19,8 @@ class BelongsToManyTest extends TestCase
     protected function setUp(): void
     {
         // Setup DB facade BEFORE creating model
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -52,7 +52,7 @@ class BelongsToManyTest extends TestCase
             ->method('where')
             ->with('role_user.user_id', '=', 15);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -92,14 +92,14 @@ class BelongsToManyTest extends TestCase
                 return true;
             });
 
-        $rolesQueryBuilder = $this->createMock(QueryBuilder::class);
+        $rolesQueryBuilder = $this->createStub(QueryBuilder::class);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturnCallback(
             fn($table) => match ($table) {
                 'role_user' => $pivotQueryBuilder,
                 'roles' => $rolesQueryBuilder,
-                default => $this->createMock(QueryBuilder::class),
+                default => $this->createStub(QueryBuilder::class),
             }
         );
         DB::withManager($manager);
@@ -123,9 +123,9 @@ class BelongsToManyTest extends TestCase
 
     public function testAttachDoesNothingForEmptyArray(): void
     {
-        $rolesQueryBuilder = $this->createMock(QueryBuilder::class);
+        $rolesQueryBuilder = $this->createStub(QueryBuilder::class);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturnCallback(
             fn($table) => match ($table) {
                 'roles' => $rolesQueryBuilder,
@@ -168,14 +168,14 @@ class BelongsToManyTest extends TestCase
         $pivotQueryBuilder->expects($this->once())
             ->method('delete');
 
-        $rolesQueryBuilder = $this->createMock(QueryBuilder::class);
+        $rolesQueryBuilder = $this->createStub(QueryBuilder::class);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturnCallback(
             fn($table) => match ($table) {
                 'role_user' => $pivotQueryBuilder,
                 'roles' => $rolesQueryBuilder,
-                default => $this->createMock(QueryBuilder::class),
+                default => $this->createStub(QueryBuilder::class),
             }
         );
         DB::withManager($manager);
@@ -209,14 +209,14 @@ class BelongsToManyTest extends TestCase
         $pivotQueryBuilder->expects($this->once())
             ->method('delete');
 
-        $rolesQueryBuilder = $this->createMock(QueryBuilder::class);
+        $rolesQueryBuilder = $this->createStub(QueryBuilder::class);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturnCallback(
             fn($table) => match ($table) {
                 'role_user' => $pivotQueryBuilder,
                 'roles' => $rolesQueryBuilder,
-                default => $this->createMock(QueryBuilder::class),
+                default => $this->createStub(QueryBuilder::class),
             }
         );
         DB::withManager($manager);
@@ -259,14 +259,14 @@ class BelongsToManyTest extends TestCase
                 return true;
             });
 
-        $rolesQueryBuilder = $this->createMock(QueryBuilder::class);
+        $rolesQueryBuilder = $this->createStub(QueryBuilder::class);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturnCallback(
             fn($table) => match ($table) {
                 'role_user' => $pivotQueryBuilder,
                 'roles' => $rolesQueryBuilder,
-                default => $this->createMock(QueryBuilder::class),
+                default => $this->createStub(QueryBuilder::class),
             }
         );
         DB::withManager($manager);

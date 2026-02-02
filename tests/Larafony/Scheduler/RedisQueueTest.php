@@ -8,13 +8,14 @@ use Larafony\Framework\Encryption\KeyGenerator;
 use Larafony\Framework\Scheduler\Queue\RedisQueue;
 use Larafony\Framework\Scheduler\QueueFactory;
 use Larafony\Framework\Web\Application;
+use PHPUnit\Framework\MockObject\MockObject;
 use Redis;
 use Larafony\Framework\Tests\TestCase;
 use Larafony\Framework\Tests\Helpers\TestJob;
 
 class RedisQueueTest extends TestCase
 {
-    private Redis $redis;
+    private Redis&MockObject $redis;
     private RedisQueue $queue;
     private TestJob $job;
     private Application $app;
@@ -30,8 +31,8 @@ class RedisQueueTest extends TestCase
         );
         $this->app->bind('base_path', dirname(__DIR__));
         $security = new KeyGenerator()->generateKey();
-        $config = $this->createMock(ConfigContract::class);
-        $config->expects($this->any())->method('get')->willReturnCallback(fn($key) => match ($key) {
+        $config = $this->createStub(ConfigContract::class);
+        $config->method('get')->willReturnCallback(fn($key) => match ($key) {
             'app.key' => $security,
             'redis.host' => 'localhost',
             'redis.port' => 6379,
@@ -40,7 +41,7 @@ class RedisQueueTest extends TestCase
         });
         $this->app->set(ConfigContract::class, $config);
         $this->redis = $this->createMock(Redis::class);
-        $this->redis->expects($this->any())->method('connect')->willReturn(true);
+        $this->redis->method('connect')->willReturn(true);
         $this->queue = QueueFactory::make()->withRedis($this->redis);
         $this->job = new TestJob(
             id: '123',

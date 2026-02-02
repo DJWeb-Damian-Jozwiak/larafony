@@ -45,15 +45,25 @@ final readonly class UploadedFilesParser
             return [];
         }
 
+        // If $_FILES is already populated (POST requests or tests), use it directly
+        if (!empty($_FILES)) {
+            return self::parse($_FILES);
+        }
+
         $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
         $contentType = strtolower(trim(explode(';', $contentType)[0]));
 
         // request_parse_body() only supports multipart/form-data and application/x-www-form-urlencoded
-        if (!in_array($contentType, ['multipart/form-data', 'application/x-www-form-urlencoded', ''], true)) {
+        if (!in_array($contentType, ['multipart/form-data', 'application/x-www-form-urlencoded'], true)) {
             return [];
         }
 
-        [, $_FILES ] = request_parse_body();
-        return self::parse($_FILES);
+        try {
+            [, $_FILES] = request_parse_body();
+            return self::parse($_FILES);
+        } catch (\RequestParseBodyException) {
+            // In test environments or when no actual HTTP request exists
+            return [];
+        }
     }
 }

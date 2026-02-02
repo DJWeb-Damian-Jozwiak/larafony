@@ -7,16 +7,17 @@ namespace Larafony\Framework\Tests\Mail;
 use Larafony\Framework\Mail\Mailer;
 use Larafony\Framework\Mail\MailerFactory;
 use Larafony\Framework\View\ViewManager;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class MailerFactoryTest extends TestCase
 {
-    private ViewManager $viewManager;
+    private ViewManager&Stub $viewManager;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->viewManager = $this->createMock(ViewManager::class);
+        $this->viewManager = $this->createStub(ViewManager::class);
     }
 
     public function testFromDsnCreatesMailer(): void

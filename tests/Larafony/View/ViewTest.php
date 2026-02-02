@@ -17,7 +17,7 @@ class ViewTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->renderer = $this->createMock(RendererContract::class);
+        $this->renderer = $this->createStub(RendererContract::class);
     }
 
     public function testViewImplementsViewContract(): void
@@ -107,13 +107,14 @@ class ViewTest extends TestCase
 
     public function testRenderCallsRendererWithTemplateAndData(): void
     {
-        $this->renderer
+        $renderer = $this->createMock(RendererContract::class);
+        $renderer
             ->expects($this->once())
             ->method('render')
             ->with('home.index', ['name' => 'John'])
             ->willReturn('<html>Hello John</html>');
 
-        $view = new View('home.index', $this->renderer);
+        $view = new View('home.index', $renderer);
         $view->with('name', 'John');
         $response = $view->render();
 
@@ -135,13 +136,14 @@ class ViewTest extends TestCase
 
     public function testRenderWithEmptyData(): void
     {
-        $this->renderer
+        $renderer = $this->createMock(RendererContract::class);
+        $renderer
             ->expects($this->once())
             ->method('render')
             ->with('empty', [])
             ->willReturn('<html>Empty</html>');
 
-        $view = new View('empty', $this->renderer);
+        $view = new View('empty', $renderer);
         $response = $view->render();
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
@@ -157,12 +159,13 @@ class ViewTest extends TestCase
             'array' => [1, 2, 3],
         ];
 
-        $this->renderer
+        $renderer = $this->createMock(RendererContract::class);
+        $renderer
             ->expects($this->once())
             ->method('render')
             ->with('test', $data);
 
-        $view = new View('test', $this->renderer);
+        $view = new View('test', $renderer);
         foreach ($data as $key => $value) {
             $view->with($key, $value);
         }

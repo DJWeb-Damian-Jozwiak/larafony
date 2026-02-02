@@ -43,7 +43,7 @@ final class FileHandlerTest extends TestCase
     #[Test]
     public function it_creates_log_file_if_not_exists(): void
     {
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('Log entry');
 
         $handler = new FileHandler($this->logPath, $formatter);
@@ -57,7 +57,7 @@ final class FileHandlerTest extends TestCase
     #[Test]
     public function it_writes_formatted_message_to_file(): void
     {
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('Formatted log entry');
 
         $handler = new FileHandler($this->logPath, $formatter);
@@ -72,7 +72,7 @@ final class FileHandlerTest extends TestCase
     #[Test]
     public function it_appends_to_existing_file(): void
     {
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturnOnConsecutiveCalls('Entry 1', 'Entry 2');
 
         $handler = new FileHandler($this->logPath, $formatter);
@@ -88,7 +88,7 @@ final class FileHandlerTest extends TestCase
     public function it_creates_directory_if_not_exists(): void
     {
         $nestedPath = $this->tempDir . '/nested/dir/test.log';
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('Log entry');
 
         $handler = new FileHandler($nestedPath, $formatter);
@@ -108,7 +108,7 @@ final class FileHandlerTest extends TestCase
     #[Test]
     public function it_checks_rotation_before_writing(): void
     {
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('Entry');
 
         $rotator = $this->createMock(RotatorContract::class);
@@ -126,7 +126,7 @@ final class FileHandlerTest extends TestCase
     {
         file_put_contents($this->logPath, 'Old content');
 
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('New entry');
 
         $rotatedPath = $this->logPath . '.old';
@@ -149,7 +149,7 @@ final class FileHandlerTest extends TestCase
     #[Test]
     public function it_sets_file_permissions(): void
     {
-        $formatter = $this->createMock(FormatterContract::class);
+        $formatter = $this->createStub(FormatterContract::class);
         $formatter->method('format')->willReturn('Entry');
 
         $handler = new FileHandler($this->logPath, $formatter);

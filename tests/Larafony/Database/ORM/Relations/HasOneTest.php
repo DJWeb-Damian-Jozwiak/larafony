@@ -18,8 +18,8 @@ class HasOneTest extends TestCase
     protected function setUp(): void
     {
         // Setup DB facade
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -39,7 +39,7 @@ class HasOneTest extends TestCase
             ->method('where')
             ->with('user_id', '=', 10);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -55,14 +55,14 @@ class HasOneTest extends TestCase
 
     public function testGetRelatedReturnsHydratedModel(): void
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('first')->willReturn([
             'id' => 1,
             'bio' => 'Test bio',
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -89,11 +89,11 @@ class HasOneTest extends TestCase
 
     public function testGetRelatedReturnsNullWhenNoResult(): void
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('first')->willReturn(null);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

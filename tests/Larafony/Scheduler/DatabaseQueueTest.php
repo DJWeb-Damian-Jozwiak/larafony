@@ -16,12 +16,11 @@ use Larafony\Framework\Scheduler\Queue\DatabaseQueue;
 use Larafony\Framework\Tests\TestCase;
 use Larafony\Framework\Tests\Helpers\TestJob;
 use Larafony\Framework\Web\Application;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class DatabaseQueueTest extends TestCase
 {
     private TestJob $job;
-    private DatabaseManager $dbManager;
-    private QueryBuilder $queryBuilder;
 
     protected function setUp(): void
     {
@@ -34,13 +33,6 @@ class DatabaseQueueTest extends TestCase
 
         // Set a fixed test time
         ClockFactory::freeze(new DateTimeImmutable('2024-01-01 12:00:00'));
-
-        // Setup DB facade with mocks
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
-        $this->dbManager = $this->createMock(DatabaseManager::class);
-        $this->dbManager->method('table')->willReturn($this->queryBuilder);
-        Application::instance()->set(DatabaseManager::class, $this->dbManager);
-        DB::withManager($this->dbManager);
     }
 
     protected function tearDown(): void
@@ -49,10 +41,22 @@ class DatabaseQueueTest extends TestCase
         parent::tearDown();
     }
 
+    private function setUpDbWithMock(): QueryBuilder&MockObject
+    {
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $dbManager = $this->createStub(DatabaseManager::class);
+        $dbManager->method('table')->willReturn($queryBuilder);
+        Application::instance()->set(DatabaseManager::class, $dbManager);
+        DB::withManager($dbManager);
+        return $queryBuilder;
+    }
+
     public function testPush(): void
     {
+        $queryBuilder = $this->setUpDbWithMock();
+
         // Mock successful insert
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('insertGetId')
             ->with($this->callback(function($data) {
                 return isset($data['payload'])
@@ -70,10 +74,11 @@ class DatabaseQueueTest extends TestCase
 
     public function testLater(): void
     {
+        $queryBuilder = $this->setUpDbWithMock();
         $delay = new DateTime('2024-01-01 14:00:00');
 
         // Mock successful insert with delayed time
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('insertGetId')
             ->with($this->callback(function($data) use ($delay) {
                 return isset($data['payload'])
@@ -89,13 +94,13 @@ class DatabaseQueueTest extends TestCase
 
     public function testDelete(): void
     {
+        $queryBuilder = $this->createMock(QueryBuilder::class);
         // Mock finding the job
-        $this->queryBuilder->expects($this->any())
-            ->method('where')
+        $queryBuilder->method('where')
             ->with('id', '=', '123')
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('first')
             ->willReturn([
                 'id' => 123,
@@ -108,9 +113,13 @@ class DatabaseQueueTest extends TestCase
             ]);
 
         // Mock delete
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('delete')
             ->willReturn(1);
+
+        $dbManager = $this->createStub(DatabaseManager::class);
+        $dbManager->method('table')->willReturn($queryBuilder);
+        DB::withManager($dbManager);
 
         $queue = new DatabaseQueue();
         $queue->delete('123');
@@ -120,12 +129,14 @@ class DatabaseQueueTest extends TestCase
 
     public function testSize(): void
     {
+        $queryBuilder = $this->setUpDbWithMock();
+
         // Mock count query
-        $this->queryBuilder->expects($this->exactly(2))
+        $queryBuilder->expects($this->exactly(2))
             ->method('where')
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('count')
             ->willReturn(3);
 
@@ -137,17 +148,17 @@ class DatabaseQueueTest extends TestCase
 
     public function testPop(): void
     {
+        $queryBuilder = $this->createMock(QueryBuilder::class);
         // Mock finding and deleting job
-        $this->queryBuilder->expects($this->any())
-            ->method('where')
+        $queryBuilder->method('where')
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('orderBy')
             ->with('available_at', OrderDirection::ASC)
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('first')
             ->willReturn([
                 'id' => 123,
@@ -159,9 +170,13 @@ class DatabaseQueueTest extends TestCase
                 'created_at' => '2024-01-01 12:00:00',
             ]);
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('delete')
             ->willReturn(1);
+
+        $dbManager = $this->createStub(DatabaseManager::class);
+        $dbManager->method('table')->willReturn($queryBuilder);
+        DB::withManager($dbManager);
 
         $queue = new DatabaseQueue();
         $job = $queue->pop();
@@ -172,17 +187,19 @@ class DatabaseQueueTest extends TestCase
 
     public function testPopEmptyQueue(): void
     {
+        $queryBuilder = $this->setUpDbWithMock();
+
         // Mock empty result
-        $this->queryBuilder->expects($this->exactly(2))
+        $queryBuilder->expects($this->exactly(2))
             ->method('where')
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('orderBy')
             ->with('available_at', OrderDirection::ASC)
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('first')
             ->willReturn(null);
 
@@ -194,21 +211,23 @@ class DatabaseQueueTest extends TestCase
 
     public function testPopRespectsAvailableAt(): void
     {
+        $queryBuilder = $this->setUpDbWithMock();
+
         // Mock query that filters by available_at
-        $this->queryBuilder->expects($this->exactly(2))
+        $queryBuilder->expects($this->exactly(2))
             ->method('where')
-            ->willReturnCallback(function($column, $operator, $value) {
+            ->willReturnCallback(function($column, $operator, $value) use ($queryBuilder) {
                 if ($column === 'available_at' && $operator === '<=') {
                     $this->assertInstanceOf(DateTimeImmutable::class, $value);
                 }
-                return $this->queryBuilder;
+                return $queryBuilder;
             });
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('orderBy')
             ->willReturnSelf();
 
-        $this->queryBuilder->expects($this->once())
+        $queryBuilder->expects($this->once())
             ->method('first')
             ->willReturn(null); // No jobs available yet
 

@@ -19,8 +19,8 @@ class EntityInserterTest extends TestCase
     protected function setUp(): void
     {
         // Setup DB facade before creating model
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -40,8 +40,8 @@ class EntityInserterTest extends TestCase
 
         $this->inserter = new EntityInserter($this->model);
 
-        // Setup DB facade with mock
-        $manager = $this->createMock(DatabaseManager::class);
+        // Setup DB facade with stub
+        $manager = $this->createStub(DatabaseManager::class);
         DB::withManager($manager);
     }
 

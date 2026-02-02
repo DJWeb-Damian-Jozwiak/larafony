@@ -18,7 +18,7 @@ class SchemaBuilderTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = $this->createMock(ConnectionContract::class);
+        $this->connection = $this->createStub(ConnectionContract::class);
         $this->builder = new SchemaBuilder($this->connection);
     }
 
@@ -141,29 +141,34 @@ class SchemaBuilderTest extends TestCase
     {
         $sql = 'CREATE TABLE test (id INT)';
 
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('query')
             ->with($sql);
 
-        $result = $this->builder->execute($sql);
+        $builder = new SchemaBuilder($connection);
+        $result = $builder->execute($sql);
 
         $this->assertTrue($result);
     }
 
     public function testCreateAndExecute(): void
     {
-        $sql = $this->builder->create('users', function ($table) {
+        $connection = $this->createMock(ConnectionContract::class);
+        $builder = new SchemaBuilder($connection);
+
+        $sql = $builder->create('users', function ($table) {
             $table->id();
             $table->string('name');
         });
 
-        $this->connection
+        $connection
             ->expects($this->once())
             ->method('query')
             ->with($sql);
 
-        $this->builder->execute($sql);
+        $builder->execute($sql);
     }
 
     public function testMultipleIndexes(): void

@@ -54,7 +54,7 @@ final class MigrateTest extends TestCase
             ->method('info')
             ->with('Nothing to migrate');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         // Create a migration file but mark it as already ran
@@ -95,7 +95,7 @@ PHP);
             ->method('info')
             ->with('Migrated: 2024_01_01_000000_create_users');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $migrationName = '2024_01_01_000000_create_users';
@@ -135,7 +135,7 @@ PHP);
         // Expect only 2 migrations (step = 2)
         $output->expects($this->exactly(2))->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         // Create 3 migrations
@@ -193,7 +193,7 @@ PHP);
             ->method('info')
             ->with('Migrated: 2024_01_02_000000_create_posts');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         // Create two migrations, but one is already ran

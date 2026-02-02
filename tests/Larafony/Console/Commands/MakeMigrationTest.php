@@ -54,7 +54,7 @@ final class MakeMigrationTest extends TestCase
 
     public function testMakeMigrationCreatesFileWithTimestamp(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('database.migrations.path', 'database/migrations/')
             ->willReturn($this->tempDir);
@@ -64,7 +64,7 @@ final class MakeMigrationTest extends TestCase
             ->method('info')
             ->with($this->stringContains('2024_01_15_103045_create_users_table.php'));
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -96,7 +96,7 @@ final class MakeMigrationTest extends TestCase
 
     public function testMakeMigrationAppendsTableSuffixIfMissing(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('database.migrations.path', 'database/migrations/')
             ->willReturn($this->tempDir);
@@ -106,7 +106,7 @@ final class MakeMigrationTest extends TestCase
             ->method('info')
             ->with($this->stringContains('2024_01_15_103045_create_posts_table.php'));
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -130,7 +130,7 @@ final class MakeMigrationTest extends TestCase
 
     public function testMakeMigrationDoesNotDuplicateTableSuffix(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('database.migrations.path', 'database/migrations/')
             ->willReturn($this->tempDir);
@@ -140,7 +140,7 @@ final class MakeMigrationTest extends TestCase
             ->method('info')
             ->with($this->stringContains('2024_01_15_103045_create_comments_table.php'));
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -171,7 +171,7 @@ final class MakeMigrationTest extends TestCase
         $customPath = $this->tempDir . '/custom/migrations';
         mkdir($customPath, 0777, true);
 
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('database.migrations.path', 'database/migrations/')
             ->willReturn($customPath);
@@ -179,7 +179,7 @@ final class MakeMigrationTest extends TestCase
         $output = $this->createMock(Output::class);
         $output->expects($this->once())->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -203,7 +203,7 @@ final class MakeMigrationTest extends TestCase
     public function testMakeMigrationTimestampChangesWithTime(): void
     {
         // First migration at 10:30:45
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('database.migrations.path', 'database/migrations/')
             ->willReturn($this->tempDir);
@@ -211,7 +211,7 @@ final class MakeMigrationTest extends TestCase
         $output = $this->createMock(Output::class);
         $output->expects($this->once())->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -232,7 +232,7 @@ final class MakeMigrationTest extends TestCase
         $output2 = $this->createMock(Output::class);
         $output2->expects($this->once())->method('info');
 
-        $container2 = $this->createMock(Container::class);
+        $container2 = $this->createStub(Container::class);
         $container2->method('get')->willReturnMap([
             [Output::class, $output2],
             [ConfigContract::class, $config],

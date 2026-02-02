@@ -16,8 +16,8 @@ final class OptionResolverTest extends TestCase
 {
     public function testResolvesOptionsFromInput(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
+        $container = $this->createStub(ContainerContract::class);
+        $command = new class ($this->createStub(OutputContract::class), $container) extends Command {
             #[CommandOption(name: 'verbose')]
             public bool $verbose = false;
 
@@ -37,8 +37,8 @@ final class OptionResolverTest extends TestCase
 
     public function testResolvesMultipleOptions(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
+        $container = $this->createStub(ContainerContract::class);
+        $command = new class ($this->createStub(OutputContract::class), $container) extends Command {
             #[CommandOption(name: 'verbose')]
             public bool $verbose = false;
 
@@ -64,8 +64,8 @@ final class OptionResolverTest extends TestCase
 
     public function testSkipsPropertiesWithoutAttribute(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
+        $container = $this->createStub(ContainerContract::class);
+        $command = new class ($this->createStub(OutputContract::class), $container) extends Command {
             #[CommandOption(name: 'verbose')]
             public bool $verbose = false;
 
@@ -88,8 +88,8 @@ final class OptionResolverTest extends TestCase
 
     public function testHandlesNullableOptions(): void
     {
-        $container = $this->createMock(ContainerContract::class);
-        $command = new class ($this->createMock(OutputContract::class), $container) extends Command {
+        $container = $this->createStub(ContainerContract::class);
+        $command = new class ($this->createStub(OutputContract::class), $container) extends Command {
             #[CommandOption(name: 'optional')]
             public ?string $optional = null;
 

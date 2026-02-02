@@ -15,7 +15,7 @@ class ConsoleFactoryTest extends TestCase
     public function testCreateRenderer()
     {
         $container = Application::instance() ;
-        $output = $this->createMock(OutputContract::class);
+        $output = $this->createStub(OutputContract::class);
         $container->set(OutputContract::class, $output);
         $renderer = new ConsoleRendererFactory($container)->create();
         $this->assertInstanceOf(ConsoleRenderer::class, $renderer);

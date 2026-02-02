@@ -26,11 +26,11 @@ class RelationFactoryTest extends TestCase
     protected function setUp(): void
     {
         // Setup DB facade BEFORE creating models
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('join')->willReturnSelf();
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

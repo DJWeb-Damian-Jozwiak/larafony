@@ -26,8 +26,8 @@ class HasManyTest extends TestCase
         $this->parent->id = 10;
 
         // Setup DB facade
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $manager = $this->createMock(DatabaseManager::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
     }
@@ -39,7 +39,7 @@ class HasManyTest extends TestCase
             ->method('where')
             ->with('user_id', '=', 10);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -55,14 +55,14 @@ class HasManyTest extends TestCase
 
     public function testGetRelatedReturnsArrayOfHydratedModels(): void
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
             ['id' => 1, 'title' => 'Post 1'],
             ['id' => 2, 'title' => 'Post 2'],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

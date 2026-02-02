@@ -34,7 +34,7 @@ class KernelTest extends TestCase
         $this->streamFactory = new StreamFactory();
 
         // Create fresh instances for each test to avoid state pollution
-        $container = $this->createMock(ContainerContract::class);
+        $container = $this->createStub(ContainerContract::class);
         $arrayFactory = new ArrayHandlerFactory($container);
         $stringFactory = new StringHandlerFactory($container);
         $factory = new RouteHandlerFactory($arrayFactory, $stringFactory);

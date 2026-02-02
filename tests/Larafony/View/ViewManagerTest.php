@@ -8,16 +8,17 @@ use Larafony\Framework\View\Contracts\RendererContract;
 use Larafony\Framework\View\Contracts\ViewContract;
 use Larafony\Framework\View\View;
 use Larafony\Framework\View\ViewManager;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class ViewManagerTest extends TestCase
 {
-    private RendererContract $renderer;
+    private RendererContract&Stub $renderer;
     private ViewManager $viewManager;
 
     protected function setUp(): void
     {
-        $this->renderer = $this->createMock(RendererContract::class);
+        $this->renderer = $this->createStub(RendererContract::class);
         $this->viewManager = new ViewManager($this->renderer);
     }
 
@@ -62,12 +63,12 @@ class ViewManagerTest extends TestCase
         $this->expectExceptionMessage('Cannot modify protected(set) property');
 
         /** @phpstan-ignore-next-line */
-        $this->viewManager->renderer = $this->createMock(RendererContract::class);
+        $this->viewManager->renderer = $this->createStub(RendererContract::class);
     }
 
     public function testWithRendererCreatesNewInstance(): void
     {
-        $newRenderer = $this->createMock(RendererContract::class);
+        $newRenderer = $this->createStub(RendererContract::class);
         $newManager = $this->viewManager->withRenderer($newRenderer);
 
         $this->assertNotSame($this->viewManager, $newManager);
@@ -78,7 +79,7 @@ class ViewManagerTest extends TestCase
     public function testWithRendererIsImmutable(): void
     {
         $originalRenderer = $this->viewManager->renderer;
-        $newRenderer = $this->createMock(RendererContract::class);
+        $newRenderer = $this->createStub(RendererContract::class);
 
         $this->viewManager->withRenderer($newRenderer);
 

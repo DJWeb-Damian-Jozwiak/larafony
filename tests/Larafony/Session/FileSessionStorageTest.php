@@ -21,7 +21,7 @@ class FileSessionStorageTest extends TestCase
         parent::setUp();
         $this->app = Application::instance();
 
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')->willReturn(new KeyGenerator()->generateKey());
         $this->app->set(ConfigContract::class, $config);
 

@@ -58,7 +58,7 @@ final class DetailedErrorHandlerTest extends TestCase
 
     public function testRegisterCanBeCalled(): void
     {
-        $contract = $this->createMock(RendererContract::class);
+        $contract = $this->createStub(RendererContract::class);
         $viewManager = new ViewManager($contract);
         $handler = new DetailedErrorHandler($viewManager);
 

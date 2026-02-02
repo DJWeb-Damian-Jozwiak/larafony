@@ -28,7 +28,7 @@ final class ServerTest extends TestCase
 
     public function testRegistersEventListener(): void
     {
-        $engine = $this->createMock(EngineContract::class);
+        $engine = $this->createStub(EngineContract::class);
         $server = new Server($engine);
 
         $server->on('message', fn () => null);
@@ -59,7 +59,7 @@ final class ServerTest extends TestCase
 
     public function testGetConnectionsReturnsStorage(): void
     {
-        $engine = $this->createMock(EngineContract::class);
+        $engine = $this->createStub(EngineContract::class);
         $server = new Server($engine);
 
         $connections = $server->getConnections();
@@ -69,7 +69,7 @@ final class ServerTest extends TestCase
 
     public function testBroadcastWithNoConnections(): void
     {
-        $engine = $this->createMock(EngineContract::class);
+        $engine = $this->createStub(EngineContract::class);
         $server = new Server($engine);
 
         $server->broadcast('test message');
@@ -79,7 +79,7 @@ final class ServerTest extends TestCase
 
     public function testBroadcastWithFilter(): void
     {
-        $engine = $this->createMock(EngineContract::class);
+        $engine = $this->createStub(EngineContract::class);
         $server = new Server($engine);
 
         $server->broadcast('test', fn () => false);
@@ -91,7 +91,7 @@ final class ServerTest extends TestCase
     {
         $handlers = [];
 
-        $engine = $this->createMock(EngineContract::class);
+        $engine = $this->createStub(EngineContract::class);
         $engine->method('onConnection')->willReturnCallback(function (Closure $handler) use (&$handlers): void {
             $handlers['connection'] = $handler;
         });

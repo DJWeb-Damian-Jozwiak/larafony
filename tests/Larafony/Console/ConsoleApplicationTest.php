@@ -21,8 +21,8 @@ class ConsoleApplicationTest extends TestCase
             HttpServiceProvider::class,
             ConsoleServiceProvider::class
         ]);
-        $outputStream = $this->createMock(StreamInterface::class);
-        $input = $this->createMock(StreamInterface::class);
+        $outputStream = $this->createStub(StreamInterface::class);
+        $input = $this->createStub(StreamInterface::class);
         $app->set('output_stream', $outputStream);
         $app->set('input_stream', $input);
 

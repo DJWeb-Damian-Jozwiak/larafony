@@ -45,7 +45,7 @@ class UploadedFileFactoryTest extends TestCase
 
     public function testCreateUploadedFileWithValidStream(): void
     {
-        $stream = $this->createMock(StreamInterface::class);
+        $stream = $this->createStub(StreamInterface::class);
         $stream->method('getSize')->willReturn(123);
 
         $file = new UploadedFileFactory()->createUploadedFile(

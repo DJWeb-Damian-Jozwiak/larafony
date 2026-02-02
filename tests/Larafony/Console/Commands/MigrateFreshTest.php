@@ -26,7 +26,7 @@ final class MigrateFreshTest extends TestCase
         mkdir($this->migrationPath, 0777, true);
 
         // Setup Schema facade with mock manager
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         Schema::withManager($manager);
     }
 
@@ -70,7 +70,7 @@ final class MigrateFreshTest extends TestCase
                 $this->assertEquals('Nothing to migrate', $message);
             });
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);
@@ -124,7 +124,7 @@ PHP);
         // Expect 2 "Dropped" + 1 "Migrated" = 3 messages
         $output->expects($this->exactly(3))->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);
@@ -185,7 +185,7 @@ PHP);
         // Expect: 1 "Dropped" + 2 "Migrated" = 3 messages
         $output->expects($this->exactly(3))->method('info');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturn($output);
 
         $resolver = new MigrationResolver($this->migrationPath);

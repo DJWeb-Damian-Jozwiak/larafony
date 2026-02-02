@@ -75,7 +75,7 @@ final class FallbackErrorHandlerTest extends TestCase
 
     public function testRegisterCanBeCalled(): void
     {
-        $contract = $this->createMock(RendererContract::class);
+        $contract = $this->createStub(RendererContract::class);
         $viewManager = new ViewManager($contract);
         $handler = new FallbackErrorHandler($viewManager);
 

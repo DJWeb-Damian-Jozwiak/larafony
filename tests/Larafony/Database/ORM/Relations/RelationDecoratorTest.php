@@ -19,14 +19,14 @@ class RelationDecoratorTest extends TestCase
 {
     protected function setUp(): void
     {
-        // Setup DB facade with mock
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        // Setup DB facade with stub
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
             ['id' => 1, 'title' => 'Test Post'],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
     }
@@ -47,15 +47,15 @@ class RelationDecoratorTest extends TestCase
 
         $model->id = 1;
 
-        // Mock QueryBuilder to return posts data
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        // Stub QueryBuilder to return posts data
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
             ['id' => 10, 'title' => 'Post 1', 'user_id' => 1],
             ['id' => 11, 'title' => 'Post 2', 'user_id' => 1],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -103,7 +103,7 @@ class RelationDecoratorTest extends TestCase
                 ['id' => 5, 'name' => 'John Doe']
             ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -134,8 +134,8 @@ class RelationDecoratorTest extends TestCase
 
         $model->id = 1;
 
-        // Mock QueryBuilder for BelongsToMany (uses join)
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        // Stub QueryBuilder for BelongsToMany (uses join)
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('join')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
@@ -143,7 +143,7 @@ class RelationDecoratorTest extends TestCase
             ['id' => 2, 'name' => 'Editor'],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 
@@ -178,8 +178,8 @@ class RelationDecoratorTest extends TestCase
 
         $model->id = 1;
 
-        // Mock QueryBuilder for HasManyThrough (uses join)
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        // Stub QueryBuilder for HasManyThrough (uses join)
+        $queryBuilder = $this->createStub(QueryBuilder::class);
         $queryBuilder->method('where')->willReturnSelf();
         $queryBuilder->method('join')->willReturnSelf();
         $queryBuilder->method('get')->willReturn([
@@ -187,7 +187,7 @@ class RelationDecoratorTest extends TestCase
             ['id' => 2, 'title' => 'Post 2', 'user_id' => 2],
         ]);
 
-        $manager = $this->createMock(DatabaseManager::class);
+        $manager = $this->createStub(DatabaseManager::class);
         $manager->method('table')->willReturn($queryBuilder);
         DB::withManager($manager);
 

@@ -17,7 +17,7 @@ class DatabaseManagerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mockConnection = $this->createMock(ConnectionContract::class);
+        $this->mockConnection = $this->createStub(ConnectionContract::class);
         // connect() returns void, don't specify willReturn
 
         // Create a testable DatabaseManager with mocked connection
@@ -66,7 +66,7 @@ class DatabaseManagerTest extends TestCase
 
     public function testTableWithDifferentConnection(): void
     {
-        $mockConnection2 = $this->createMock(ConnectionContract::class);
+        $mockConnection2 = $this->createStub(ConnectionContract::class);
 
         $manager = new class ([
             'mysql' => ['driver' => 'mysql', 'host' => 'localhost', 'database' => 'db1'],

@@ -7,16 +7,17 @@ namespace Larafony\Framework\Tests\Database\Query;
 use Larafony\Framework\Database\Base\Contracts\ConnectionContract;
 use Larafony\Framework\Database\Base\Query\Enums\OrderDirection;
 use Larafony\Framework\Database\Drivers\MySQL\QueryBuilder;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class QueryBuilderTest extends TestCase
 {
-    private ConnectionContract $connection;
+    private ConnectionContract&Stub $connection;
     private QueryBuilder $builder;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(ConnectionContract::class);
+        $this->connection = $this->createStub(ConnectionContract::class);
         $this->connection->method('quote')->willReturnCallback(
             fn (int|float|string|bool|null $value): string => match (true) {
                 is_string($value) => "'" . addslashes($value) . "'",
@@ -540,13 +541,23 @@ class QueryBuilderTest extends TestCase
             ['id' => 2, 'name' => 'Jane'],
         ];
 
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection->method('quote')->willReturnCallback(
+            fn (int|float|string|bool|null $value): string => match (true) {
+                is_string($value) => "'" . addslashes($value) . "'",
+                is_bool($value) => $value ? '1' : '0',
+                is_null($value) => 'NULL',
+                default => (string) $value,
+            }
+        );
+        $connection
             ->expects($this->once())
             ->method('select')
             ->with('SELECT * FROM users WHERE status = ?', ['active'])
             ->willReturn($data);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->select(['*'])
             ->where('status', '=', 'active')
@@ -560,13 +571,15 @@ class QueryBuilderTest extends TestCase
     {
         $data = [['id' => 1, 'name' => 'John']];
 
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('select')
             ->with('SELECT * FROM users WHERE status = ? LIMIT 1', ['active'])
             ->willReturn($data);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->select(['*'])
             ->where('status', '=','active')
@@ -578,12 +591,14 @@ class QueryBuilderTest extends TestCase
 
     public function testFirstReturnsNullWhenNoResults(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('select')
             ->willReturn([]);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->select(['*'])
             ->where('status', '=','inactive')
@@ -594,13 +609,15 @@ class QueryBuilderTest extends TestCase
 
     public function testCount(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('select')
             ->with('SELECT COUNT(*) as aggregate FROM users WHERE status = ? LIMIT 1', ['active'])
             ->willReturn([['aggregate' => '42']]);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->where('status', '=','active')
             ->count();
@@ -610,13 +627,15 @@ class QueryBuilderTest extends TestCase
 
     public function testCountWithColumn(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('select')
             ->with('SELECT COUNT(id) as aggregate FROM users LIMIT 1', [])
             ->willReturn([['aggregate' => '10']]);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->count('id');
 
@@ -625,7 +644,8 @@ class QueryBuilderTest extends TestCase
 
     public function testInsert(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('execute')
             ->with(
@@ -634,7 +654,8 @@ class QueryBuilderTest extends TestCase
             )
             ->willReturn(1);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->insert(['name' => 'John Doe', 'email' => 'john@example.com']);
 
@@ -643,17 +664,19 @@ class QueryBuilderTest extends TestCase
 
     public function testInsertGetId(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('execute')
             ->willReturn(1);
 
-        $this->connection
+        $connection
             ->expects($this->once())
             ->method('getLastInsertId')
             ->willReturn('123');
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->insertGetId(['name' => 'John Doe', 'email' => 'john@example.com']);
 
@@ -662,7 +685,8 @@ class QueryBuilderTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('execute')
             ->with(
@@ -671,7 +695,8 @@ class QueryBuilderTest extends TestCase
             )
             ->willReturn(3);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->where('role', '=','admin')
             ->update(['status' => 'inactive']);
@@ -681,7 +706,8 @@ class QueryBuilderTest extends TestCase
 
     public function testDelete(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('execute')
             ->with(
@@ -690,7 +716,8 @@ class QueryBuilderTest extends TestCase
             )
             ->willReturn(5);
 
-        $result = $this->builder
+        $builder = new QueryBuilder($connection);
+        $result = $builder
             ->table('users')
             ->where('status', '=','deleted')
             ->delete();
@@ -700,12 +727,14 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithStringValues(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->exactly(2))
             ->method('quote')
             ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('name', '=', 'John Doe')
@@ -717,12 +746,14 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithSqlInjectionAttempt(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('quote')
             ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('name', '=', "Robert'; DROP TABLE users; --")
@@ -734,7 +765,8 @@ class QueryBuilderTest extends TestCase
     public function testToRawSqlWithMixedTypes(): void
     {
         $callCount = 0;
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->exactly(3))
             ->method('quote')
             ->willReturnCallback(function ($value) use (&$callCount) {
@@ -749,7 +781,8 @@ class QueryBuilderTest extends TestCase
                 return '1';
             });
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('name', '=', 'John')
@@ -762,13 +795,15 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithNull(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('quote')
             ->with(null)
             ->willReturn('NULL');
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('deleted_at', '=', null)
@@ -779,12 +814,14 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithWhereIn(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->exactly(3))
             ->method('quote')
             ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->whereIn('status', ['active', 'pending', 'verified'])
@@ -795,12 +832,14 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithComplexQuery(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->exactly(3))
             ->method('quote')
             ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('status', '=', 'active')
@@ -816,7 +855,8 @@ class QueryBuilderTest extends TestCase
     public function testToRawSqlWithUpdateQuery(): void
     {
         $callCount = 0;
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->exactly(2))
             ->method('quote')
             ->willReturnCallback(function ($value) use (&$callCount) {
@@ -828,7 +868,7 @@ class QueryBuilderTest extends TestCase
                 return '5';
             });
 
-        $builder = $this->builder
+        $builder = (new QueryBuilder($connection))
             ->table('users')
             ->where('id', '=', 5);
 
@@ -845,12 +885,14 @@ class QueryBuilderTest extends TestCase
 
     public function testToRawSqlWithQuotesInString(): void
     {
-        $this->connection
+        $connection = $this->createMock(ConnectionContract::class);
+        $connection
             ->expects($this->once())
             ->method('quote')
             ->willReturnCallback(fn ($value) => "'" . addslashes((string) $value) . "'");
 
-        $sql = $this->builder
+        $builder = new QueryBuilder($connection);
+        $sql = $builder
             ->table('users')
             ->select(['*'])
             ->where('name', '=', "O'Reilly")

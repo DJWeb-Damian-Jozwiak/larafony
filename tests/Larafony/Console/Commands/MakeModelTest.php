@@ -62,7 +62,7 @@ final class MakeModelTest extends TestCase
 
     public function testMakeModelCreatesModelFile(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('app.models.path', 'src/Models/')
             ->willReturn($this->tempModelsDir . '/');
@@ -72,9 +72,9 @@ final class MakeModelTest extends TestCase
             ->method('info')
             ->with($this->stringContains('App\Models\User'));
 
-        $commandCaller = $this->createMock(CommandCaller::class);
+        $commandCaller = $this->createStub(CommandCaller::class);
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -105,7 +105,7 @@ final class MakeModelTest extends TestCase
 
     public function testMakeModelWithMigrationOptionCallsMakeMigration(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')->willReturnCallback(function ($key, $default) {
             return match ($key) {
                 'app.models.path' => $this->tempModelsDir . '/',
@@ -114,14 +114,14 @@ final class MakeModelTest extends TestCase
             };
         });
 
-        $output = $this->createMock(Output::class);
+        $output = $this->createStub(Output::class);
 
         // Create real CommandRegistry and register MakeMigration
         $registry = new CommandRegistry();
         $registry->register('make:migration', MakeMigration::class);
 
-        // Mock container that can resolve dependencies
-        $container = $this->createMock(\Larafony\Framework\Container\Contracts\ContainerContract::class);
+        // Stub container that can resolve dependencies
+        $container = $this->createStub(\Larafony\Framework\Container\Contracts\ContainerContract::class);
         $container->method('get')->willReturnCallback(function ($id) use ($output, $config, $registry) {
             return match ($id) {
                 Output::class => $output,
@@ -177,7 +177,7 @@ final class MakeModelTest extends TestCase
 
     private function createModelContainer(Output $output, ConfigContract $config): \Larafony\Framework\Container\Contracts\ContainerContract
     {
-        $container = $this->createMock(\Larafony\Framework\Container\Contracts\ContainerContract::class);
+        $container = $this->createStub(\Larafony\Framework\Container\Contracts\ContainerContract::class);
         $container->method('get')->willReturnCallback(function ($id) use ($output, $config) {
             return match ($id) {
                 Output::class => $output,
@@ -190,15 +190,15 @@ final class MakeModelTest extends TestCase
 
     public function testMakeModelConvertsModelNameToTableName(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('app.models.path', 'src/Models/')
             ->willReturn($this->tempModelsDir . '/');
 
-        $output = $this->createMock(Output::class);
-        $commandCaller = $this->createMock(CommandCaller::class);
+        $output = $this->createStub(Output::class);
+        $commandCaller = $this->createStub(CommandCaller::class);
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
@@ -222,17 +222,17 @@ final class MakeModelTest extends TestCase
 
     public function testMakeModelWithoutMigrationOptionDoesNotCreateMigration(): void
     {
-        $config = $this->createMock(ConfigContract::class);
+        $config = $this->createStub(ConfigContract::class);
         $config->method('get')
             ->with('app.models.path', 'src/Models/')
             ->willReturn($this->tempModelsDir . '/');
 
-        $output = $this->createMock(Output::class);
+        $output = $this->createStub(Output::class);
 
         $commandCaller = $this->createMock(CommandCaller::class);
         $commandCaller->expects($this->never())->method('call');
 
-        $container = $this->createMock(Container::class);
+        $container = $this->createStub(Container::class);
         $container->method('get')->willReturnMap([
             [Output::class, $output],
             [ConfigContract::class, $config],
