@@ -113,4 +113,12 @@ final class ClockFactory
     {
         return self::instance()->parse($date);
     }
+
+    /**
+     * Get an Instant representing the current time.
+     */
+    public static function instant(): Instant
+    {
+        return Instant::fromDateTime(self::now());
+    }
 }
