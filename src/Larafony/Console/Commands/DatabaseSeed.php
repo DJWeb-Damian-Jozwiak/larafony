@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Larafony\Framework\Console\Commands;
 
+use Larafony\Framework\Config\Contracts\ConfigContract;
 use Larafony\Framework\Console\Attributes\AsCommand;
 use Larafony\Framework\Console\Attributes\CommandArgument;
 use Larafony\Framework\Console\Command;
 use Larafony\Framework\Database\Base\Seeder;
-use Larafony\Framework\Web\Config;
 
 #[AsCommand(name: 'database:seed')]
 class DatabaseSeed extends Command
@@ -18,8 +18,9 @@ class DatabaseSeed extends Command
 
     public function run(): int
     {
-        $seederNamespace = Config::get('app.seeder_namespace', 'Database\\Seeders\\');
-        $rootNamespace = Config::get('app.root_namespace', 'App\\');
+        $config = $this->container->get(ConfigContract::class);
+        $seederNamespace = $config->get('app.seeder_namespace', 'Database\\Seeders') |> $this->normalizeNamespace(...);
+        $rootNamespace = $config->get('app.root_namespace', 'App') |> $this->normalizeNamespace(...);
         /** @var class-string<Seeder> $seederClass */
         $seederClass = $rootNamespace . $seederNamespace . $this->seeder;
 
@@ -39,5 +40,10 @@ class DatabaseSeed extends Command
     {
         /** @phpstan-ignore-next-line */
         return $this->container->getBinding('app.root_namespace');
+    }
+
+    private function normalizeNamespace(string $namespace): string
+    {
+        return rtrim($namespace, '\\') . '\\';
     }
 }
